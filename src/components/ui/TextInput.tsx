@@ -1,5 +1,7 @@
 import { View, Text, TextInput as TI, StyleProp, StyleSheet, ViewStyle, TextStyle } from 'react-native'
 import React from 'react'
+import { BorderRadius, BorderWidth, Colors, Fontsize, ShadowLight, Spacing } from '@/constants'
+import { Ionicons } from '@expo/vector-icons'
 
 interface TextInputProps extends React.ComponentProps<typeof TI>{
   label?: string
@@ -7,18 +9,47 @@ interface TextInputProps extends React.ComponentProps<typeof TI>{
   containerStyle?: StyleProp<ViewStyle>
   labelStyle?: StyleProp<TextStyle>
   textInputStyle?: StyleProp<TextStyle>
+  variant?: 'primary' | 'secondary'
+  iconName?: string
+  iconStyle?: StyleProp<TextStyle>
 }
 
-const TextInput = ({ label, placeholder, containerStyle, labelStyle, textInputStyle, ...TextInputProps }: TextInputProps) => {
+const TextInput = ({iconStyle, iconName,variant, label, placeholder, containerStyle, labelStyle, textInputStyle, ...TextInputProps }: TextInputProps) => {
+
+  const variantStyles: Record<string, StyleProp<ViewStyle>> = {
+    primary:{
+      backgroundColor: Colors.PrimaryLight[2],
+      borderWidth: BorderWidth.hairline,
+      borderColor: Colors.Primary[3],
+      borderRadius: BorderRadius.lg,
+      ...ShadowLight.xxl,
+      padding: Spacing.xs,
+      alignSelf: 'stretch',
+      width: '100%'
+    },
+    secondary: {
+      backgroundColor: Colors.Primary[3],
+      borderColor: Colors.PrimaryLight[2],
+      borderWidth: BorderWidth.hairline,
+      borderRadius: BorderRadius.lg,
+      ...ShadowLight.xxl,
+      padding: Spacing.xs,
+      alignSelf: 'stretch',
+      width: '100%'
+    },
+  }
   
   return (
-    <View style={[s.defaultStyle, containerStyle]}>
-      {label && <Text style={[s.defaultLabelStyle, labelStyle ]}>{label}</Text>}
-      <TI
-        style={[s.defaultTextInputStyle, textInputStyle]}
-        placeholder={placeholder ?? ''}
-        {...TextInputProps}
-      />
+    <View style={[ s.defaultStyle, variant && variantStyles[variant], containerStyle]}>
+        {label && <Text style={[s.defaultLabelStyle, labelStyle ]}>{label}</Text>}
+      <View style={s.inputRow}>
+        {iconName && <Ionicons name={iconName as any} style={[textInputStyle, s.icon, iconStyle ]}>{label}</Ionicons>}
+        <TI 
+          style={[s.defaultTextInputStyle, textInputStyle]}
+          placeholder={placeholder ?? ''}
+          {...TextInputProps}
+        />
+      </View>
     </View>
   )
 }
@@ -27,14 +58,25 @@ const s = StyleSheet.create({
   defaultStyle:{
     margin: 0,
     padding: 0,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  icon:{
+    fontSize: Fontsize.xxl
   },
   defaultLabelStyle:{
     margin: 0,
     padding: 0
   },
+  inputRow:{
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   defaultTextInputStyle:{
-    margin: 0,
-    padding: 0,
+    flex: 1,
+    // borderColor: 'red',
+    // borderWidth: 2,
   }
 })
 

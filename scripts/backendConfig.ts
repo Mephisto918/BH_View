@@ -18,7 +18,9 @@ function getBackendIP(){
 }
 
 const IP = getBackendIP();
-const PORT = 8000;
-const apiUrl = `http://${IP}:${PORT}`
+const env_port = 8000;
+const apiUrl = `http://${IP}:`
 
-fs.writeFileSync('.env', `EXPO_BASE_URL=${apiUrl}\n`);
+fs.writeFileSync('.env', `
+  EXPO_PUBLIC_BASE_URL=${apiUrl}\n
+  EXPO_PUBLIC_BACKEND_PORT=${env_port}`);

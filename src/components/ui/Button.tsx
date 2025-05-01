@@ -1,24 +1,52 @@
-import { View, Text, TouchableOpacity, ViewStyle, TextStyle, StyleProp, StyleSheet } from 'react-native'
+import { Text, TouchableOpacity, ViewStyle, TextStyle, StyleProp, StyleSheet } from 'react-native'
 import React from 'react'
-import { GlobalColors, GlobalFontSize, GlobalStyle } from '@/src/constants/Globals'
+import { BorderRadius, BorderWidth, Colors, Fontsize, ShadowLight, Spacing, GlobalStyle } from '@/constants'
 
 interface ButtonProps {
-  onPressLogin: () => void
+  onPressAction?: () => void
   title?: string
   containerStyle?: StyleProp<ViewStyle>
   textStyle?: StyleProp<TextStyle>
+  children?: React.ReactNode
+  variant?: 'primary' | 'secondary'
 }
 
-const Button = ({onPressLogin, title = 'Placeholder!', containerStyle, textStyle}: ButtonProps) => {
+const Button = ({variant, onPressAction, title, containerStyle, textStyle, children}: ButtonProps) => {
+
+  const variantStyles: Record<string, StyleProp<ViewStyle>> = {
+      primary:{
+        backgroundColor: Colors.PrimaryLight[2],
+        borderColor: Colors.PrimaryLight[7],
+        borderWidth: BorderWidth.md,
+        borderRadius: BorderRadius.lg,
+        ...ShadowLight.xxl,
+        padding: Spacing.sm,
+        alignSelf: 'stretch',
+        width: '100%'
+      },
+      secondary: {
+        backgroundColor: Colors.PrimaryLight[2],
+        borderWidth: BorderWidth.hairline,
+        borderColor: Colors.Primary[3],
+        borderRadius: BorderRadius.lg,
+        ...ShadowLight.xxl,
+        padding: Spacing.sm,
+        alignSelf: 'stretch',
+        width: '100%'
+      },
+    }
 
   return (
     <TouchableOpacity
-      onPress={onPressLogin} 
-      style={[s.defaultStyle, containerStyle]}
+      onPress={onPressAction} 
+      style={[s.defaultStyle, variant && variantStyles[variant], containerStyle]}
     >
-      <Text style={[GlobalStyle.GenericFont, s.defaultTextStyle, textStyle]}>
-        {title}
-      </Text>
+      {title && (
+        <Text style={[GlobalStyle.GenericFont, s.defaultTextStyle, textStyle]}>
+          {title}
+        </Text>
+      )}
+      {children}
     </TouchableOpacity>
   )
 }
@@ -38,8 +66,8 @@ const s = StyleSheet.create({
     margin: 'auto',
   },
   defaultTextStyle:{
-    color: GlobalColors.Text,
-    fontSize: GlobalFontSize.xl,
+    color: Colors.Text[2],
+    fontSize: Fontsize.xl,
     fontWeight: '700'
   }
 })

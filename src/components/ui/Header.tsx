@@ -1,6 +1,6 @@
 import { View, Text, StyleProp, ViewStyle, TextStyle, StyleSheet } from 'react-native'
 import React from 'react'
-import { GlobalColors, GlobalFontSize, GlobalStyle } from '@/src/constants/Globals'
+import { Colors, Fontsize, GlobalStyle } from '@/constants'
 
 interface HeaderProps {
   containerStyle?: StyleProp<ViewStyle>
@@ -20,7 +20,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-    backgroundColor: GlobalColors.Background, 
+    backgroundColor: Colors.Background, 
     borderColor: 'black',
     borderWidth: 2,
     borderRadius: 8,
@@ -31,8 +31,8 @@ const s = StyleSheet.create({
     height: 50,
   },
   defaultTextStyle:{
-    color: GlobalColors.Text,
-    fontSize: GlobalFontSize.xxl,
+    color: Colors.Text[1],
+    fontSize: Fontsize.xxl,
   }
 })
 

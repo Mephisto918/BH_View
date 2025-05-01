@@ -12,19 +12,19 @@ const Logo = ({containerStyle, imageStyle, squareScale, ...props}: LogoProps) =>
   const hasHW = [imageStyle]
   return (
     <View style={[s.default, containerStyle]}>
-      <Image style={[hasHW]} {...props} resizeMode='contain'/>
+      <Image style={[hasHW, s.img]} {...props} resizeMode='contain'/>
     </View>
   )
 }
 
 const s = StyleSheet.create({
   default: {
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 0,
     margin: 0,    
-    position: 'absolute',
   },
+  img:{
+    width: '100%'
+  }
 })
 
 export default Logo
