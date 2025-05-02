@@ -2,7 +2,7 @@ import { View, Text, StyleSheet,  FlatList, TouchableOpacity } from 'react-nativ
 import React, { useEffect, useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import { GlobalStyle } from '@/src/constants/Globals'
+import { GlobalStyle } from '../../../constants/index'
 
 interface User{
   id: number | string;             // ← it's a number from backend

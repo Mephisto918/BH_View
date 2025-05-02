@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image } from 'react-native'
-import React,{useState, useRef, useMemo} from 'react'
+import React,{useState, useRef, useMemo, useEffect} from 'react'
 
 import Mapview, { Marker, Polygon ,} from 'react-native-maps'
 import { Colors, GlobalStyle, Fontsize, Spacing } from '@/constants';
@@ -15,20 +15,51 @@ import Button from '@/src/components/ui/Button';
 
 // ui lib
 import BottomSheet from '@gorhom/bottom-sheet';
-// import Bottom
+
 // mock
-import mockBoardingHouses from '@/src/tests/BoardinHouseEntity';
+// import mockBoardingHouses from '@/src/tests/BoardinHouseEntity';
 
 //types
 import BoardingHouseTypesProps from '../../types/screens/BoardinHouseTypes';
 import { ScrollView } from 'react-native-gesture-handler';
 
+// redux too; or rtk query
+import { useGetBoardingHousesQuery } from '@/src/stores/slices/apiSlice';
+// import api from '@/src/config/api'
 
 export default function Map() {
   const [search,setSearch] = useState('');
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(()=>['25%', '50%'],[]);
-  const [sheetData, setDataSheet] = useState<BoardingHouseTypesProps|null>(null);
+  const [sheetData, setDataSheet] = useState<BoardingHouseTypesProps|null>(null); 
+  // const [data, setData] = useState<BoardingHouseTypesProps | null>(null);
+  // const [error, setError] = useState(null);
+
+
+  const { data: boardingHouses, error, isLoading } = useGetBoardingHousesQuery()
+  // const q = useGetBoardingHousesQuery()
+  // console.log(q)
+  // console.log(boardingHouses
+
+//   useEffect(() => {
+//     const fetchBoardingHouses = async () => {
+//       try {
+//         const response = await fetch(`${api.BASE_URL}${api.PORT}/api/boarding_houses`);
+//         if (!response.ok) {
+//           throw new Error(`Server error: ${response.status}`);
+//         }
+//         const json = await response.json();
+//         console.log('✅ Fetched data:', json);
+//         setData(json);
+//       } catch (err) {
+//         console.error('❌ Fetch failed:', err.message);
+//         setError(err.message);
+//       }
+//     };
+
+//     fetchBoardingHouses();
+// }, []);
+
 
   const navigation = useNavigation<BottomTabNavigationProp<TenantTabsParamList>>();
 
@@ -69,17 +100,17 @@ export default function Map() {
         provider="google"
         mapType='hybrid'
       >
-        {mockBoardingHouses.map((house, i)=>(
+        {Array.isArray(boardingHouses) && boardingHouses.map((house, i)=>(
           <Marker 
             onPress={()=>handleMarkerPress(house)}
-            pinColor={house.availability_status ? 'green' : 'blue'}
+            pinColor={house?.availability_status ? 'green' : 'blue'}
             key={i}
             coordinate={{
-              latitude: house.location.latitude,
-              longitude: house.location.longitude,
+              latitude: house?.location?.latitude,
+              longitude: house?.location?.longitude,
             }}
-            title={house.name}
-            description={house.description}
+            title={house?.name}
+            description={house?.description}
           />
         ))}
         <Marker 
@@ -123,14 +154,14 @@ export default function Map() {
           // zIndex: 20, 
         }}
       >
-        {sheetData && (
+        {Array.isArray(sheetData) && (
           <View style={{ 
             // padding: Global, 
             backgroundColor: Colors.PrimaryLight[8],
             flex: 1
           }}>
             <Image 
-              source={typeof sheetData.images[0].img === 'string' ? { uri: sheetData.images[0].img } : sheetData.images[0].img}
+              source={sheetData.images === undefined ? require('../../../assets/img_resources/24.jpg') : (typeof sheetData.images[0].img === 'string' ? { uri: sheetData.images[0].img } : sheetData.images[0].img)}
               style={{borderColor: 'red', borderWidth: 2, width: '100%', height: 200}}  
             />
             <ScrollView style={{ flex: 1,}}>

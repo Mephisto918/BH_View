@@ -18,7 +18,7 @@ function getBackendIP(){
 }
 
 const IP = getBackendIP();
-const env_port = 8000;
+const env_port = 3000;
 const apiUrl = `http://${IP}:`
 
 fs.writeFileSync('.env', `
