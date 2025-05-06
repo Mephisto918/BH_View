@@ -71,8 +71,8 @@ const Booking = () => {
                 >
                   <Text>{BoardingHouse?.name}</Text>
                   <Text>{BoardingHouse?.description}</Text>
-                  {BoardingHouse.ameneties && BoardingHouse.ameneties.map((amenety, index) => (
-                    <Text key={index}>{amenety}</Text>
+                  {Array.isArray(BoardingHouse?.ameneties) && BoardingHouse.ameneties.map((key, index) => (
+                    <Text key={index}>{BoardingHouse.ameneties[key]}</Text>
                   ))}
                   <Text>{BoardingHouse?.address}</Text>
                   <Text>{BoardingHouse?.location?.region}</Text>

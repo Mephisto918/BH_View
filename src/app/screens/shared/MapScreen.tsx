@@ -4,6 +4,8 @@ import React,{useState, useRef, useMemo, useEffect} from 'react'
 import Mapview, { Marker, Polygon ,} from 'react-native-maps'
 import { Colors, GlobalStyle, Fontsize, Spacing } from '@/constants';
 
+import { LogBox } from 'react-native';
+
 //navigation
 import { useNavigation } from '@react-navigation/native'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -32,33 +34,16 @@ export default function Map() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(()=>['25%', '50%'],[]);
   const [sheetData, setDataSheet] = useState<BoardingHouseTypesProps|null>(null); 
-  // const [data, setData] = useState<BoardingHouseTypesProps | null>(null);
-  // const [error, setError] = useState(null);
 
 
-  const { data: boardingHouses, error, isLoading } = useGetBoardingHousesQuery()
-  // const q = useGetBoardingHousesQuery()
-  // console.log(q)
-  // console.log(boardingHouses
+  const { data: boardingHouses, error: boardingHousesError, isLoading: boardingHousesIsLoading } = useGetBoardingHousesQuery()
 
-//   useEffect(() => {
-//     const fetchBoardingHouses = async () => {
-//       try {
-//         const response = await fetch(`${api.BASE_URL}${api.PORT}/api/boarding_houses`);
-//         if (!response.ok) {
-//           throw new Error(`Server error: ${response.status}`);
-//         }
-//         const json = await response.json();
-//         console.log('✅ Fetched data:', json);
-//         setData(json);
-//       } catch (err) {
-//         console.error('❌ Fetch failed:', err.message);
-//         setError(err.message);
-//       }
-//     };
+  // useEffect(() => {
+  //   console.log('RTK Query - boardingHouses:', boardingHouses);
+  //   console.log('RTK Query - error:', boardingHousesError);
+  //   console.log('RTK Query - isLoading:', boardingHousesIsLoading);
+  // }, [boardingHouses, boardingHousesError, boardingHousesIsLoading]);
 
-//     fetchBoardingHouses();
-// }, []);
 
 
   const navigation = useNavigation<BottomTabNavigationProp<TenantTabsParamList>>();
@@ -77,12 +62,17 @@ export default function Map() {
   const handleMarkerPress = (data: BoardingHouseTypesProps) =>{
     setDataSheet(data);
     bottomSheetRef.current?.expand();
+    console.log(data.thumbnail)
   }
-
+  
   const handleGotoPress = ()=>{
-    console.log(sheetData)
+    // console.log('passing sheet: ',data);
+    if (!sheetData) return;
     navigation.navigate('BookingScreen', {data: sheetData});
   }
+
+  // LogBox.ignoreLogs([]); // <-- Don't ignore anything temporarily
+
   return (
     <View style={[GlobalStyle.Globals,s.con_main]}>
       <HeaderSearch 
@@ -100,19 +90,44 @@ export default function Map() {
         provider="google"
         mapType='hybrid'
       >
-        {Array.isArray(boardingHouses) && boardingHouses.map((house, i)=>(
-          <Marker 
-            onPress={()=>handleMarkerPress(house)}
-            pinColor={house?.availability_status ? 'green' : 'blue'}
-            key={i}
-            coordinate={{
-              latitude: house?.location?.latitude,
-              longitude: house?.location?.longitude,
-            }}
-            title={house?.name}
-            description={house?.description}
-          />
-        ))}
+        {/* {boardingHousesIsLoading ? (
+          <Text>Loading...</Text>
+        ) : boardingHousesError ? (
+          <Text>Error loading boarding houses.</Text>
+        ) : !boardingHouses || !Array.isArray(boardingHouses) ? (
+          <Text>No data received from server.</Text>
+        ) : boardingHouses.length === 0 ? (
+          <Text>No boarding houses available.</Text>
+        ) : (
+          boardingHouses.map((house: BoardingHouseTypesProps, i) => (
+            <Marker
+              onPress={() => handleMarkerPress(house)}
+              pinColor={house.availability_status ? 'green' : 'blue'}
+              key={i}
+              coordinate={{
+                latitude: house.location.latitude,
+                longitude: house.location.longitude,
+              }}
+              title={house.name}
+              description={house.description}
+            />
+          ))
+        )} */}
+
+          {boardingHouses && boardingHouses.map((house: BoardingHouseTypesProps, i) => (
+            <Marker
+              onPress={() => handleMarkerPress(house)}
+              pinColor={house.availability_status ? 'green' : 'blue'}
+              key={i}
+              coordinate={{
+                latitude: house.location.latitude,
+                longitude: house.location.longitude,
+              }}
+              title={house.name}
+              description={house.description}
+            />
+          ))}
+        
         <Marker 
           coordinate={{
             latitude: 11.0008519,
@@ -154,14 +169,14 @@ export default function Map() {
           // zIndex: 20, 
         }}
       >
-        {Array.isArray(sheetData) && (
+        {/* kay bsin object daw Array.isArray(sheetData)*/ sheetData && (
           <View style={{ 
             // padding: Global, 
             backgroundColor: Colors.PrimaryLight[8],
             flex: 1
           }}>
             <Image 
-              source={sheetData.images === undefined ? require('../../../assets/img_resources/24.jpg') : (typeof sheetData.images[0].img === 'string' ? { uri: sheetData.images[0].img } : sheetData.images[0].img)}
+              source={sheetData?.thumbnail ? { uri: sheetData?.thumbnail } : require('../../../assets/housesSample/1.jpg') }
               style={{borderColor: 'red', borderWidth: 2, width: '100%', height: 200}}  
             />
             <ScrollView style={{ flex: 1,}}>

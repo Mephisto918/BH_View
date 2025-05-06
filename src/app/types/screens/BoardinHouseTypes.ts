@@ -10,8 +10,8 @@ interface BoardingHouseTypesProps {
   location: {
     latitude: number,
     longitude: number,
-    region: string
-    barangay: string
+    region?: string
+    barangay?: string
   },
   properties: {
     floorArea: string
@@ -20,11 +20,12 @@ interface BoardingHouseTypesProps {
     kitchen: boolean
     furnished: boolean 
   },
-  thumbnail: {
-    img: string 
-    alt: string
-  },
-  images: Array<{img: string}>
+  // thumbnail: {
+  //   img: string 
+  //   alt: string
+  // },
+  thumbnail: [] | { img: string; alt?: string };
+  images?: Array<{img: string}>
 }
 
 export default BoardingHouseTypesProps

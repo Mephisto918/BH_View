@@ -21,6 +21,8 @@ const IP = getBackendIP();
 const env_port = 3000;
 const apiUrl = `http://${IP}:`
 
+// console.log(`http://${IP}:${env_port}`)
+
 fs.writeFileSync('.env', `
   EXPO_PUBLIC_BASE_URL=${apiUrl}\n
   EXPO_PUBLIC_BACKEND_PORT=${env_port}`);

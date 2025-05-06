@@ -3,9 +3,7 @@ import React, { useState, } from 'react'
 import { BorderRadius, BorderWidth, Colors, ShadowLight, Spacing } from '@/constants'
 
 interface CarouselProps {
-  images: Array<{
-    img: string | undefined
-  }>
+  images: Array<string | undefined>
   variant?: 'primary' | 'secondary' | 'fullBleed'
   containerStyle?: StyleProp<ViewStyle>
   scrollStyle?: StyleProp<ViewStyle>
@@ -77,11 +75,13 @@ const ImageCarousel = ({images, variant = 'primary', scrollStyle, containerStyle
     
   }
 
+  console.log(images[mainImage])
 
   return (
     <View style={[ variantStyle[variant].container, containerStyle]}>
       <Image
-        source={typeof images[mainImage]?.img === 'string' ? { uri: images[mainImage]?.img } : images[mainImage]?.img}
+        // source={typeof images[mainImage]?.image === 'string' ? { uri: images[mainImage]?.image } : images[mainImage]?.image}
+        source={{ uri: images[mainImage] }}
         style={[ variantStyle[variant].mainImage ]}
         resizeMode="center"
       />
@@ -97,7 +97,7 @@ const ImageCarousel = ({images, variant = 'primary', scrollStyle, containerStyle
             onPress={()=>setSelectedIndex(i)}
           >
             <Image
-              source={typeof image?.img === 'string' ? { uri: image?.img } : image?.img}
+              source={typeof images[i] === 'string' ? { uri: images[i] } : images[i]}
               style={{
                 width: variantStyle[variant].thumbnailSize,
                 height: variantStyle[variant].thumbnailSize,

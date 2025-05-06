@@ -13,7 +13,7 @@ const AuthStack = () => {
   // const [authRole, setAutRole] = useState<string>('');
   // console.log(`${api.BASE_URL}${api.PORT}/api/`)
   useEffect(() => {
-    console.log("hook loaded");
+    console.log("hook loaded in auth navigator");
     // const { data, isLoading, error } = useGetBoardingHousesQuery();
     // console.log({ data, isLoading, error });
   }, []);
