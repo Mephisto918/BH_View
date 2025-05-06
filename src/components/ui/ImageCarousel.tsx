@@ -117,3 +117,5 @@ const ImageCarousel = ({images, variant = 'primary', scrollStyle, containerStyle
 
 
 export default ImageCarousel
+
+
