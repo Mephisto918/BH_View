@@ -16,16 +16,16 @@ interface BoardingHouseTypesProps {
   properties: {
     floorArea: string
     roomType: string
-    bathrooms: number 
-    kitchen: boolean
-    furnished: boolean 
+    bathrooms: string 
+    kitchen: string
+    furnished: string
   },
   // thumbnail: {
   //   img: string 
   //   alt: string
   // },
   thumbnail: [] | { img: string; alt?: string };
-  images?: Array<{img: string}>
+  images: Array<string | undefined>
 }
 
 export default BoardingHouseTypesProps

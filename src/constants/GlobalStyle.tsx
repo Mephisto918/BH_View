@@ -3,7 +3,7 @@ import { Colors } from './themes/colors'
 
 export const GlobalStyle = StyleSheet.create({
   Globals:{
-    backgroundColor: Colors.PrimaryLight[2],
+    backgroundColor: Colors.PrimaryLight[8],
     justifyContent: 'center',
     alignItems: 'stretch',
     flex: 1

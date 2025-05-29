@@ -1,4 +1,4 @@
-import { View, ScrollView, TouchableOpacity, Image, StyleProp, ViewStyle} from 'react-native'
+import { View, ScrollView, TouchableOpacity, Image,Text, StyleProp, ViewStyle} from 'react-native'
 import React, { useState, } from 'react'
 import { BorderRadius, BorderWidth, Colors, ShadowLight, Spacing } from '@/constants'
 
@@ -12,6 +12,7 @@ interface CarouselProps {
 const ImageCarousel = ({images, variant = 'primary', scrollStyle, containerStyle}: CarouselProps) => {
   const [imageIndex, setImageIndex] = useState(0);
   const [mainImage, setMainImage] = useState(0);
+  // make 404 images report to not found in images
   
   const setSelectedIndex = (i: number) =>{
     setImageIndex(i);
@@ -79,36 +80,46 @@ const ImageCarousel = ({images, variant = 'primary', scrollStyle, containerStyle
 
   return (
     <View style={[ variantStyle[variant].container, containerStyle]}>
-      <Image
-        // source={typeof images[mainImage]?.image === 'string' ? { uri: images[mainImage]?.image } : images[mainImage]?.image}
-        source={{ uri: images[mainImage] }}
-        style={[ variantStyle[variant].mainImage ]}
-        resizeMode="center"
-      />
+      {!images[mainImage] ? (
+        <View style={[ variantStyle[variant].mainImage, {justifyContent:'center', alignItems:'center'} ]}>
+          <Text>Image not found</Text>
+        </View>
+      ) : (
+        <Image
+          source={{ uri: images[mainImage] }}
+          style={[ variantStyle[variant].mainImage ]}
+          resizeMode="center"
+        />
+      )}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[variantStyle[variant].carousel, scrollStyle]}
       >
         {/* immage render logic goes here,, configure first the layout */}
-        {images.map((image,i)=>(
+        {images ? images.map((image,i)=>(
           <TouchableOpacity
             key={i}
             onPress={()=>setSelectedIndex(i)}
           >
-            <Image
-              source={typeof images[i] === 'string' ? { uri: images[i] } : images[i]}
-              style={{
-                width: variantStyle[variant].thumbnailSize,
-                height: variantStyle[variant].thumbnailSize,
-                borderRadius: variantStyle[variant].carousel_item_definition.borderRadius,
-                borderWidth: BorderWidth.md,
-                borderColor: i === imageIndex ? variantStyle[variant].carousel_item_definition.borderColorSelected : variantStyle[variant].carousel_item_definition.borderColorNotSelected,
-                ...(i === imageIndex ? ShadowLight.xxl : {})
-              }}
-            />            
+            {!image ? <Text style={[{justifyContent:'center', alignItems:'center'}]}>Image not found</Text>
+            : (
+              <Image
+                source={typeof images[i] === 'string' ? { uri: images[i] } : images[i]}
+                style={{
+                  width: variantStyle[variant].thumbnailSize,
+                  height: variantStyle[variant].thumbnailSize,
+                  borderRadius: variantStyle[variant].carousel_item_definition.borderRadius,
+                  borderWidth: BorderWidth.md,
+                  borderColor: i === imageIndex ? variantStyle[variant].carousel_item_definition.borderColorSelected : variantStyle[variant].carousel_item_definition.borderColorNotSelected,
+                  ...(i === imageIndex ? ShadowLight.xxl : {})
+                }}
+              />
+            )}
           </TouchableOpacity>
-        ))}
+        )): (
+          <Text>Images not found</Text>
+        )}
       </ScrollView>
     </View>
   )

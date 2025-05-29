@@ -9,6 +9,10 @@ import MapScreen from '../screens/shared/MapScreen'
 import NotificationScreen from '../screens/shared/NotificationsScreen'
 import SettingsScreen from '../screens/shared/SettingsScreen'
 
+//ui component
+import { BottomNavBarStyleConfig } from '@/src/components/layout/BottomNavBarStyleConfig'
+
+
 import { BorderRadius, BorderWidth, Colors, ShadowLight, Spacing } from '@/constants/'
 
 const Tab = createBottomTabNavigator();
@@ -20,8 +24,6 @@ const TenantTabs = () => {
       initialRouteName='MapScreen'
       // backBehavior=''
       screenOptions={({route})=>({
-        tabBarStyle: s.tabBarStyle,
-        tabBarIconStyle: s.tabBarIconStyle,
         // Chat gpt
         tabBarIcon: ({ focused, color}) => {
           let iconName = 'map-outline';
@@ -37,11 +39,8 @@ const TenantTabs = () => {
                     style={{...(focused === true ? {} : ShadowLight.md)}}  // yawa di mo gana animal
                   />; 
         },
-        tabBarActiveTintColor: Colors.PrimaryLight[2],
-        tabBarInactiveTintColor: Colors.PrimaryLight[3],
-        headerShown: false,
-        tabBarShowLabel: false,
         // Chat gpt
+        ...BottomNavBarStyleConfig
       })}
     >
       <Tab.Screen name="DashboardScreen" component={DashboardScreen}/>
@@ -57,26 +56,8 @@ const s = StyleSheet.create({
   main_container:{
 
   },
-  tabBarStyle:{
-    backgroundColor: Colors.PrimaryLight[8],
-    height: 70,
-    
-  },
-  tabBarIconStyle:{
-    borderWidth: BorderWidth.xs,
-    borderColor: Colors.PrimaryLight[5],
-    backgroundColor: Colors.PrimaryLight[8],
-    aspectRatio: 1/1,
-    height: 50,
-    padding: Spacing.xs,
-    borderRadius: BorderRadius.lg,
-    
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: -20,
-  },
   sceneStyle:{
-    backgroundColor: 'green'
+    // backgroundColor: 'green'
   }
 })
 

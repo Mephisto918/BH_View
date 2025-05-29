@@ -1,5 +1,5 @@
 import { View, Text ,StyleSheet, ImageStyle} from 'react-native'
-import React from 'react'
+import React, {useState} from 'react'
 
 // UI Layout
 import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper'
@@ -16,21 +16,53 @@ import { Colors, Fontsize, BorderRadius, Spacing, GlobalStyle, ShadowLight, Bord
 import { useNavigation } from '@react-navigation/native'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootStackParamList, AuthStackParamList } from '../../types/navigation/navigationTypes'
+import { RootStackParamList, AuthStackParamList, AdminTabsParamList } from '../../types/navigation/navigationTypes'
+
+// api call 
+import Api from '@/src/services/apiEndpoints'
+
+interface jsonPayload {
+  data: {
+    role: string
+  }
+}
+
+interface payload {
+  username: string | null,
+  password: string | null
+}
 
 const LoginScreen = () => {
-  const tenaneNavigation = useNavigation<BottomTabNavigationProp<RootStackParamList>>();
+  const rootNavigation = useNavigation<BottomTabNavigationProp<RootStackParamList>>();
   const authNavitaion = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
-  const onPressLogin = () => {
-    tenaneNavigation.navigate('TenantTabs');
+
+  const [username, setUsername] = useState({value: '', error: false});
+  const [password, setPassword] = useState({value: '', error: false});
+
+  // api call
+  const api = new Api();
+
+  const onPressLogin = async () => {
+    const packageLoad = {
+      username: username.value,
+      password: password.value
+    }
+    const res = await api.auth.login<jsonPayload, payload>(packageLoad);
+    console.log(res);
+    const role = res.data.role;
+
+    if(role == 'admin') return rootNavigation.navigate('AdminTabs');
+    if(role == 'owner') return rootNavigation.navigate('OwnerTabs');
+    if(role == 'tenant') return rootNavigation.navigate('TenantTabs');;
   }
 
   const onPressSignup = () => {
-    authNavitaion.navigate('SignupScreen');
+    authNavitaion.navigate('SignUpStack');
   }
   return (
     <StaticScreenWrapper
       scrollable={false}
+      
     >
       <View style={[GlobalStyle.Globals, s.default]}>
         <View
@@ -49,6 +81,8 @@ const LoginScreen = () => {
                 placeholder='Username'
                 iconName='person'
                 variant='primary'
+                value={username.value}
+                onChangeText={text=>setUsername({value: text, error: false})}
                 containerStyle={s.Form_InputContainer}
                 textInputStyle={s.Form_InputText}
                 iconStyle={s.Form_InputIcon}
@@ -57,6 +91,8 @@ const LoginScreen = () => {
                 variant='primary'
                 iconName='lock-closed'
                 placeholder='Username'
+                value={password.value}
+                onChangeText={text=>setPassword({value: text, error: false})}
                 containerStyle={s.Form_InputContainer}
                 textInputStyle={s.Form_InputText}
                 iconStyle={s.Form_InputIcon}

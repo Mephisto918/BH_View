@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet} from 'react-native'
-import React, {useMemo, useState, useEffect} from 'react'
+import React, { useState, useEffect} from 'react'
 import { Colors, Spacing, GlobalStyle } from '@/constants'
 
 import { useRoute } from '@react-navigation/native'
@@ -54,7 +54,7 @@ const Booking = () => {
               >
               <ImageCarousel
                 variant='primary'
-                images={BoardingHouse?.images || []}
+                images={BoardingHouse?.images ?? []}
               />
               </View>
               {BoardingHouse && (
@@ -65,24 +65,31 @@ const Booking = () => {
                     padding: 10,
                     flex: 1,
                     // borderColor: 'red',
-                    // borderWidth: 3,
+                    // borderWidth: 10,
                     width: '100%'
                   }}
                 >
-                  <Text>{BoardingHouse?.name}</Text>
-                  <Text>{BoardingHouse?.description}</Text>
-                  {Array.isArray(BoardingHouse?.ameneties) && BoardingHouse.ameneties.map((key, index) => (
-                    <Text key={index}>{BoardingHouse.ameneties[key]}</Text>
-                  ))}
-                  <Text>{BoardingHouse?.address}</Text>
-                  <Text>{BoardingHouse?.location?.region}</Text>
-                  <Text>{BoardingHouse?.location?.barangay}</Text>
-                  <Text>{BoardingHouse?.properties?.floorArea}</Text>
-                  <Text>{BoardingHouse?.properties?.roomType}</Text>
-                  <Text>{BoardingHouse?.properties?.bathrooms}</Text>
-                  <Text>Kitchen: {BoardingHouse?.properties.kitchen}</Text>
-                  <Text>Furnished: {BoardingHouse?.properties?.furnished}</Text>
-                  <Text>Price: {BoardingHouse?.price}</Text>
+                  <Text style={[s.text_title]}>{BoardingHouse?.name}</Text>
+                  <Text style={[s.text_description]}>{BoardingHouse?.description}</Text>
+                  <Text style={[s.text_address]}>{BoardingHouse?.address}</Text>
+                  <Text style={[s.text_price]}>Price: {BoardingHouse?.price}</Text>
+                  <View style={[s.text_ameneties]}>
+                    {BoardingHouse?.ameneties?.map((key, index) => (
+                      <Text key={index} >{BoardingHouse.ameneties[index]}</Text>
+                    ))}
+                  </View>
+                  {/* <Text>{BoardingHouse?.location?.barangay}</Text> */}
+                  <View style={[s.text_properties]}>
+                    {BoardingHouse?.properties?.map((prop, index) => {
+                      const key = Object.keys(prop)[0];
+                      const value = prop[key];
+                      return (
+                        <Text key={index}>
+                          {key.replace(/_/g, ' ')}: {value}
+                        </Text>
+                      );
+                    })}
+                  </View>
 
                 </View>
               )}
@@ -112,7 +119,30 @@ const s = StyleSheet.create({
     alignItems: 'baseline'
   },
 
-
+  text_title:{
+    borderColor: 'red',
+    borderWidth: 3,
+  },
+  text_description:{
+    borderColor: 'white',
+    borderWidth: 3,
+  },
+  text_ameneties:{
+    borderColor: 'green',
+    borderWidth: 3,
+  },
+  text_address:{
+    borderColor: 'orange',
+    borderWidth: 3,
+  },
+  text_price: {
+    borderColor: 'cyan',
+    borderWidth: 3,
+  },
+  text_properties:{
+    borderColor: 'magenta',
+    borderWidth: 3,
+  }
 })
 
 export default Booking;

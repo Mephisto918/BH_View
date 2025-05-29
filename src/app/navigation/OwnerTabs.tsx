@@ -13,7 +13,7 @@ const Tab = createBottomTabNavigator();
 const OwnerTabs = () => {
   return (
     <Tab.Navigator
-      initialRouteName='Dashboard'
+      initialRouteName='DashboardScreen'
       screenOptions={({route})=>({
         // Chat gpt
         tabBarIcon: ({ focused, color, size }) => {

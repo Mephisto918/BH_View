@@ -44,31 +44,13 @@ const ItemBox = ({item, handleEdit, handleDelete}: ItemBoxProps)=>{
 const ParentsManagement = ()=> {
   const [users, setUsers] = useState<User[]>([])
 
-  // karon ra bitaw ni 
-  const api = 'http://192.168.47.117:8000';
-  const endpoint = '/parents'
-  console.log(api+endpoint)
 
   useEffect(()=>{
     fetchUsers();
   }, [])
 
   const fetchUsers = async ()=>{
-    try{
-      const res = await fetch(api+endpoint);
-      console.log(api+endpoint)
-      const data = await res.json();
-
-      // console.log(res.json)
-      if (data.success && Array.isArray(data.data)) {
-        console.log(data)
-        setUsers(data.data); // Set the users correctly
-      } else {
-        console.log('Error: Invalid data structure');
-      }
-    }catch(error){
-      console.log('yawa line 20',error);
-    }
+    
   }
 
   const handleEdit = (userId:string|number) => {

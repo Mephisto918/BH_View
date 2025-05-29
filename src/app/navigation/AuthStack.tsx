@@ -1,30 +1,15 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
-import api from '@/src/config/api'
 import LoginScreen from '../screens/auth/LoginScreen'
-import SignupScreen from '../screens/auth/SignupScreen'
-
-import { useGetBoardingHousesQuery } from '@/src/stores/slices/apiSlice'
+// import SignupScreen from '../screens/auth/SignupScreen'
+import SignUpStack from './SignUpStack';
 
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
-  // const [authRole, setAutRole] = useState<string>('');
-  // console.log(`${api.BASE_URL}${api.PORT}/api/`)
-  useEffect(() => {
-    console.log("hook loaded in auth navigator");
-    // const { data, isLoading, error } = useGetBoardingHousesQuery();
-    // console.log({ data, isLoading, error });
-  }, []);
   console.log('AuthStack')
 
-  useEffect(() => {
-    fetch(`${api.BASE_URL}${api.PORT}/api/`)
-      .then(res => res.json())
-      .then(json => console.log('✅ API works directly:', json))
-      .catch(err => console.log('❌ API fetch error:', err));
-  }, []);
   return (
     <Stack.Navigator
       initialRouteName='LoginScreen'
@@ -37,8 +22,8 @@ const AuthStack = () => {
         component={LoginScreen} // Pass the component directly here
       />
       <Stack.Screen 
-        name="SignupScreen" // Screen names should be capitalized
-        component={SignupScreen} // Pass the component directly here
+        name="SignUpStack" // Screen names should be capitalized
+        component={SignUpStack} // Pass the component directly here
       />
     </Stack.Navigator>
   )

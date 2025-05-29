@@ -8,6 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AdminTabs from './AdminTabs'
 import TenantTabs from './TenantTabs'
 import AuthStack from './AuthStack';
+import OwnerTabs from './OwnerTabs';
 
 import { RootStackParamList } from '../types/navigation/navigationTypes';
 import { Colors } from '@/src/constants';
@@ -20,7 +21,7 @@ const RootNavigation = () => {
     <>
       <StatusBar
         barStyle={'light-content'}
-        backgroundColor={Colors.PrimaryLight[10]}
+        backgroundColor={Colors.PrimaryLight[8]}
       />
       <RootStack.Navigator
         // initialRouteName='TenantTabs'
@@ -32,6 +33,7 @@ const RootNavigation = () => {
         <RootStack.Screen name='AuthStack' component={AuthStack} />
         <RootStack.Screen name='AdminTabs' component={AdminTabs} />
         <RootStack.Screen name='TenantTabs' component={TenantTabs} />
+        <RootStack.Screen name='OwnerTabs' component={OwnerTabs} />
       </RootStack.Navigator>
     </>
   )
