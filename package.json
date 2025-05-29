@@ -1,5 +1,5 @@
 {
-  "name": "gg_view",
+  "name": "bh_view",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
@@ -40,7 +40,6 @@
     "expo-system-ui": "~4.0.9",
     "expo-web-browser": "~14.0.2",
     "gesture-handler": "^0.0.1",
-    "gg_view": "file:",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.9",

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "GG_View",
-    "slug": "GG_View",
+    "name": "BH_View",
+    "slug": "BH_View",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/logos/icon.jpg",
