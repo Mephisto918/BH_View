@@ -50,13 +50,19 @@ class Api{
         return res.json();
     }
 
-    private async _post<T, D = any>(url: string, data: D ): Promise<T>{
+    private async _post<T, D = any>(url: string, data: D, debugCLI: boolean = false ): Promise<T>{
         const res = await fetch(url,{
             method: 'POST',
             headers: { 'Content-Type': 'application/json', },
             body: JSON.stringify(data),
         })
-        if(!res.ok) throw new Error(`Post ${url} failed: ${res.status}`);
+
+        const body = await this.isValidJSON<any>(res)
+
+        if(!res.ok) {
+            if(debugCLI) console.log(`Post ${url} failed: ${res.status}`);
+            throw new Error(`Post ${url} failed: ${res.status}`)
+        };
         return res.json();
     }
     private async _update<T, D = any>(url: string, data: D): Promise<T>{
@@ -91,13 +97,19 @@ class Api{
         return res.json();
     }
 
+    // helper functions
+    private async isValidJSON<T>(res: Response): Promise<T | { message: string }> {
+        try {
+            return await res.json();
+        } catch {
+            return { message: 'Invalid JSON response from server.' };
+        }
+    }
 }
 
 export default Api;
 
 // usage
 /*
-
-const admins = await api.admins.all<AdminType[]>();
-
+    const admins = await api.admins.all<AdminType[]>();
 */

@@ -31,7 +31,7 @@ const SignUpOwnerScreen = () => {
     password: '',
     confirmPassword: '',
   })
-  const [isPasswordSame, setIsPasswordSame] = useState(false);
+  // const [isPasswordSame, setIsPasswordSame] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -60,10 +60,14 @@ const SignUpOwnerScreen = () => {
       // reson there is no shorcutting like (res.ok) is it is handled on the wrapper, see {Api} class above
       const res: any = await api.owners.create(form);
 
+      // console.log(res);
+      // if(!res) console.log('res', res);
+
       Alert.alert("You are registered!")
       setForm({username: '',firstname: '',lastname: '',email: '',password: '', confirmPassword: ''})
       route.navigate('SignUpSuccessScreen')
     }catch(error: any){
+      console.log('signup error: ',error);
       Alert.alert('Error', error.message);
     }
   }
