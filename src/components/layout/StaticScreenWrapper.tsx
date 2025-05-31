@@ -1,49 +1,44 @@
-import { View, SafeAreaView, KeyboardAvoidingView, ScrollView, StyleProp, ViewStyle, StyleSheet } from 'react-native'
+import React from 'react';
+import { StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import React from 'react'
 
-interface Props{
-  scrollable?: boolean
-  virticalScrollIndicator?: boolean
-  children: React.ReactNode
-  behavior?: "padding" | "height" | "position" | undefined
-  style?: StyleProp<ViewStyle>
-  keyboardVerticalOffset?: number
+interface Props {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+  contentContainerStyle?: StyleProp<ViewStyle>;
+  bottomOffset?: number;
+  scrollEnabled?: boolean;
+  showsVerticalScrollIndicator?: boolean;
 }
 
 const StaticScreenWrapper = ({
-  keyboardVerticalOffset = 0, 
-  scrollable = false, 
-  virticalScrollIndicator = true, 
-  children, 
-  behavior = 'padding', 
-  style 
+  children,
+  style,
+  bottomOffset = 0,
+  scrollEnabled = true,
+  showsVerticalScrollIndicator = true,
+  contentContainerStyle,
 }: Props) => {
   return (
-    <SafeAreaView 
-      style={[{ flex: 1 }, s.con]}
+    <KeyboardAwareScrollView
+      style={[styles.container, style]}
+      contentContainerStyle={[{ flexGrow: 1 }, contentContainerStyle]}
+      keyboardShouldPersistTaps="handled"
+      enableOnAndroid={true}
+      extraScrollHeight={20}
+      extraHeight={bottomOffset}
+      scrollEnabled={scrollEnabled}
+      showsVerticalScrollIndicator={showsVerticalScrollIndicator}
     >
-      <KeyboardAvoidingView 
-        behavior={behavior} 
-        keyboardVerticalOffset={keyboardVerticalOffset}
-        style={{ flex: 1 }}>
-          
-        <KeyboardAwareScrollView 
-          contentContainerStyle={[{ flexGrow: 1 }, style]}
-          keyboardShouldPersistTaps='handled'
-          showsVerticalScrollIndicator={virticalScrollIndicator}
-          scrollEnabled={scrollable}
-        >
-          {children}
-        </KeyboardAwareScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  )
-}
+      {children}
+    </KeyboardAwareScrollView>
+  );
+};
 
-const s = StyleSheet.create({
-  con:{
-  }
-})
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
 
-export default StaticScreenWrapper
+export default StaticScreenWrapper;

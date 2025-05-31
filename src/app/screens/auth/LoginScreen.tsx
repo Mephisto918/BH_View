@@ -61,10 +61,12 @@ const LoginScreen = () => {
   }
   return (
     <StaticScreenWrapper
-      scrollable={false}
-      
+      style={[GlobalStyle.GlobalsContainer]}      
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer, {
+        alignContent: 'center',
+
+      }]}
     >
-      <View style={[GlobalStyle.Globals, s.default]}>
         <View
           style={[s.Container]}
         >
@@ -116,7 +118,6 @@ const LoginScreen = () => {
             </View>
           </View>
         </View>
-      </View>
     </StaticScreenWrapper> 
   )
 }
@@ -126,7 +127,9 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.PrimaryLight[9],
-
+    // width: '100%',
+    borderColor: 'yellow',
+    borderWidth: 3
   },
   Container:{
     backgroundColor: 'transparent',
@@ -137,6 +140,10 @@ const s = StyleSheet.create({
     
     justifyContent: 'center',
     alignItems: 'center',
+
+    borderColor: 'yellow',
+    borderWidth: 3,
+    width: '100%',
   },
   
   logo_Container:{

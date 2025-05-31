@@ -58,7 +58,7 @@ const SignUpOwnerScreen = () => {
 
     try{
       // reson there is no shorcutting like (res.ok) is it is handled on the wrapper, see {Api} class above
-      const res: any = await api.owners.create(form);
+      const res: any = await api.owners.create(form, true);
 
       // console.log(res);
       // if(!res) console.log('res', res);
@@ -67,8 +67,7 @@ const SignUpOwnerScreen = () => {
       setForm({username: '',firstname: '',lastname: '',email: '',password: '', confirmPassword: ''})
       route.navigate('SignUpSuccessScreen')
     }catch(error: any){
-      console.log('signup error: ',error);
-      Alert.alert('Error', error.message);
+      Alert.alert('Error', error.details);
     }
   }
 
@@ -78,10 +77,8 @@ const SignUpOwnerScreen = () => {
 
   return (
     <StaticScreenWrapper
-      behavior='padding'
-      scrollable={true}
-      style={[GlobalStyle.Globals, s.StaticScreenWrapper]}
-      keyboardVerticalOffset={100}
+      style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer, {justifyContent: 'center', alignContent: 'center'}]}
     >
       <View
         style={[s.container]}
@@ -181,11 +178,8 @@ const SignUpOwnerScreen = () => {
 
 const s = StyleSheet.create({
   StaticScreenWrapper:{
-    flex: 1,
     backgroundColor: Colors.PrimaryLight[8],
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingVertical: 40
+    // paddingVertical: 40
   },
   container:{
     // flex: 1,

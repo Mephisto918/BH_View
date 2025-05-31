@@ -2,12 +2,15 @@ import { StyleSheet } from 'react-native'
 import { Colors } from './themes/colors'
 
 export const GlobalStyle = StyleSheet.create({
-  Globals:{
+  GlobalsContainer: {
+    flex: 1,
     backgroundColor: Colors.PrimaryLight[8],
+  },
+  GlobalsContentContainer: {
     justifyContent: 'center',
     alignItems: 'stretch',
-    flex: 1
   },
+
   fontColor:{
     color: Colors.Text[2],
   },

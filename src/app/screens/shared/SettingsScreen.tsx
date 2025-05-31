@@ -1,4 +1,4 @@
-import { View, Text, Button } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,6 +9,13 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../navigation/RootNavigation'
 import AuthService from '@/src/services/AuthService';
 import { logout } from '../../../stores/slices/authSlice';
+
+//
+import { Box, VStack, HStack, Avatar, Heading } from '@gluestack-ui/themed';
+import { Button } from '@gluestack-ui/themed';
+import { Ionicons } from '@expo/vector-icons';
+import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper';
+import { GlobalStyle } from '@/src/constants';
 
 type ToLoginScreen = NativeStackNavigationProp<RootStackParamList, 'LoginScreen'>
 
@@ -24,15 +31,47 @@ const Settings = () => {
   }
 
   return (
-    <View>
-        <View>
+    <StaticScreenWrapper
+      style={[GlobalStyle.GlobalsContainer]}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer,s.container]}
+    >
+      <VStack>
+        <HStack>
+          <Avatar></Avatar>
+          <Box>
+            <HStack>
+              <Heading size="lg">
+                Firstname
+              </Heading>
+              <Heading>
+                Lastname
+              </Heading>
+            </HStack>
+            <Box>
+              {/* Tes */}
+            </Box>
+          </Box>
+        </HStack>
+        <VStack>
           <Button
             onPress={logOutOnPress}
-            title='Logout!'
-          />
-        </View>
-    </View>
+          >
+            <Ionicons name="exit-outline" size={24} color="black"/>
+            <Text>Logout</Text>
+          </Button>
+        </VStack>
+      </VStack>
+    </StaticScreenWrapper>
   )
 }
+
+const s = StyleSheet.create({
+  container:{
+    borderColor: 'red',
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+})
 
 export default Settings

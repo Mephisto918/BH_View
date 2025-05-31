@@ -19,7 +19,7 @@ class Api{
     public owners = {
         all: <T>()=> this._get<T>(this.ownersEndpoint),
         selectById: <T>(id: string)=> this._getById<T>(this.ownersEndpoint, id),
-        create: <T, D>(data: D) => this._post<T, D>(this.ownersEndpoint, data),
+        create: <T, D>(data: D, debugCLI: boolean = false) => this._post<T, D>(this.ownersEndpoint,data, debugCLI),
         update: <T, D>(data: D, id: string) => this._update<T, D>(this.ownersEndpoint+`/${id}`, data),
         delete: <T>(id: string) => this._delete<T>(this.ownersEndpoint, id),
     }
@@ -50,21 +50,27 @@ class Api{
         return res.json();
     }
 
-    private async _post<T, D = any>(url: string, data: D, debugCLI: boolean = false ): Promise<T>{
-        const res = await fetch(url,{
+    private async _post<T, D = any>(url: string, data: D, debugCLI: boolean = true): Promise<T> {
+        const res = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
-        })
+        });
 
-        const body = await this.isValidJSON<any>(res)
+        const body = await this.isValidJSON<any>(res); // parse once
 
-        if(!res.ok) {
-            if(debugCLI) console.log(`Post ${url} failed: ${res.status}`);
-            throw new Error(`Post ${url} failed: ${res.status}`)
-        };
-        return res.json();
+        if (!res.ok) {
+            if (debugCLI) console.log(`Post ${url} failed: ${res.status}, body:`, body);
+            const message = body?.message || `Post ${url} failed: ${res.status}`;
+            const error = body?.error || body?.errors || null;
+            const errorObj = new Error(message);
+            (errorObj as any).details = error;
+            throw errorObj;
+        }
+
+        return body as T;  // return the already parsed JSON
     }
+
     private async _update<T, D = any>(url: string, data: D): Promise<T>{
         const res = await fetch(url,{
             method: 'PUT',

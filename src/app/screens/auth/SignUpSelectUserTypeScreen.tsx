@@ -1,7 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-
 // UI layout
 import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper'
 
@@ -29,11 +28,8 @@ const SignUpSelectUserTypeScreen = () => {
   return (
     <>
       <StaticScreenWrapper
-        style={[GlobalStyle.Globals, {
-          backgroundColor: Colors.PrimaryLight[8],
-          justifyContent: 'center',
-          alignItems: 'center'
-        }]}
+        style={[GlobalStyle.GlobalsContainer]}
+        contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
       >
         <View
           style={{
