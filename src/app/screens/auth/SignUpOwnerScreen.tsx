@@ -1,23 +1,28 @@
-import { View, Text, StyleSheet, Alert } from 'react-native'
-import React, {useState} from 'react'
+import { StyleSheet,  Alert} from 'react-native'
+import React, { useState, useEffect } from 'react'
+
+import { Alert as AlertGL, HStack, View,  Input, Box, FormControl, Heading, ScrollView, Text, VStack, InputField,Checkbox,CheckboxLabel,CheckboxIndicator,CheckboxIcon } from '@gluestack-ui/themed';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import Markdown from "react-native-awesome-markdown";
+import { textMD } from './TermsAndConditions';
 
 // api
-import Api from '@/src/services/apiEndpoints'
+import Api from '@/services/apiEndpoints'
 
 // UI layout
-import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper'
+import StaticScreenWrapper from '@/components/layout/StaticScreenWrapper'
 
 // UI Component
-import Button from '@/src/components/ui/Button'
-import TextInput from '@/src/components/ui/TextInput'
+import Button from '@/components/ui/Button'
+import TextInput from '@/components/ui/TextInput'
 
 // Global Styles
-import { BorderRadius, Colors, Fontsize, GlobalStyle, Spacing } from '@/src/constants'
+import { BorderRadius, Colors, Fontsize, GlobalStyle, Spacing } from '@/constants'
 
 // routing
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { SignUpStackParamList } from '../../types/navigation/navigationTypes'
+import { SignUpStackParamList } from '../../types/navigation'
 
 const SignUpOwnerScreen = () => {
   const api = new Api();
@@ -42,23 +47,32 @@ const SignUpOwnerScreen = () => {
   // }
 
   async function handleSubmit(){
-    // chat gpt baya ni kay kapoy na 
-    console.log(form);
-    if (form.password !== form.confirmPassword) {
-      Alert.alert("Password Mismatch", "Password and Confirm Password must match.");
-      return;
-    }
-
-    for (const [key, value] of Object.entries(form)) {
-      if (!value.trim()) {
+    for(const [key, value] of Object.entries(form)){
+      if(!value.trim()){
         Alert.alert('Missing Field', `Please fill in the ${key}`);
         return;
       }
     }
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+    if (form.password.length < 6) {
+      Alert.alert('Invalid Password', 'Password must be at least 6 characters');
+      return 
+    }
+    if(form.password !== form.confirmPassword){
+      Alert.alert('Alert', 'Password and Confirm Password must match');
+      return
+    }
+
+    if(hasAcceptedTerms!==true){
+      return Alert.alert('You must accept the Terms and Conditions to create an account!');
+    }
 
     try{
       // reson there is no shorcutting like (res.ok) is it is handled on the wrapper, see {Api} class above
-      const res: any = await api.owners.create(form, true);
+      const res: any = await api.owner.create(form, true);
 
       // console.log(res);
       // if(!res) console.log('res', res);
@@ -71,9 +85,8 @@ const SignUpOwnerScreen = () => {
     }
   }
 
-  function handleCancel(){
-    route.navigate('SignUpSelectUserTypeScreen')
-  }
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+  const [termsModal, setTermsModal] = useState(false);
 
   return (
     <StaticScreenWrapper
@@ -90,7 +103,7 @@ const SignUpOwnerScreen = () => {
               fontSize: Fontsize.h2,
             }}
           >
-            Create Account as a Owner
+            Create Account as an Owner
           </Text>
         </View>
         <View>
@@ -139,9 +152,6 @@ const SignUpOwnerScreen = () => {
                 onChangeText={(text) => handleChange(field, text)}
                 variant='primary'
                 textInputStyle={{
-                  // borderColor: 'red',
-                  // borderWidth: 2,
-                  // height: 20,
                   margin: 0,
                 }}
                 containerStyle={{
@@ -151,27 +161,81 @@ const SignUpOwnerScreen = () => {
             </View>
           ))}
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            gap: Spacing.md,
-            marginTop: Spacing.base
-          }}
-        >
-          <Button 
-            title='Cancel'
-            onPressAction={handleCancel}
-            containerStyle={{
-              backgroundColor: Colors.Alert
-            }}
-          />
-          <Button 
-            title='Create'
-            onPressAction={handleSubmit}
-          />
-        </View>
+        <VStack>
+          <Checkbox
+            style={{justifyContent: 'center', alignItems: 'center', paddingTop: 20, gap: 10}}
+            isChecked={hasAcceptedTerms}
+            onPress={() => setTermsModal(true)}
+            value="accepted"
+          >
+            <CheckboxIndicator style={{aspectRatio: 1, height: 100}}>
+              <CheckboxIcon as={()=>(
+                <Ionicons name={hasAcceptedTerms ? 'checkmark' : 'checkmark-outline'} color={'black'} />
+              )} />
+            </CheckboxIndicator>
+            <CheckboxLabel style={{color: Colors.TextInverse[1]}}>I agree to the Terms and Conditions</CheckboxLabel>
+          </Checkbox>
+          <HStack style={{marginTop: 10}}>
+            <Button 
+              title='Cancel'
+              onPressAction={()=>{route.navigate('SignUpSelectUserTypeScreen')}}
+              containerStyle={{
+                backgroundColor: Colors.Alert
+              }}
+            />
+            <Button 
+              title='Create'
+              onPressAction={handleSubmit}
+            />
+          </HStack>
+        </VStack>
       </View>
+      {termsModal && (
+        <AlertGL
+          style={{
+            position:"absolute",
+            top: 0,
+            left:0,
+            right:0,
+            bottom:0,
+            justifyContent:"center",
+            alignItems:"center",
+            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+          }}
+          >
+          <VStack 
+            style={{
+              gap: Spacing.lg,
+              alignItems: 'stretch',
+              width: '90%',
+              padding: Spacing.lg,
+              borderRadius: BorderRadius.md,
+              backgroundColor: Colors.PrimaryLight[7],
+            }}
+          >
+            <Heading>
+              <Text style={[s.Text, {fontSize: Fontsize.h1}]}>Terms and Services</Text>
+            </Heading>
+            <ScrollView>
+              <Markdown styles={customStyles}  text={textMD}/>
+            </ScrollView>
+            <VStack>
+              <Button 
+                variant='primary'
+                onPressAction={()=>{setTermsModal(false); setHasAcceptedTerms(false)}} 
+                >
+                <Text style={[s.TextButton]}>I Do Not Accept the Terms and Services</Text>
+              </Button>
+              <Button 
+                variant='primary'
+                onPressAction={()=>{setTermsModal(false); setHasAcceptedTerms(true)}} 
+              >
+                <Text style={[s.TextButton]}>I Accept the Terms and Services</Text>
+              </Button>
+            </VStack>
+          </VStack>
+        </AlertGL>
+      )}
     </StaticScreenWrapper>
   )
 }
@@ -179,20 +243,32 @@ const SignUpOwnerScreen = () => {
 const s = StyleSheet.create({
   StaticScreenWrapper:{
     backgroundColor: Colors.PrimaryLight[8],
-    // paddingVertical: 40
   },
   container:{
-    // flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // borderColor: 'yellow',
-    // borderWidth: 3,
     width: '90%',
-    // gap: Spacing.xxl,
-
-    // height: "auto",
-    // padding: Spacing.lg
+  },
+  Text:{
+    color: 'white'
+  },
+  TextButton:{
+    color: 'black'
   }
 })
+
+const customStyles = {
+  paragraph: { color: 'white' },
+  h1: { color: 'white' },
+  h2: { color: 'white' },
+  h3: { color: 'white' },
+  h4: { color: 'white' },
+  h5: { color: 'white' },
+  h6: { color: 'white' },
+  link: { color: 'white', textDecorationLine: 'underline' },
+  blockquote: { color: 'white', fontStyle: 'italic' },
+  list: { color: 'white' },
+  strong: { color: 'white' },
+  em: { color: 'white' },
+  code: { color: 'white', backgroundColor: '#333' },
+};
 
 export default SignUpOwnerScreen

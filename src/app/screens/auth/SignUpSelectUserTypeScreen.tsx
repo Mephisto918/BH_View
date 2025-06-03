@@ -2,18 +2,18 @@ import { View, Text } from 'react-native'
 import React from 'react'
 
 // UI layout
-import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper'
+import StaticScreenWrapper from '@/components/layout/StaticScreenWrapper'
 
 // UI components
-import Button from '@/src/components/ui/Button'
+import Button from '@/components/ui/Button'
 
 // Global Styles
-import { Colors, Fontsize, GlobalStyle, Spacing } from '@/src/constants'
+import { Colors, Fontsize, GlobalStyle, Spacing } from '@/constants'
 
 // routing
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { SignUpStackParamList } from '../../types/navigation/navigationTypes'
+import { SignUpStackParamList } from '../../types/navigation'
 
 const SignUpSelectUserTypeScreen = () => {
   const route = useNavigation<NativeStackNavigationProp<SignUpStackParamList>>();
@@ -35,8 +35,8 @@ const SignUpSelectUserTypeScreen = () => {
           style={{
             justifyContent: 'center',
             alignItems: 'center',
-            borderColor: 'yellow',
-            borderWidth: 3,
+            // borderColor: 'yellow',
+            // borderWidth: 3,
             gap: Spacing.xxl,
 
             height: "30%",

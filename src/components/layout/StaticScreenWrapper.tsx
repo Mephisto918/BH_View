@@ -9,6 +9,7 @@ interface Props {
   bottomOffset?: number;
   scrollEnabled?: boolean;
   showsVerticalScrollIndicator?: boolean;
+  keyboardShouldPersistTaps?: 'handled' | 'always' | 'never';
 }
 
 const StaticScreenWrapper = ({
@@ -16,6 +17,7 @@ const StaticScreenWrapper = ({
   style,
   bottomOffset = 0,
   scrollEnabled = true,
+  keyboardShouldPersistTaps = 'handled',
   showsVerticalScrollIndicator = true,
   contentContainerStyle,
 }: Props) => {
@@ -23,7 +25,7 @@ const StaticScreenWrapper = ({
     <KeyboardAwareScrollView
       style={[styles.container, style]}
       contentContainerStyle={[{ flexGrow: 1 }, contentContainerStyle]}
-      keyboardShouldPersistTaps="handled"
+      keyboardShouldPersistTaps={keyboardShouldPersistTaps}
       enableOnAndroid={true}
       extraScrollHeight={20}
       extraHeight={bottomOffset}

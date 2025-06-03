@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-import api from "@/src/config/api";
+import api from "@/config/api";
 
 export const boardingHouseApi = createApi({
   reducerPath: 'boardingHouseApi',

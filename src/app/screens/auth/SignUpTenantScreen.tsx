@@ -1,24 +1,29 @@
 import { StyleSheet,  Alert} from 'react-native'
 import React, { useState, useEffect } from 'react'
 
-import { Input, Box, FormControl, Button, Text, VStack, InputField } from '@gluestack-ui/themed';
+import { Alert as AlertGL, HStack, Input, Box, FormControl, Text, VStack, InputField,Checkbox,CheckboxLabel,CheckboxIndicator,CheckboxIcon } from '@gluestack-ui/themed';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import Markdown from "react-native-awesome-markdown";
+import { textMD } from './TermsAndConditions';
 
 // ui
-import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper'
+import StaticScreenWrapper from '@/components/layout/StaticScreenWrapper'
 
 // UI components
-// import Button from '@/src/components/ui/Button'
+import Button from '@/components/ui/Button'
 
 // Global Styles
-import { Colors, Fontsize, GlobalStyle, Spacing } from '@/src/constants'
+import { Colors, Fontsize, GlobalStyle, Spacing, BorderRadius } from '@/constants'
 
 // routing
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { SignUpStackParamList } from '../../types/navigation/navigationTypes'
+import { SignUpStackParamList } from '../../types/navigation'
 
 // api
-import Api from '@/src/services/apiEndpoints'
+import Api from '@/services/apiEndpoints'
+import { Heading } from '@gluestack-ui/themed';
+import { ScrollView } from '@gluestack-ui/themed';
 
 interface TenantFormProps{
   username: string;
@@ -44,8 +49,6 @@ const SignUpTenantScreen = () => {
   })
 
   const handleFormSubmit = async () => {
-    console.log(tenantForm);
-
     for(const [key, value] of Object.entries(tenantForm)){
       if(!value.trim()){
         Alert.alert('Missing Field', `Please fill in the ${key}`);
@@ -65,8 +68,12 @@ const SignUpTenantScreen = () => {
       return
     }
 
+    if(hasAcceptedTerms!==true){
+      return Alert.alert('You must accept the Terms and Conditions to create an account!');
+    }
+
     try{
-      const res: any = await api.tenants.create(tenantForm);
+      const res: any = await api.tenant.create(tenantForm);
 
       Alert.alert("You are registered!")
       setTenantForm({
@@ -84,110 +91,219 @@ const SignUpTenantScreen = () => {
     }
   }
 
+  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+  const [termsModal, setTermsModal] = useState(false);
+
+
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
-      contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
-      // behavior='height'
-      // scrollable={true}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer,{
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: Spacing.lg
+      }]}
 
     >
         <VStack
-          style={{
-            backgroundColor: 'red'
-          }}
+          style={[s.container]}
         >
+          <Heading style={{color: Colors.TextInverse[1],fontSize: Fontsize.h2}}>Create Account as a Tenant</Heading>
           <FormControl>
             <FormControl.Label>
-              <Text>Username</Text>
+              <Text style={[s.FormLabel]}>Username</Text>
             </FormControl.Label>
             <Input>
               <InputField 
                 value={tenantForm.username}
                 onChangeText={(text: string)=>setTenantForm({...tenantForm, username: text})}
+                style={[s.FormTextInput]}
               />
             </Input>
           </FormControl>
           <FormControl>
             <FormControl.Label>
-              <Text>Firstname</Text>
+              <Text  style={[s.FormLabel]}>Firstname</Text>
             </FormControl.Label>
             <Input>
               <InputField 
                 value={tenantForm.firstname}
                 onChangeText={(text: string)=>setTenantForm({...tenantForm, firstname: text})}
+                style={[s.FormTextInput]}
               />
             </Input>
           </FormControl>
           <FormControl>
             <FormControl.Label>
-              <Text>Lastname</Text>
+              <Text  style={[s.FormLabel]}>Lastname</Text>
             </FormControl.Label>
             <Input>
               <InputField 
                 value={tenantForm.lastname}
                 onChangeText={(text: string)=>setTenantForm({...tenantForm, lastname: text})}
+                style={[s.FormTextInput]}
               />
             </Input>
           </FormControl>
           <FormControl>
             <FormControl.Label>
-              <Text>Email</Text>
+              <Text  style={[s.FormLabel]}>Email</Text>
             </FormControl.Label>
             <Input>
               <InputField 
                 value={tenantForm.email}
                 onChangeText={(text: string)=>setTenantForm({...tenantForm, email: text})}
                 keyboardType='email-address'
+                style={[s.FormTextInput]}
               />
             </Input>
           </FormControl>
           <FormControl>
             <FormControl.Label>
-              <Text>Password</Text>
+              <Text  style={[s.FormLabel]}>Password</Text>
             </FormControl.Label>
             <Input>
               <InputField 
                 value={tenantForm.password}
                 onChangeText={(text: string)=>setTenantForm({...tenantForm, password: text})}
+                style={[s.FormTextInput]}
               />
             </Input>
           </FormControl>
           <FormControl>
             <FormControl.Label>
-              <Text>Confirm Password</Text>
+              <Text  style={[s.FormLabel]}>Confirm Password</Text>
             </FormControl.Label>
             <Input>
               <InputField 
                 value={tenantForm.confirmPassword}
                 onChangeText={(text: string)=>setTenantForm({...tenantForm, confirmPassword: text})}
+                style={[s.FormTextInput]}
               />
             </Input>
           </FormControl>
-          <Button onPress={handleFormSubmit}>
-            <Text>
-              Sign Up
-            </Text>
-          </Button>
+          <VStack>
+            <Checkbox
+              style={{justifyContent: 'center', alignItems: 'center', paddingTop: 20, gap: 10}}
+              isChecked={hasAcceptedTerms}
+              onPress={() => setTermsModal(true)}
+              value="accepted"
+            >
+              <CheckboxIndicator style={{aspectRatio: 1, height: 100}}>
+                <CheckboxIcon as={()=>(
+                  <Ionicons name={hasAcceptedTerms ? 'checkmark' : 'checkmark-outline'} color={'black'} />
+                )} />
+              </CheckboxIndicator>
+              <CheckboxLabel style={{color: Colors.TextInverse[1]}}>I agree to the Terms and Conditions</CheckboxLabel>
+            </Checkbox>
+            <HStack style={{marginTop: 10}}>
+              <Button 
+                title='Cancel'
+                onPressAction={()=>{route.navigate('SignUpSelectUserTypeScreen')}}
+                containerStyle={{
+                  backgroundColor: Colors.Alert
+                }}
+              />
+              <Button 
+                title='Create'
+                onPressAction={handleFormSubmit}
+              />
+            </HStack>
+          </VStack>
         </VStack>
+        {termsModal && (
+          <AlertGL
+            style={{
+              position:"absolute",
+              top: 0,
+              left:0,
+              right:0,
+              bottom:0,
+              justifyContent:"center",
+              alignItems:"center",
+              backgroundColor: 'rgba(0, 0, 0, 0.5)'
+            }}
+            >
+            <VStack 
+              style={{
+                gap: Spacing.lg,
+                alignItems: 'stretch',
+                width: '90%',
+                padding: Spacing.lg,
+                borderRadius: BorderRadius.md,
+                backgroundColor: Colors.PrimaryLight[7],
+              }}
+            >
+              <Heading>
+                <Text style={[s.Text, {fontSize: Fontsize.h1}]}>Terms and Services</Text>
+              </Heading>
+              <ScrollView>
+                <Markdown styles={customStyles}  text={textMD}/>
+              </ScrollView>
+              <VStack>
+                <Button 
+                  variant='primary'
+                  onPressAction={()=>{setTermsModal(false); setHasAcceptedTerms(false)}} 
+                  >
+                  <Text style={[s.TextButton]}>I Do Not Accept the Terms and Services</Text>
+                </Button>
+                <Button 
+                  variant='primary'
+                  onPressAction={()=>{setTermsModal(false); setHasAcceptedTerms(true)}} 
+                >
+                  <Text style={[s.TextButton]}>I Accept the Terms and Services</Text>
+                </Button>
+              </VStack>
+            </VStack>
+          </AlertGL>
+        )}
     </StaticScreenWrapper>
   )
 }
 
 const s = StyleSheet.create({
   StaticScreenWrapper:{
-    // flex: 1,
-    // backgroundColor: Colors.PrimaryLight[8],
-    // justifyContent: 'flex-start',
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // paddingVertical: 40
-    // borderColor: 'orange',
-    // borderWidth: 4,
+    backgroundColor: Colors.PrimaryLight[8],
   },
   container:{
     width: '90%',
+  },
+  FormLabel:{
+    fontSize: Fontsize.base, 
+    color: Colors.TextInverse[1], 
+    padding: Spacing.sm
+  },
+  FormTextInput:{
+    fontSize: Fontsize.base,
+    padding: Spacing.xs,
+    backgroundColor: Colors.PrimaryLight[2],
+    margin: 0,
+  },
+  Text:{
+    color: Colors.TextInverse[2]
+  },
+  TextInput:{
+    color: Colors.TextInverse[3]
+  },
+  TextButton:{
+    color: 'black'
   }
 })
+
+const customStyles = {
+  paragraph: { color: 'white' },
+  h1: { color: 'white' },
+  h2: { color: 'white' },
+  h3: { color: 'white' },
+  h4: { color: 'white' },
+  h5: { color: 'white' },
+  h6: { color: 'white' },
+  link: { color: 'white', textDecorationLine: 'underline' },
+  blockquote: { color: 'white', fontStyle: 'italic' },
+  list: { color: 'white' },
+  strong: { color: 'white' },
+  em: { color: 'white' },
+  code: { color: 'white', backgroundColor: '#333' },
+};
 
 export default SignUpTenantScreen

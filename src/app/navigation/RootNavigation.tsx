@@ -1,17 +1,15 @@
 import { StatusBar } from 'react-native'
 import React from 'react'
-// import { useSelector } from 'react-redux';
-// import { RootState } from '@/src/stores'; 
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import AdminTabs from './AdminTabs'
-import TenantTabs from './TenantTabs'
-import AuthStack from './AuthStack';
-import OwnerTabs from './OwnerTabs';
+import AdminTabs from './tabs/AdminTabs'
+import TenantTabs from './tabs/TenantTabs'
+import AuthStack from './stacks/AuthStack';
+import OwnerTabs from './tabs/OwnerTabs';
 
-import { RootStackParamList } from '../types/navigation/navigationTypes';
-import { Colors } from '@/src/constants';
+import { RootStackParamList } from '../types/navigation';
+import { Colors } from '@/constants';
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigation = () => {

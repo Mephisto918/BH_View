@@ -5,10 +5,10 @@ import { Colors, Spacing, GlobalStyle } from '@/constants'
 import { useRoute } from '@react-navigation/native'
 
 // ui components
-import ImageCarousel from '@/src/components/ui/ImageCarousel'
+import ImageCarousel from '@/components/ui/ImageCarousel'
 
 // laytou
-import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper'
+import StaticScreenWrapper from '@/components/layout/StaticScreenWrapper'
 
 
 // types

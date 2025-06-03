@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 
-import { GlobalStyle } from '@/src/constants'
+import { GlobalStyle } from '@/constants'
 
 const Dashboard = () => {
   return (

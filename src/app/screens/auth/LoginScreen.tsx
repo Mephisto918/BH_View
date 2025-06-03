@@ -1,13 +1,13 @@
-import { View, Text ,StyleSheet, ImageStyle} from 'react-native'
+import {Alert, View, Text ,StyleSheet, ImageStyle} from 'react-native'
 import React, {useState} from 'react'
 
 // UI Layout
-import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper'
+import StaticScreenWrapper from '@/components/layout/StaticScreenWrapper'
 
 // UI comopnent
-import TextInput from '@/src/components/ui/TextInput'
-import Logo from '@/src/components/ui/Logo'
-import Button from '@/src/components/ui/Button'
+import TextInput from '@/components/ui/TextInput'
+import Logo from '@/components/ui/Logo'
+import Button from '@/components/ui/Button'
 
 // constants
 import { Colors, Fontsize, BorderRadius, Spacing, GlobalStyle, ShadowLight, BorderWidth } from '@/constants'
@@ -16,11 +16,14 @@ import { Colors, Fontsize, BorderRadius, Spacing, GlobalStyle, ShadowLight, Bord
 import { useNavigation } from '@react-navigation/native'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootStackParamList, AuthStackParamList, AdminTabsParamList } from '../../types/navigation/navigationTypes'
+import { RootStackParamList, AuthStackParamList } from '../../types/navigation'
 
 // api call 
-import Api from '@/src/services/apiEndpoints'
+import Api from '@/services/apiEndpoints'
 
+// redux
+import { useDispatch } from 'react-redux'
+import { login, userData } from '@/stores/slices/authSlice'
 interface jsonPayload {
   data: {
     role: string
@@ -35,6 +38,7 @@ interface payload {
 const LoginScreen = () => {
   const rootNavigation = useNavigation<BottomTabNavigationProp<RootStackParamList>>();
   const authNavitaion = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const dispatch = useDispatch();
 
   const [username, setUsername] = useState({value: '', error: false});
   const [password, setPassword] = useState({value: '', error: false});
@@ -47,13 +51,26 @@ const LoginScreen = () => {
       username: username.value,
       password: password.value
     }
-    const res = await api.auth.login<jsonPayload, payload>(packageLoad);
-    console.log(res);
-    const role = res.data.role;
+   try{
+    const res: any = await api.auth.login<jsonPayload, payload>(packageLoad);
+    if(!res.success){
+      console.log('lee', res);
+      Alert.alert('Login Failed', res.error);
+      return
+    }
+    const data = await res.data;
+    dispatch(login(res.role));
+    dispatch(userData(data,));
+
+    const role = data.role;
 
     if(role == 'admin') return rootNavigation.navigate('AdminTabs');
     if(role == 'owner') return rootNavigation.navigate('OwnerTabs');
-    if(role == 'tenant') return rootNavigation.navigate('TenantTabs');;
+    if(role == 'tenant') return rootNavigation.navigate('TenantTabs');
+   }catch(error: any){
+    console.log('Error in Login Page: ', error);
+    Alert.alert('Erroor', error.error);
+   }
   }
 
   const onPressSignup = () => {
@@ -128,8 +145,8 @@ const s = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.PrimaryLight[9],
     // width: '100%',
-    borderColor: 'yellow',
-    borderWidth: 3
+    // borderColor: 'yellow',
+    // borderWidth: 3
   },
   Container:{
     backgroundColor: 'transparent',
@@ -141,9 +158,8 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
 
-    borderColor: 'yellow',
-    borderWidth: 3,
-    width: '100%',
+    // borderColor: 'yellow',
+    // borderWidth: 3,
   },
   
   logo_Container:{

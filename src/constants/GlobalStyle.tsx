@@ -7,7 +7,7 @@ export const GlobalStyle = StyleSheet.create({
     backgroundColor: Colors.PrimaryLight[8],
   },
   GlobalsContentContainer: {
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'stretch',
   },
 

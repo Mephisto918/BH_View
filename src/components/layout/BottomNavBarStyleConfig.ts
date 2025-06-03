@@ -2,10 +2,6 @@ import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs'
 import { Colors, Spacing, BorderWidth, BorderRadius } from '../../constants'
 
 export const BottomNavBarStyleConfig : BottomTabNavigationOptions = {
-    tabBarStyle: {
-        backgroundColor: Colors.PrimaryLight[8],
-        height: 70,
-    },
     tabBarIconStyle: {
         borderWidth: BorderWidth.xs,
         borderColor: Colors.PrimaryLight[5],

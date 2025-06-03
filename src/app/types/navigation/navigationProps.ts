@@ -1,5 +1,5 @@
 import { RouteProp } from '@react-navigation/native';
-import { OwnerTabsParamList, TenantTabsParamList } from './navigationTypes';
+import { OwnerTabsParamList, TenantTabsParamList } from './navigationTabTypes';
 import { Routes } from './Routes';
 
 // Owner example

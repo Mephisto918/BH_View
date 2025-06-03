@@ -3,10 +3,10 @@ import {View, Text} from 'react-native'
 
 
 // styles
-import { GlobalStyle } from '@/src/constants'
+import { GlobalStyle } from '@/constants'
 
 // UI Layout
-import StaticScreenWrapper from '@/src/components/layout/StaticScreenWrapper'
+import StaticScreenWrapper from '@/components/layout/StaticScreenWrapper'
 const SignupScreen = () => {
   return (
     <>

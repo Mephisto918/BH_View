@@ -2,11 +2,12 @@ import React from 'react'
 import { createBottomTabNavigator,  } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
-import PropertiesScreen from '../screens/owner/PropertiesScreen'
-import BooksScreen from '../screens/owner/BooksScreen'
-import DashboardScreen from '../screens/owner/DashboardScreen'
-import NotificationScreen from '../screens/shared/NotificationsScreen'
-import SettingsScreen from '../screens/shared/SettingsScreen'
+import PropertiesScreen from '../../screens/owner/PropertiesScreen'
+import BooksScreen from '../../screens/owner/BooksScreen'
+import DashboardScreen from '../../screens/owner/DashboardScreen'
+import NotificationScreen from '../../screens/shared/NotificationsTabScreen'
+// import MenuTabScreen from '../../screens/shared/MenuStack/MenuTabScreen'
+import MenuTabScreen from '../stacks/MenuStack'
 
 const Tab = createBottomTabNavigator();
 
@@ -36,7 +37,7 @@ const OwnerTabs = () => {
       <Tab.Screen name="BooksScreen" component={BooksScreen}/>
       <Tab.Screen name="DashboardScreen" component={DashboardScreen}/>
       <Tab.Screen name="NotificationScreen" component={NotificationScreen}/>
-      <Tab.Screen name="SettingsScreen" component={SettingsScreen}/>
+      <Tab.Screen name="MenuTabScreen" component={MenuTabScreen}/>
     </Tab.Navigator>
   )
 }

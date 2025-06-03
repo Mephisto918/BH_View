@@ -9,25 +9,25 @@ import { LogBox } from 'react-native';
 //navigation
 import { useNavigation } from '@react-navigation/native'
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { TenantTabsParamList } from '../../types/navigation/navigationTypes';
+import { TenantTabsParamList } from '../../types/navigation';
 
 // ui component
 import HeaderSearch from '../../../components/HeaderSearch';
-import Button from '@/src/components/ui/Button';
+import Button from '@/components/ui/Button';
 
 // ui lib
 import BottomSheet from '@gorhom/bottom-sheet';
 
 // mock
-// import mockBoardingHouses from '@/src/tests/BoardinHouseEntity';
+// import mockBoardingHouses from '@/tests/BoardinHouseEntity';
 
 //types
 import BoardingHouseTypesProps from '../../types/screens/BoardinHouseTypes';
 import { ScrollView } from 'react-native-gesture-handler';
 
 // redux too; or rtk query
-import { useGetBoardingHousesQuery } from '@/src/stores/slices/apiSlice';
-// import api from '@/src/config/api'
+import { useGetBoardingHousesQuery } from '@/stores/slices/apiSlice';
+// import api from '@/config/api'
 
 export default function Map() {
   const [search,setSearch] = useState('');
@@ -68,7 +68,7 @@ export default function Map() {
   const handleGotoPress = ()=>{
     // console.log('passing sheet: ',data);
     if (!sheetData) return;
-    navigation.navigate('BookingScreen', {data: sheetData});
+    navigation.navigate('', {data: sheetData});
   }
 
   // LogBox.ignoreLogs([]); // <-- Don't ignore anything temporarily

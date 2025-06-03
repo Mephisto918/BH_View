@@ -11,8 +11,11 @@ export const Routes = {
   tenant:{
     dashboard: 'DashboardScreen',
     booking: 'BookingScreen',
-    map: 'MapScreen',
+    map: 'MapTabScreen',
     notification: 'NotificationScreen',
     settings: 'SettingsScreen',
+  },
+  settings:{
+    
   }
 } as const;
