@@ -50,7 +50,7 @@ const AdminTabs = () => {
               else if (route.name === 'TenantsManagementScreen') iconName = focused ? 'person' : 'person-outline';
               else if (route.name === 'OwnerManagementScreen') iconName = focused ? 'people' : 'people-outline';
               else if (route.name === 'NotificationScreen') iconName = focused ? 'notifications' : 'notifications-outline';
-              else if (route.name === 'SettingsScreen') iconName = focused ? 'settings' : 'settings-outline';
+              else if (route.name === 'MenuStack') iconName = focused ? 'menu' : 'menu-outline';
 
               return <Ionicons name={iconName} size={size} color={color} />;
             },

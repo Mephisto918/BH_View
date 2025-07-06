@@ -28,7 +28,7 @@ const TenantTabs = () => {
       // backBehavior=''
       screenOptions={({ route }) => {
         const routeName = getFocusedRouteNameFromRoute(route) ?? '';
-        console.log('route:', routeName);
+        console.log('Troute:', routeName);
 
         const hideOnRoutes = [
           'EditUserInfoScreen',

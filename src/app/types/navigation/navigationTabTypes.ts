@@ -20,7 +20,7 @@ export type OwnerTabsParamList = {
 
 export type TenantTabsParamList = {
   DashboardScreen: undefined;
-  BookingScreen: { data: BoardingHouseTypesProps | null };
+  BookingScreen: { id: number | null };
   MapTabScreen: undefined;
   NotificationTabScreen: undefined;
   MenuTabScreen: NativeStackNavigationProp<MenuStackParamList>;

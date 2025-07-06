@@ -1,148 +1,156 @@
-import { View, Text, StyleSheet} from 'react-native'
-import React, { useState, useEffect} from 'react'
-import { Colors, Spacing, GlobalStyle } from '@/constants'
+import { View, Text, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Colors, Spacing, GlobalStyle } from "@/constants";
 
-import { useRoute } from '@react-navigation/native'
+import { useRoute } from "@react-navigation/native";
 
 // ui components
-import ImageCarousel from '@/components/ui/ImageCarousel'
+import ImageCarousel from "@/components/ui/ImageCarousel";
 
 // laytou
-import StaticScreenWrapper from '@/components/layout/StaticScreenWrapper'
-
+import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 
 // types
-import BoardingHouseTypesProps from '../../types/screens/BoardinHouseTypes'
+import { useGetOneQuery } from "@/stores/boarding-houses/boarding-houses";
 
-// BoardingHouseData: BoardingHouseTypesProps
+// redux
+import { useSelector } from "react-redux";
+import { RootState } from "@/stores";
+
 const Booking = () => {
-  const [BoardingHouse, setBoardingHouse] = useState<BoardingHouseTypesProps | null>(null);
-  const route = useRoute()
-  // const { data } = route.params || {}
+  const route = useRoute();
+  const [id, setId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (route.params?.data) {
-      setBoardingHouse(route.params.data);
+    if (route.params && route.params.id) {
+      // console.log("Route param id received:", route.params.id);
+      setId(route.params.id);
     }
   }, [route.params]);
 
-  useEffect(() => {
-    if (!route.params?.data) {
-      console.warn("No data passed to this screen!");
-    } else {
-      // console.log("BoardingHouse data:", route.params?.data);
-      console.log("BoardingHouse data: passed!");
-    }
-  }, []);
+  const boardingHouseData = useSelector(
+    (state: RootState) => state.boardingHouses.selectedBoardingHouse
+  );
+  console.log("boardingHouseData", boardingHouseData);
+
+  const { data, isLoading, isError } = useGetOneQuery(id, {
+    skip: !id,
+  });
+
+  // if (isLoading) return <Text>Loading...</Text>;
+  // if (isError) return <Text>Error loading boarding house</Text>;
+  // if (!boardingHouseData) return <Text>No data found</Text>;
 
   return (
-    <StaticScreenWrapper
-      scrollable={true}
-    >
+    <StaticScreenWrapper>
       <View style={[GlobalStyle.Globals, s.main_container]}>
         <View style={[s.main_item]}>
           <View style={[s.group_main]}>
+            <View
+              style={{
+                minHeight: 300,
+                width: "100%",
+                borderTopRightRadius: 10,
+                borderTopLeftRadius: 10,
+                zIndex: 5,
+                // position: 'relative'
+              }}
+            >
+              <ImageCarousel
+                variant="primary"
+                images={boardingHouseData?.images ?? []}
+              />
+            </View>
+            {boardingHouseData && (
               <View
                 style={{
-                  minHeight: 300,
-                  width: '100%',
-                  borderTopRightRadius: 10,
-                  borderTopLeftRadius: 10,
-                  zIndex: 5,
-                  // position: 'relative'
+                  // zIndex: -1,
+                  marginTop: -10,
+                  padding: 10,
+                  flex: 1,
+                  // borderColor: 'red',
+                  // borderWidth: 10,
+                  width: "100%",
                 }}
               >
-              <ImageCarousel
-                variant='primary'
-                images={BoardingHouse?.images ?? []}
-              />
-              </View>
-              {BoardingHouse && (
-                <View
-                  style={{
-                    // zIndex: -1,
-                    marginTop: -10,
-                    padding: 10,
-                    flex: 1,
-                    // borderColor: 'red',
-                    // borderWidth: 10,
-                    width: '100%'
-                  }}
-                >
-                  <Text style={[s.text_title]}>{BoardingHouse?.name}</Text>
-                  <Text style={[s.text_description]}>{BoardingHouse?.description}</Text>
-                  <Text style={[s.text_address]}>{BoardingHouse?.address}</Text>
-                  <Text style={[s.text_price]}>Price: {BoardingHouse?.price}</Text>
-                  <View style={[s.text_ameneties]}>
-                    {BoardingHouse?.ameneties?.map((key, index) => (
-                      <Text key={index} >{BoardingHouse.ameneties[index]}</Text>
-                    ))}
-                  </View>
-                  {/* <Text>{BoardingHouse?.location?.barangay}</Text> */}
-                  <View style={[s.text_properties]}>
-                    {BoardingHouse?.properties?.map((prop, index) => {
-                      const key = Object.keys(prop)[0];
-                      const value = prop[key];
-                      return (
-                        <Text key={index}>
-                          {key.replace(/_/g, ' ')}: {value}
-                        </Text>
-                      );
-                    })}
-                  </View>
-
+                <Text style={[s.text_title]}>{boardingHouseData?.name}</Text>
+                <Text style={[s.text_description]}>
+                  {boardingHouseData?.description}
+                </Text>
+                <Text style={[s.text_address]}>
+                  {boardingHouseData?.address}
+                </Text>
+                <Text style={[s.text_price]}>
+                  Price: {boardingHouseData?.price}
+                </Text>
+                <View style={[s.text_ameneties]}>
+                  {boardingHouseData?.amenities?.map((key, index) => (
+                    <Text key={index}>
+                      Hello?
+                      {boardingHouseData.amenities[index]}
+                    </Text>
+                  ))}
                 </View>
-              )}
+                {boardingHouseData?.properties &&
+                  Object.entries(boardingHouseData.properties).map(
+                    ([key, value], index) => (
+                      <Text key={index}>
+                        {key.replace(/_/g, " ")}: {String(value)}
+                      </Text>
+                    )
+                  )}
+              </View>
+            )}
           </View>
         </View>
       </View>
     </StaticScreenWrapper>
-  )
-}
+  );
+};
 
 const s = StyleSheet.create({
   main_container: {
     flex: 1,
   },
-  main_item:{
+  main_item: {
     flex: 1,
-    width: '100%',
+    width: "100%",
   },
 
-  group_main:{
+  group_main: {
     flex: 1,
     paddingTop: Spacing.md,
     paddingRight: Spacing.md,
     paddingLeft: Spacing.md,
     backgroundColor: Colors.PrimaryLight[8],
-    flexDirection: 'column',
-    alignItems: 'baseline'
+    flexDirection: "column",
+    alignItems: "baseline",
   },
 
-  text_title:{
-    borderColor: 'red',
+  text_title: {
+    borderColor: "red",
     borderWidth: 3,
   },
-  text_description:{
-    borderColor: 'white',
+  text_description: {
+    borderColor: "white",
     borderWidth: 3,
   },
-  text_ameneties:{
-    borderColor: 'green',
+  text_ameneties: {
+    borderColor: "green",
     borderWidth: 3,
   },
-  text_address:{
-    borderColor: 'orange',
+  text_address: {
+    borderColor: "orange",
     borderWidth: 3,
   },
   text_price: {
-    borderColor: 'cyan',
+    borderColor: "cyan",
     borderWidth: 3,
   },
-  text_properties:{
-    borderColor: 'magenta',
+  text_properties: {
+    borderColor: "magenta",
     borderWidth: 3,
-  }
-})
+  },
+});
 
 export default Booking;

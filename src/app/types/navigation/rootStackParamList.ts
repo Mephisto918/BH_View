@@ -5,4 +5,5 @@ export type RootStackParamList = {
   GuestTabs: undefined;
   OwnerTabs: undefined;
   TenantTabs: undefined;
+  SyslogsScreen: undefined
 }

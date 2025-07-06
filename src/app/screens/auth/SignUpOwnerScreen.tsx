@@ -1,7 +1,7 @@
-import { StyleSheet,  Alert} from 'react-native'
+import { StyleSheet,  Alert, FlatList} from 'react-native'
 import React, { useState, useEffect } from 'react'
 
-import { Alert as AlertGL, HStack, View,  Input, Box, FormControl, Heading, ScrollView, Text, VStack, InputField,Checkbox,CheckboxLabel,CheckboxIndicator,CheckboxIcon } from '@gluestack-ui/themed';
+import {Button as ButtonGL, Alert as AlertGL, HStack, View,  Input, Box, FormControl, Heading, ScrollView, Text, VStack, InputField,Checkbox,CheckboxLabel,CheckboxIndicator,CheckboxIcon } from '@gluestack-ui/themed';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Markdown from "react-native-awesome-markdown";
 import { textMD } from './TermsAndConditions';
@@ -24,6 +24,14 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { SignUpStackParamList } from '../../types/navigation'
 
+interface PDFItemProps{
+  filename: string | undefined
+  mimetype: string | undefined
+  size: number | undefined
+  content: string | undefined
+  uploadedAt: string | undefined
+}
+
 const SignUpOwnerScreen = () => {
   const api = new Api();
   const route = useNavigation<NativeStackNavigationProp<SignUpStackParamList>>();
@@ -32,19 +40,17 @@ const SignUpOwnerScreen = () => {
     username: '',
     firstname: '',
     lastname: '',
-    email: '',
     password: '',
     confirmPassword: '',
+    email: '',
+    age: '',
+    address: '',
+    phone_number: ''
   })
-  // const [isPasswordSame, setIsPasswordSame] = useState(false);
 
   const handleChange = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
-
-  // const handlePasswordConfirm = (field: string, value: string)=>{
-
-  // }
 
   async function handleSubmit(){
     for(const [key, value] of Object.entries(form)){
@@ -57,57 +63,99 @@ const SignUpOwnerScreen = () => {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-    if (form.password.length < 6) {
-      Alert.alert('Invalid Password', 'Password must be at least 6 characters');
-      return 
+    
+    if(form.password != form.confirmPassword){
+      Alert.alert('Password Does Not Match', 'Password and Confirmed Password must match');
+      return;
     }
-    if(form.password !== form.confirmPassword){
-      Alert.alert('Alert', 'Password and Confirm Password must match');
-      return
-    }
+
+    // if (pdfItems.length < 2) {
+    //   Alert.alert('Need more documents', 'Please provide more than 2 documents');
+    //   return 
+    // }
 
     if(hasAcceptedTerms!==true){
       return Alert.alert('You must accept the Terms and Conditions to create an account!');
     }
 
     try{
-      // reson there is no shorcutting like (res.ok) is it is handled on the wrapper, see {Api} class above
-      const res: any = await api.owner.create(form, true);
+      // guy!!! pa docu ko aning _ kay karon pako, convention daw atay do discard variables
+      const {confirmPassword: _, ...filtered} = form
+      const combinePayload = {
+        ...filtered,
+        // certificates: pdfItems
+      }
+      const res: any = await api.owner.create(combinePayload, true);
 
       // console.log(res);
       // if(!res) console.log('res', res);
 
       Alert.alert("You are registered!")
-      setForm({username: '',firstname: '',lastname: '',email: '',password: '', confirmPassword: ''})
+      setForm({    
+        username: '',
+        firstname: '',
+        lastname: '',
+        password: '',
+        confirmPassword: '',
+        email: '',
+        age: '',
+        address: '',
+        phone_number: ''
+      })
       route.navigate('SignUpSuccessScreen')
     }catch(error: any){
+      console.log(error)
       Alert.alert('Error', error.details);
     }
   }
 
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
   const [termsModal, setTermsModal] = useState(false);
+  
+  // const [pdfItems, setPdfItems] = useState<PDFItemProps[]>([]);
+  // const [pdfName, setPdfName] = useState("");
+  // function generateFakePDFJson(filename: string) {
+  //   const fakeContent = Array.from({ length: 10 }, () =>
+  //     Math.random().toString(36).substring(2, 10)
+  //   ).join('');
+
+  //   return {
+  //     filename,
+  //     mimetype: "application/pdf",
+  //     size: Math.floor(Math.random() * 50000) + 10000, // size in bytes
+  //     content: fakeContent, // can be seen as fake base64
+  //     uploadedAt: new Date().toISOString()
+  //   };
+  // }
+
+  // const createPDFItem = () =>{
+  //   const pdfItem = generateFakePDFJson(pdfName);
+  //   setPdfItems(prev => [...prev, pdfItem]);
+  //   setPdfName("");
+  // }
+
 
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
-      contentContainerStyle={[GlobalStyle.GlobalsContentContainer, {justifyContent: 'center', alignContent: 'center'}]}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer, {justifyContent: 'center', alignContent: 'stretch'}]}
     >
       <View
-        style={[s.container]}
+        style={[s.container,{ marginBottom: 100, marginTop: 100}]}
       >
         <View>
           <Text 
             style={{
               color: Colors.TextInverse[1],
-              fontSize: Fontsize.h2,
+              fontSize: Fontsize.h1,
+              
             }}
           >
-            Create Account as an Owner
+            Owner Application Form
           </Text>
         </View>
         <View>
-          {['username', 'firstname', 'lastname', 'email'].map((field) => (
+          {['username', 'firstname', 'lastname', 'email', 'age', 'address', 'phone_number'].map((field) => (
             <View key={field}>
               <Text 
                 style={{
@@ -125,7 +173,6 @@ const SignUpOwnerScreen = () => {
                 textInputStyle={{
                   fontSize: Fontsize.base,
                   padding: Spacing.xs,
-                  // padding: 1,
                   margin: 0,
                 }}
                 containerStyle={{
@@ -160,6 +207,89 @@ const SignUpOwnerScreen = () => {
               />
             </View>
           ))}
+
+          {/* <View>
+            <Text
+              style={{
+                fontSize: Fontsize.base, 
+                color: Colors.TextInverse[1], 
+                padding: Spacing.sm
+              }}
+            >
+              Creatae PDF
+            </Text>
+            <HStack style={{
+
+            }}>
+              <TextInput
+                value={pdfName}
+                onChangeText={(text: string)=>setPdfName(text)}
+                variant='primary'
+                textInputStyle={{
+                  margin: 0,
+                }}
+                containerStyle={{
+                  width: '85%',
+                }}
+              />
+              <Button
+                containerStyle={{
+                  width: '15%'
+                }}
+                onPressAction={createPDFItem}
+              >
+                <Ionicons name="add-outline" size={30} color="black" />
+              </Button>
+            </HStack>          
+          </View> */}
+          {/* <ScrollView 
+            style={{ marginTop: 20 }} 
+            contentContainerStyle={{ 
+              gap: 10,
+            }} // optional, if using RN version that supports it
+          >
+            {pdfItems.map((item, index) => (
+              <View
+                key={index}
+                style={{
+                  backgroundColor: Colors.PrimaryLight[5],
+                  borderRadius: BorderRadius.md,
+                  padding: Spacing.sm,
+
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <Text
+                  numberOfLines={1} // to force it single-line
+                  ellipsizeMode="tail"
+                  style={[
+                    s.Text,
+                    {
+                      fontSize: Fontsize.base,
+                      borderColor: 'red',
+                      borderWidth: 3,
+                      
+                    },
+                  ]}
+                >
+                  {item.filename}
+                </Text>
+
+                <ButtonGL
+                  style={{
+                    backgroundColor: Colors.Alert,
+                    marginLeft: 'auto'
+                  }}
+                  onPress={()=>setPdfItems(prev=>prev.filter((_, i) => i !== index))}
+                >
+                  <Ionicons name="close-outline" size={20} color="black" />
+                </ButtonGL>
+              </View>
+
+            ))}
+          </ScrollView> */}
+
         </View>
         <VStack>
           <Checkbox
@@ -246,6 +376,7 @@ const s = StyleSheet.create({
   },
   container:{
     width: '90%',
+    alignSelf: 'center'
   },
   Text:{
     color: 'white'
@@ -272,3 +403,12 @@ const customStyles = {
 };
 
 export default SignUpOwnerScreen
+
+	// username TEXT UNIQUE NOT NULL,
+	// firstname TEXT NOT NULL,
+	// lastname TEXT NOT NULL,
+	// email TEXT UNIQUE NOT NULL,
+	// password TEXT NOT NULL,
+	// age INTEGER CHECK (age >= 0),              -- optional, but must be a non-negative number
+	// address TEXT,                                -- optional, full address
+	// phone_number TEXT

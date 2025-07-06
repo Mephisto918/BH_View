@@ -12,9 +12,10 @@ interface TextInputProps extends React.ComponentProps<typeof TI>{
   variant?: 'primary' | 'secondary'
   iconName?: string
   iconStyle?: StyleProp<TextStyle>
+  secureTextEntry?: boolean
 }
 
-const TextInput = ({iconStyle, iconName,variant, label, placeholder, containerStyle, labelStyle, textInputStyle, ...TextInputProps }: TextInputProps) => {
+const TextInput = ({iconStyle, iconName,variant, label, placeholder, containerStyle, labelStyle, secureTextEntry = false, textInputStyle, ...TextInputProps  }: TextInputProps) => {
 
   const variantStyles: Record<string, StyleProp<ViewStyle>> = {
     primary:{
@@ -48,6 +49,7 @@ const TextInput = ({iconStyle, iconName,variant, label, placeholder, containerSt
           style={[s.defaultTextInputStyle, textInputStyle]}
           placeholder={placeholder ?? ''}
           {...TextInputProps}
+          secureTextEntry={secureTextEntry}
         />
       </View>
     </View>

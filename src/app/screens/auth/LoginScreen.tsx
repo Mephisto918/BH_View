@@ -1,245 +1,256 @@
-import {Alert, View, Text ,StyleSheet, ImageStyle} from 'react-native'
-import React, {useState} from 'react'
+import { Alert, View, Text, StyleSheet, ImageStyle } from "react-native";
+import React, { useState, useEffect } from "react";
 
 // UI Layout
-import StaticScreenWrapper from '@/components/layout/StaticScreenWrapper'
+import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 
 // UI comopnent
-import TextInput from '@/components/ui/TextInput'
-import Logo from '@/components/ui/Logo'
-import Button from '@/components/ui/Button'
+import TextInput from "@/components/ui/TextInput";
+import Button from "@/components/ui/Button";
 
 // constants
-import { Colors, Fontsize, BorderRadius, Spacing, GlobalStyle, ShadowLight, BorderWidth } from '@/constants'
+import {
+  Colors,
+  Fontsize,
+  BorderRadius,
+  Spacing,
+  GlobalStyle,
+  ShadowLight,
+  BorderWidth,
+} from "@/constants";
 
 // Routing
-import { useNavigation } from '@react-navigation/native'
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { RootStackParamList, AuthStackParamList } from '../../types/navigation'
+import { useNavigation } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList, AuthStackParamList } from "../../types/navigation";
 
-// api call 
-import Api from '@/services/apiEndpoints'
+// api call
 
 // redux
-import { useDispatch } from 'react-redux'
-import { login, userData } from '@/stores/slices/authSlice'
-interface jsonPayload {
-  data: {
-    role: string
-  }
-}
-
-interface payload {
-  username: string | null,
-  password: string | null
-}
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "@/stores/auth/auth";
+import { useLoginMutation } from "@/stores/auth/auth";
+import { RootState } from "@/stores";
 
 const LoginScreen = () => {
-  const rootNavigation = useNavigation<BottomTabNavigationProp<RootStackParamList>>();
-  const authNavitaion = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const rootNavigation =
+    useNavigation<BottomTabNavigationProp<RootStackParamList>>();
+  const authNavitaion =
+    useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+
+  const [username, setUsername] = useState({ value: "", error: false });
+  const [password, setPassword] = useState({ value: "", error: false });
+
+  // redux
+  const [triggerLogin, { isLoading: isLoginLoading, error: isLoginError }] =
+    useLoginMutation();
+  const userRole = useSelector((state: RootState) => state.auth.userData?.role);
   const dispatch = useDispatch();
-
-  const [username, setUsername] = useState({value: '', error: false});
-  const [password, setPassword] = useState({value: '', error: false});
-
-  // api call
-  const api = new Api();
 
   const onPressLogin = async () => {
     const packageLoad = {
       username: username.value,
-      password: password.value
-    }
-   try{
-    const res: any = await api.auth.login<jsonPayload, payload>(packageLoad);
-    if(!res.success){
-      console.log('lee', res);
-      Alert.alert('Login Failed', res.error);
-      return
-    }
-    const data = await res.data;
-    dispatch(login(res.role));
-    dispatch(userData(data,));
+      password: password.value,
+    };
+    try {
+      const { access_token, user } = await triggerLogin(packageLoad).unwrap();
+      dispatch(
+        login({
+          token: access_token,
+          userData: user,
+        })
+      );
 
-    const role = data.role;
-
-    if(role == 'admin') return rootNavigation.navigate('AdminTabs');
-    if(role == 'owner') return rootNavigation.navigate('OwnerTabs');
-    if(role == 'tenant') return rootNavigation.navigate('TenantTabs');
-   }catch(error: any){
-    console.log('Error in Login Page: ', error);
-    Alert.alert('Erroor', error.error);
-   }
-  }
+      if (user.role == "ADMIN") return rootNavigation.navigate("AdminTabs");
+      if (user.role == "OWNER") return rootNavigation.navigate("OwnerTabs");
+      if (user.role == "TENANT") return rootNavigation.navigate("TenantTabs");
+    } catch (error: any) {
+      console.log("Login Message: ", isLoginError);
+      Alert.alert("Login Failed");
+    }
+  };
 
   const onPressSignup = () => {
-    authNavitaion.navigate('SignUpStack');
-  }
+    authNavitaion.navigate("SignUpStack");
+  };
   return (
     <StaticScreenWrapper
-      style={[GlobalStyle.GlobalsContainer]}      
-      contentContainerStyle={[GlobalStyle.GlobalsContentContainer, {
-        alignContent: 'center',
-
-      }]}
+      style={[GlobalStyle.GlobalsContainer]}
+      contentContainerStyle={[
+        GlobalStyle.GlobalsContentContainer,
+        {
+          justifyContent: "center",
+          alignItems: "center",
+        },
+      ]}
     >
-        <View
-          style={[s.Container]}
-        >
-          <Logo
-            // eslint-disable-next-line @typescript-eslint/no-require-imports 
+      <View style={[s.Container]}>
+        {/* <Logo
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             source={require('../../../assets/logos/LogoNameDark.png')}
             // squareScale={350}
             containerStyle={s.logo_Container}
             imageStyle={s.logo_Image}
-          />
-          <View style={[s.Form]}>
-            <View style={[s.Form_Inputs]}>
-              <TextInput
-                placeholder='Username'
-                iconName='person'
-                variant='primary'
-                value={username.value}
-                onChangeText={text=>setUsername({value: text, error: false})}
-                containerStyle={s.Form_InputContainer}
-                textInputStyle={s.Form_InputText}
-                iconStyle={s.Form_InputIcon}
-              />
-              <TextInput
-                variant='primary'
-                iconName='lock-closed'
-                placeholder='Username'
-                value={password.value}
-                onChangeText={text=>setPassword({value: text, error: false})}
-                containerStyle={s.Form_InputContainer}
-                textInputStyle={s.Form_InputText}
-                iconStyle={s.Form_InputIcon}
-              />
-            </View>
-            <View style={[s.Form_Buttons]}>
-              <Button
-                title='Login'
-                variant='primary'
-                onPressAction={onPressLogin}
-                textStyle={s.Form_Bottons_Login_Text}
-              >
-              </Button>
-              <Button
-                title='Dont have an Account?'
-                containerStyle={s.Form_Bottons_Signup_Container}
-                textStyle={s.Form_Bottons_Signup_Text}
-                onPressAction={onPressSignup}
-              >
-              </Button>
-            </View>
+          /> */}
+        <Text
+          style={{
+            fontSize: 60,
+            color: "white",
+            fontWeight: 900,
+            marginBottom: 20,
+          }}
+          // imageStyle={s.logo_Image}
+        >
+          BH Hunter
+        </Text>
+        <View style={[s.Form]}>
+          <View style={[s.Form_Inputs]}>
+            <TextInput
+              placeholder="username"
+              iconName="person"
+              variant="primary"
+              value={username.value}
+              onChangeText={(text) =>
+                setUsername({ value: text, error: false })
+              }
+              containerStyle={s.Form_InputContainer}
+              textInputStyle={s.Form_InputText}
+              iconStyle={s.Form_InputIcon}
+            />
+            <TextInput
+              variant="primary"
+              iconName="lock-closed"
+              placeholder="password"
+              value={password.value}
+              onChangeText={(text) =>
+                setPassword({ value: text, error: false })
+              }
+              containerStyle={s.Form_InputContainer}
+              textInputStyle={s.Form_InputText}
+              iconStyle={s.Form_InputIcon}
+              secureTextEntry={true}
+            />
+          </View>
+          <View style={[s.Form_Buttons]}>
+            <Button
+              title="Login"
+              variant="primary"
+              onPressAction={onPressLogin}
+              textStyle={s.Form_Bottons_Login_Text}
+            ></Button>
+            <Button
+              title="Dont have an Account?"
+              containerStyle={s.Form_Bottons_Signup_Container}
+              textStyle={s.Form_Bottons_Signup_Text}
+              onPressAction={onPressSignup}
+            ></Button>
           </View>
         </View>
-    </StaticScreenWrapper> 
-  )
-}
+      </View>
+    </StaticScreenWrapper>
+  );
+};
 
 const s = StyleSheet.create({
-  default:{
-    justifyContent: 'center',
-    alignItems: 'center',
+  default: {
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: Colors.PrimaryLight[9],
     // width: '100%',
     // borderColor: 'yellow',
     // borderWidth: 3
   },
-  Container:{
-    backgroundColor: 'transparent',
+  Container: {
+    backgroundColor: "transparent",
     flex: 1,
-    width: '90%',
-    
-    position: 'relative',
-    
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "90%",
+
+    position: "relative",
+
+    justifyContent: "center",
+    alignItems: "center",
 
     // borderColor: 'yellow',
     // borderWidth: 3,
   },
-  
-  logo_Container:{
-    alignSelf: 'stretch',
+
+  logo_Container: {
+    alignSelf: "stretch",
     top: undefined,
     position: undefined,
     padding: 0,
     left: 0,
     right: 0,
   },
-  logo_Image:{
+  logo_Image: {
     height: 125,
   } as ImageStyle,
-  
-  Form:{
+
+  Form: {
     height: 300,
     width: "90%",
-    
+
     backgroundColor: Colors.PrimaryLight[7],
     borderColor: Colors.PrimaryLight[5],
     borderWidth: BorderWidth.lg,
     borderRadius: BorderRadius.xl,
-    
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
+
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
     padding: Spacing.base,
 
     ...ShadowLight.xxl,
   },
-  Form_Inputs:{
+  Form_Inputs: {
     // borderColor: 'blue',
     // borderWidth: 6,
-    width: '100%',
+    width: "100%",
     gap: 12,
   },
-  Form_InputContainer:{
-
+  Form_InputContainer: {},
+  Form_InputIcon: {
+    color: Colors.Primary[8],
   },
-  Form_InputIcon:{
-    color: Colors.Primary[8]
+  Form_InputText: {
+    fontSize: Fontsize.lg,
+    padding: Spacing.xs,
   },
-  Form_InputText:{
-    fontSize: Fontsize.lg, 
-    padding: Spacing.xs
-  },
-  Form_Buttons:{
-    marginTop: 'auto',
+  Form_Buttons: {
+    marginTop: "auto",
     // flex: 1,
-    justifyContent: 'flex-start',
-    alignSelf: 'stretch',
-    alignItems: 'center'
+    justifyContent: "flex-start",
+    alignSelf: "stretch",
+    alignItems: "center",
   },
-  Form_Bottons_Login_Container:{
-    borderColor: 'green',
+  Form_Bottons_Login_Container: {
+    borderColor: "green",
     borderWidth: 3,
     flex: 1,
-    alignSelf: 'stretch',
-    width: '100%',
+    alignSelf: "stretch",
+    width: "100%",
   },
-  Form_Bottons_Login_Text:{
+  Form_Bottons_Login_Text: {
     color: Colors.Text[2],
     fontSize: Fontsize.h3,
-    fontWeight: '700'
+    fontWeight: "700",
   },
-  Form_Bottons_Signup_Container:{
-    borderWidth:0,
+  Form_Bottons_Signup_Container: {
+    borderWidth: 0,
     margin: 0,
     padding: 0,
-    backgroundColor: 'transparent',
-    textDecorationLine: 'underline',
-    height: 'auto',
+    backgroundColor: "transparent",
+    textDecorationLine: "underline",
+    height: "auto",
   },
-  Form_Bottons_Signup_Text:{
+  Form_Bottons_Signup_Text: {
     margin: 0,
     padding: 0,
     color: Colors.Text[5],
     fontSize: Fontsize.md,
-    fontWeight: 100
-  }
+    fontWeight: 100,
+  },
 });
 
-export default LoginScreen
+export default LoginScreen;
