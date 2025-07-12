@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-// import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ApiResponseType } from "../types";
 import api from "@/config/api";
 import { BoardingHouse, BoardingHousesState } from "./boarding-houses.types";
+import { FindBoardingHouseDto } from "./FindBoardingHouse.dto";
 
 //* -- Initial State --
 const initialState: BoardingHousesState = {
@@ -28,9 +28,21 @@ export const boardingHouseApi = createApi({
     // },
   }),
   endpoints: (builder) => ({
-    getAll: builder.query<BoardingHouse[], void>({
-      // TODO: add pagination
-      query: () => boardingHouseApiRoute,
+    getAll: builder.query<BoardingHouse[], Partial<FindBoardingHouseDto>>({
+      query: (paramas) => {
+        const queryParamas = new URLSearchParams();
+
+        Object.entries(paramas || {}).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            queryParamas.append(
+              key,
+              value instanceof Date ? value.toISOString() : String(value)
+            );
+          }
+        });
+
+        return `${boardingHouseApiRoute}?${queryParamas.toString()}`;
+      },
       transformResponse: (response: ApiResponseType<BoardingHouse[]>) =>
         response.results ?? [],
     }),

@@ -5,11 +5,11 @@ export interface BaseUser {
   lastname: string;
   email: string;
   password: string;
-  role: UserRole; // Assuming your UserRole enum resolves like this
-  isActive: boolean;
-  isVerified: boolean;
-  createdAt: string; // Prisma will return ISO string
-  updatedAt: string;
+  role?: UserRole; // Assuming your UserRole enum resolves like this
+  isActive?: boolean;
+  isVerified?: boolean;
+  createdAt?: string; // Prisma will return ISO string
+  updatedAt?: string;
   age: number;
   address: string;
   phone_number: string;

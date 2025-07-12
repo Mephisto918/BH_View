@@ -105,9 +105,9 @@ const EditUserInfoScreen = () => {
         id,
         cleanForm as Partial<Tenant> | Partial<Owner> | Partial<Admin>
       );
-      console.log("clanForm", cleanForm);
+      // console.log("clanForm", cleanForm);
 
-      console.log("result", result);
+      // console.log("result", result);
       AlertRN.alert("Accound updated!");
       setTimeout(() => {
         setShowSaveChangesConfirmModal(false);

@@ -25,7 +25,7 @@
 */
 
 import { BaseUser, UserRole } from "../types/user.types";
-import { BoardingHouse } from "../boarding-houses/boarding-houses.types";
+import { BoardingHousesIdList } from "../boarding-houses/boarding-houses.types";
 
 export enum PermitEnum {
   BIR = "BIR", // Bureau of Internal Revenue
@@ -45,8 +45,8 @@ export interface Permit {
 }
 
 export interface Owner extends BaseUser {
-  role: UserRole.OWNER;
-  boardingHouses?: Array<BoardingHouse>;
+  role?: UserRole.OWNER;
+  boardingHouses: Array<BoardingHousesIdList>;
   permits?: Array<Permit>;
 }
 

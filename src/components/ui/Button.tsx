@@ -59,10 +59,6 @@ const s = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 2,
     borderRadius: 8,
-  
-    width: 150,
-    height: 50,
-
     margin: 'auto',
   },
   defaultTextStyle:{

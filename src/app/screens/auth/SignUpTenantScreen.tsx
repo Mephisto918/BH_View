@@ -40,28 +40,12 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../../types/navigation";
 
 // api
-import Api from "@/services/apiEndpoints";
 import { Heading } from "@gluestack-ui/themed";
 import { ScrollView } from "@gluestack-ui/themed";
 
 // redux
-import {
-  Tenant,
-  useCreateMutation as useCreateTenant,
-} from "@/stores/tenants/tenants";
-
-interface TenantFormProps {
-  username: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  age: string;
-  guardian: string;
-  address: string;
-  phone_number: string;
-}
+import { useCreateMutation as useCreateTenant } from "@/stores/tenants/tenants";
+import { Tenant } from "@/stores/tenants/tenants.types";
 
 const SignUpTenantScreen = () => {
   // const api = new Api();
@@ -116,7 +100,7 @@ const SignUpTenantScreen = () => {
       // const res: any = await api.tenant.create(tenantForm);
 
       const result = await createTenant(tenantForm).unwrap();
-      console.log("result", result)
+      console.log("result", result);
 
       Alert.alert("You are registered!");
       setTenantForm({

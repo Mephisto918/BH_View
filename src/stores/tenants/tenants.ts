@@ -35,11 +35,17 @@ export const tenantsApi = createApi({
       providesTags: (result, error, id) => [{ type: "Tenant", id }],
     }),
     create: builder.mutation<Tenant, Partial<Tenant>>({
-      query: (data) => ({
-        url: tenantsApiRoute,
-        method: "POST",
-        body: data,
-      }),
+      query: (data) => {
+        const trans = {
+          ...data,
+          age: data.age !== undefined ? Number(data.age) : undefined,
+        };
+        return {
+          url: tenantsApiRoute,
+          method: "POST",
+          body: trans,
+        };
+      },
       //* Optional: invalidates cache for "Tenant"
       invalidatesTags: ["Tenant"],
     }),

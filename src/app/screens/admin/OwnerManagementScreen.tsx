@@ -38,6 +38,20 @@ import { RootState } from "@/stores";
 import { useGetAllQuery } from "@/stores/tenants/tenants";
 
 const OwnerManagement = () => {
+  const { data: ownersArray, isLoading, isError } = useGetAllQuery();
+
+  const [addOwnerModal, setAddOwnerModal] = useState(false);
+  const [addOwnerForm, setAddOwnerForm] = useState({
+    username: "",
+    password: "",
+    firstname: "",
+    lastname: "",
+    email: "",
+    age: "",
+    phone_number: "",
+    address: "",
+  });
+
   const handleDeleteApplication = async (userId: string | number) => {
     try {
       const result = await api.owner_applicants.delete(selectedUser.id);
@@ -49,18 +63,6 @@ const OwnerManagement = () => {
       AlertRN.alert("Error in saving changes!");
     }
   };
-
-  const [addOwnerModal, setAddOwnerModal] = useState(false);
-  const [addOwnerForm, setAddOwnerForm] = useState<AddOwnerProps>({
-    username: "",
-    password: "",
-    firstname: "",
-    lastname: "",
-    email: "",
-    age: "",
-    phone_number: "",
-    address: "",
-  });
 
   const handleAddOwner = async () => {
     for (const [key, value] of Object.entries(addOwnerForm)) {
@@ -80,26 +82,21 @@ const OwnerManagement = () => {
       );
       return;
     }
-    // if(addOwnerForm.password !== addOwnerForm.confirmPassword){
-    //   AlertRN.alert('Alert', 'Password and Confirm Password must match');
-    //   return
-    // }
+
     try {
       // const {confirmPassword: _, ...filtered} = addOwnerForm
-      const result = await api.owner.create(addOwnerForm);
-      fetchUsers();
       console.log("Owner Sucessfull Added");
       AlertRN.alert("Owner Sucessfull Added");
-      setAddOwnerForm({
-        username: "",
-        password: "",
-        firstname: "",
-        lastname: "",
-        email: "",
-        age: "",
-        phone_number: "",
-        address: "",
-      });
+      // setAddOwnerForm({
+      //   username: "",
+      //   password: "",
+      //   firstname: "",
+      //   lastname: "",
+      //   email: "",
+      //   age: "",
+      //   phone_number: "",
+      //   address: "",
+      // });
       setAddOwnerModal(false);
     } catch (error) {
       console.log(error);
@@ -109,20 +106,18 @@ const OwnerManagement = () => {
 
   const handleUpdateUser = async (userId: string | number) => {
     try {
-      const result = await api.owner.update(selectedUser, selectedUser.id);
-      fetchUsers();
       console.log("Owner Sucessfull Added");
       AlertRN.alert("Owner Sucessfull Added");
-      setSelectedUser({
-        username: "",
-        password: "",
-        firstname: "",
-        lastname: "",
-        email: "",
-        age: "",
-        phone_number: "",
-        address: "",
-      });
+      // setSelectedUser({
+      //   username: "",
+      //   password: "",
+      //   firstname: "",
+      //   lastname: "",
+      //   email: "",
+      //   age: "",
+      //   phone_number: "",
+      //   address: "",
+      // });
       setAddOwnerModal(false);
     } catch (error) {
       console.log(error);
@@ -141,9 +136,9 @@ const OwnerManagement = () => {
             padding: Spacing.md,
           }}
         >
-          {users.map((user) => (
+          {ownersArray?.map((owner) => (
             <HStack
-              key={user.id}
+              key={owner.id}
               style={{
                 padding: Spacing.md,
                 borderRadius: BorderRadius.md,
@@ -152,11 +147,11 @@ const OwnerManagement = () => {
             >
               <VStack>
                 <Heading>
-                  <Text style={[s.Text]}>{user.username}</Text>
+                  <Text style={[s.Text]}>{owner.username}</Text>
                 </Heading>
                 <HStack>
-                  <Text style={[s.Text]}>{user.firstname} </Text>
-                  <Text style={[s.Text]}>{user.lastname}</Text>
+                  <Text style={[s.Text]}>{owner.firstname} </Text>
+                  <Text style={[s.Text]}>{owner.lastname}</Text>
                 </HStack>
               </VStack>
               <HStack
@@ -166,7 +161,7 @@ const OwnerManagement = () => {
                   gap: Spacing.md,
                 }}
               >
-                {String(user.is_approved) === "false" ? (
+                {String(owner?.isVerified) === "false" ? (
                   <ButtonRN style={{ backgroundColor: Colors.Alert }}>
                     <Text style={[s.Text, { color: "black" }]}>Pending</Text>
                   </ButtonRN>
@@ -178,8 +173,7 @@ const OwnerManagement = () => {
                 <ButtonRN
                   style={{ backgroundColor: Colors.PrimaryLight[2] }}
                   onPress={() => {
-                    setReviewModal(true);
-                    setSelectedUser(user);
+
                   }}
                 ></ButtonRN>
               </HStack>
@@ -187,7 +181,8 @@ const OwnerManagement = () => {
           ))}
         </Box>
       </ScrollView>
-      {reviewModal && (
+      {/* {reviewModal */}
+      {/* {reviewModal && (
         <Alert
           style={{
             position: "absolute",
@@ -333,40 +328,6 @@ const OwnerManagement = () => {
                   />
                 </Input>
               </FormControl>
-              {/* <View style={{paddingTop: 20, paddingBottom: 4}}>
-                <Text style={{color: 'white'}}>Certificates</Text>
-              </View>
-              <ScrollView 
-                contentContainerStyle={{ 
-                  gap: 10,
-                }} // optional, if using RN version that supports it
-              >
-                {selectedUser?.certificates_json.map((item, index) => (
-                  <View
-                    key={index}
-                    style={{
-                      backgroundColor: Colors.PrimaryLight[5],
-                      borderRadius: BorderRadius.md,
-                      padding: Spacing.sm,
-
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Text
-                      numberOfLines={1}ellipsizeMode="tail" style={[s.Text,{fontSize: Fontsize.base,}]}
-                    >
-                      {item.filename}
-                    </Text>
-                    <Text
-                      numberOfLines={1}ellipsizeMode="tail" style={[s.Text,{fontSize: Fontsize.base, marginLeft: 'auto'}]} 
-                    >
-                      {item.size}
-                    </Text>
-                  </View>
-
-                ))}
-              </ScrollView> */}
             </ScrollView>
             <VStack>
               <Button
@@ -379,26 +340,10 @@ const OwnerManagement = () => {
               >
                 <Text style={[s.TextButton]}>Edit</Text>
               </Button>
-              {/* <Button 
-                  variant='primary'
-                  onPressAction={()=>{setReviewModal(false); handleDeleteApplication(selectedUser?.id)}} 
-                  containerStyle={{backgroundColor: Colors.Alert}}
-                  >
-                  <Text style={[s.TextButton]}>Delete</Text>
-                </Button> */}
-              {/* {String(selectedUser?.is_approved) === 'false' && (
-                  <Button 
-                    variant='primary'
-                    containerStyle={{backgroundColor: Colors.Success}}
-                    onPressAction={()=>{setReviewModal(false); handleApproveApplication(selectedUser?.id)}} 
-                  >
-                    <Text style={[s.TextButton]}>Approved</Text>
-                  </Button>
-                )} */}
             </VStack>
           </VStack>
         </Alert>
-      )}
+      )} */}
       {/* -----------------Add Owner ------------------------------------------------------------------------------------------------------------ */}
       <Button
         variant="primary"

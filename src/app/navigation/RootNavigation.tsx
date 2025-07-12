@@ -34,24 +34,33 @@ const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigation = () => {
   // TODO: Abstract this role-based data fetching into a Redux thunk for cleaner component code
   // TODO: make this into a selector in a function that returns a dynamic role
-  const dispatch = useDispatch();
-  const userData = useSelector((state: RootState) => state.auth.userData);
+  // const dispatch = useDispatch();
+  // const userData = useSelector((state: RootState) => state.auth.userData);
 
-  const role = userData?.role;
-  const id = userData?.id;
+  // const role = userData?.role;
+  // const id = userData?.id;
 
-  const tenantQuery = useGetTenantQuery(id!, {
-    skip: role !== UserRole.TENANT,
-  });
-  const ownerQuery = useGetOwnerQuery(id!, { skip: role !== UserRole.OWNER });
-  const adminQuery = useGetAdminQuery(id!, { skip: role !== UserRole.ADMIN });
+  // const tenantQuery = useGetTenantQuery(id!, {
+  //   skip: role !== UserRole.TENANT,
+  // });
+  // const ownerQuery = useGetOwnerQuery(id!, { skip: role !== UserRole.OWNER });
+  // const adminQuery = useGetAdminQuery(id!, { skip: role !== UserRole.ADMIN });
 
-  // Example: when data arrives, dispatch
-  useEffect(() => {
-    if (tenantQuery.data) dispatch(selectTenant(tenantQuery.data));
-    if (ownerQuery.data) dispatch(selectOwner(ownerQuery.data));
-    if (adminQuery.data) dispatch(selectAdmin(adminQuery.data));
-  }, [tenantQuery.data, ownerQuery.data, adminQuery.data, dispatch]);
+  // // Example: when data arrives, dispatch
+  // useEffect(() => {
+  //   if (tenantQuery.data) {
+  //     console.log("root nav user pass: ",tenantQuery.data)
+  //     dispatch(selectTenant(tenantQuery.data))
+  //   };
+  //   if (ownerQuery.data) {
+  //     console.log("root nav user pass: ",ownerQuery.data)
+  //     dispatch(selectOwner(ownerQuery.data))
+  //   };
+  //   if (adminQuery.data) {
+  //     console.log("root nav user pass: ",adminQuery.data)
+  //     dispatch(selectAdmin(adminQuery.data))
+  //   };
+  // }, [tenantQuery.data, ownerQuery.data, adminQuery.data, dispatch]);
 
   return (
     <>

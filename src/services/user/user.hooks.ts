@@ -72,7 +72,7 @@ type ApiMapRecord = {
   };
 };
 
-const apiMap: ApiMapRecord = {
+export const apiMap: ApiMapRecord = {
   [UserRole.TENANT]: {
     getAll: getAllTenant,
     getOne: getOneTenant,

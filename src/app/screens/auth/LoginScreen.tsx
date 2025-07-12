@@ -28,10 +28,11 @@ import { RootStackParamList, AuthStackParamList } from "../../types/navigation";
 // api call
 
 // redux
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/stores";
 import { login } from "@/stores/auth/auth";
 import { useLoginMutation } from "@/stores/auth/auth";
-import { RootState } from "@/stores";
+import { fetchUserDataThunk } from "@/stores/auth/auth.thunk";
 
 const LoginScreen = () => {
   const rootNavigation =
@@ -45,13 +46,22 @@ const LoginScreen = () => {
   // redux
   const [triggerLogin, { isLoading: isLoginLoading, error: isLoginError }] =
     useLoginMutation();
-  const userRole = useSelector((state: RootState) => state.auth.userData?.role);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    setTimeout(() => {
+      onPressLogin();
+    }, 700);
+  }, []);
 
   const onPressLogin = async () => {
+    // const packageLoad = {
+    //   username: username.value,
+    //   password: password.value,
+    // };
     const packageLoad = {
-      username: username.value,
-      password: password.value,
+      username: "edwardTenant",
+      password: "123456789",
     };
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();
@@ -61,12 +71,16 @@ const LoginScreen = () => {
           userData: user,
         })
       );
+      await dispatch(
+        fetchUserDataThunk({ id: user.id as number, role: user.role })
+      );
 
       if (user.role == "ADMIN") return rootNavigation.navigate("AdminTabs");
       if (user.role == "OWNER") return rootNavigation.navigate("OwnerTabs");
       if (user.role == "TENANT") return rootNavigation.navigate("TenantTabs");
     } catch (error: any) {
       console.log("Login Message: ", isLoginError);
+      console.log("Login error in Catch: ", error);
       Alert.alert("Login Failed");
     }
   };
@@ -209,9 +223,11 @@ const s = StyleSheet.create({
     width: "100%",
     gap: 12,
   },
-  Form_InputContainer: {},
+  Form_InputContainer: {
+    backgroundColor: Colors.PrimaryLight[2],
+  },
   Form_InputIcon: {
-    color: Colors.Primary[8],
+    color: Colors.PrimaryLight[8],
   },
   Form_InputText: {
     fontSize: Fontsize.lg,

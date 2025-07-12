@@ -39,14 +39,20 @@ export const ownersApi = createApi({
       transformResponse: (response: ApiResponseType<Owner>) =>
         response.results ?? null,
       //* Optional: invalidates cache for `Owner`
-      providesTags: (result, error, id) => [{type: "Owner", id}],
+      providesTags: (result, error, id) => [{ type: "Owner", id }],
     }),
     create: builder.mutation<Owner, Partial<Owner>>({
-      query: (data) => ({
-        url: ownersApiRoute,
-        method: "POST",
-        body: data,
-      }),
+      query: (data) => {
+        const trans = {
+          ...data,
+          age: data.age !== undefined ? Number(data.age) : undefined,
+        };
+        return {
+          url: ownersApiRoute,
+          method: "POST",
+          body: trans,
+        };
+      },
       //* Optional: invalidates cache for `Owner`
       invalidatesTags: ["Owner"],
     }),

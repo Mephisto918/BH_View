@@ -1,6 +1,5 @@
-import { View, Text, StyleSheet } from "react-native";
-import React, { useEffect, useState } from "react";
-import AuthService from "@/services/AuthService";
+import { Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
 import { logout } from "@/stores/auth/auth";
 
 //
@@ -20,22 +19,20 @@ import { CommonActions } from "@react-navigation/native";
 import { useIsFocused } from "@react-navigation/native";
 
 // redux
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/stores";
-import { roleToSliceMap } from "@/stores/types/user.types";
+import { useDispatch } from "react-redux";
+// import { RootState } from "@/stores";
+import { useDynamicUserApi } from "@/services/user/user.hooks";
 
 type ToLoginScreen = NativeStackNavigationProp<RootStackParamList>;
 
 const Settings = () => {
-  const dispatch = useDispatch();
   const isFocused = useIsFocused();
+  const dispatch = useDispatch();
   // TODO: put a wrapper function or do an abstraction on this operation
-  const userRole = useSelector((state: RootState) => state.auth.userData?.role);
-  const { data: userData } = useSelector((state: RootState) => {
-    const sliceName = userRole ? roleToSliceMap[userRole] : null;
-    if (!sliceName) return null;
-    return state[sliceName].selectedUser;
-  });
+  // const userRole = useSelector((state: RootState) => state.auth.userData?.role);
+  const { selectedUser: userData } = useDynamicUserApi();
+
+  //* data is userData
   // TODO: put a wrapper function or do an abstraction on this operation
 
   const navigateToLogin = useNavigation<ToLoginScreen>();
@@ -143,15 +140,17 @@ const Settings = () => {
             <Ionicons name="accessibility-outline" size={24} color="black" />
             <Text>Accessibility</Text>
           </Button>
-          <Button
-            style={[s.buttons_Array_button]}
-            onPress={() => {
-              navigateRoot.navigate("SyslogsScreen");
-            }}
-          >
-            <Ionicons name="receipt-outline" size={24} color="black" />
-            <Text>Logs</Text>
-          </Button>
+          {userData?.role == "ADMIN" && (
+            <Button
+              style={[s.buttons_Array_button]}
+              onPress={() => {
+                navigateRoot.navigate("SyslogsScreen");
+              }}
+            >
+              <Ionicons name="receipt-outline" size={24} color="black" />
+              <Text>Logs</Text>
+            </Button>
+          )}
           <Button style={[s.buttons_Array_button]} onPress={logOutOnPress}>
             <Ionicons name="exit-outline" size={24} color="black" />
             <Text>Logout</Text>

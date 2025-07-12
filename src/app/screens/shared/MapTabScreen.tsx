@@ -2,7 +2,13 @@ import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useState, useRef, useMemo, useEffect } from "react";
 
 import Mapview, { Marker, Polygon } from "react-native-maps";
-import { Colors, GlobalStyle, Fontsize, Spacing } from "@/constants";
+import {
+  Colors,
+  GlobalStyle,
+  Fontsize,
+  Spacing,
+  BorderRadius,
+} from "@/constants";
 
 //navigation
 import { useNavigation } from "@react-navigation/native";
@@ -24,21 +30,22 @@ import { DEFAULT_REGION } from "@/config/map.config";
 
 // redux
 import { useGetAllQuery as useGetAllBoardingHouses } from "@/stores/boarding-houses/boarding-houses";
-import { BoardingHouse } from "@/stores/boarding-houses/boarding-houses.types";
+import {
+  BoardingHouse,
+  BoardingHouseImage,
+} from "@/stores/boarding-houses/boarding-houses.types";
 import { useDispatch } from "react-redux";
 import { selectBoardinHouse } from "@/stores/boarding-houses/boarding-houses";
+import { HStack, VStack } from "@gluestack-ui/themed";
 
 export default function Map() {
   const [search, setSearch] = useState("");
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ["25%", "50%"], []);
-  const [sheetData, setDataSheet] = useState<BoardingHouse | null>(
-    null
-  );
+  const snapPoints = useMemo(() => ["25%", "70%"], []);
+  const [sheetData, setDataSheet] = useState<BoardingHouse | null>(null);
+  // const [sheetThumbnail, setSheetThumbnail] = useState<BoardingHouseImage | null>(null)
 
   const dispatch = useDispatch();
-
-  
 
   const {
     data: boardinghouses,
@@ -46,9 +53,9 @@ export default function Map() {
     isError: isBoardingHousesError,
   } = useGetAllBoardingHouses();
 
-  // useEffect(() => {
-  //   console.log('bh: ',boardinghouses);
-  // }, []);
+  useEffect(() => {
+    console.log("bh: ", boardinghouses);
+  }, [isBoardingHousesLoading]);
 
   const navigation =
     useNavigation<BottomTabNavigationProp<TenantTabsParamList>>();
@@ -64,7 +71,6 @@ export default function Map() {
 
   const handleGotoPress = () => {
     if (!sheetData) return;
-    // console.log('Sheedata should be id: ', sheetData.id)
     dispatch(selectBoardinHouse(sheetData));
     navigation.navigate("BookingScreen", { id: sheetData.id });
   };
@@ -89,27 +95,35 @@ export default function Map() {
         mapType="hybrid"
       >
         {/** add loading touches and error later */}
-        {(boardinghouses ?? [])
-          .filter(
-            (house) =>
-              house &&
-              house.location &&
-              house.location.latitude != null &&
-              house.location.longitude != null
-          )
-          .map((house: BoardingHouse, i) => (
-            <Marker
-              key={i}
-              onPress={() => handleMarkerPress(house)}
-              pinColor={house.availability_status ? "green" : "blue"}
-              coordinate={{
-                latitude: house.location.latitude,
-                longitude: house.location.longitude,
-              }}
-              title={house.name}
-              description={house.description}
-            />
-          ))}
+        {!isBoardingHousesLoading &&
+          (boardinghouses ?? [])
+            .filter((house) => {
+              const coords = house?.location?.coordinates?.coordinates;
+              const valid =
+                Array.isArray(coords) &&
+                coords.length === 2 &&
+                coords.every((v) => typeof v === "number");
+              if (!valid) {
+                console.warn("Skipping invalid marker", {
+                  houseId: house?.id,
+                  location: house?.location,
+                });
+              }
+              return valid;
+            })
+            .map((house: BoardingHouse, i) => (
+              <Marker
+                key={i}
+                onPress={() => handleMarkerPress(house)}
+                pinColor={house.availabilityStatus ? "green" : "blue"}
+                coordinate={{
+                  latitude: house.location.coordinates.coordinates[1], // Y = lat
+                  longitude: house.location.coordinates.coordinates[0], // X = lng
+                }}
+                title={house.name}
+                description={house.description}
+              />
+            ))}
 
         <Marker
           coordinate={{
@@ -168,41 +182,70 @@ export default function Map() {
                     : require("../../../assets/housesSample/1.jpg")
                 }
                 style={{
-                  borderColor: "red",
-                  borderWidth: 2,
-                  width: "100%",
+                  // borderColor: "red",
+                  // borderWidth: 2,
+                  margin: "auto",
+                  width: "98%",
                   height: 200,
+                  borderRadius: BorderRadius.md,
                 }}
               />
               <ScrollView style={{ flex: 1 }}>
                 <View
                   style={{
+                    marginTop: Spacing.sm,
                     alignItems: "baseline",
                     padding: Spacing.md,
-                    flexDirection: "row",
-                    // justifyContent: 'flex-start',
-                    borderWidth: 2,
-                    borderColor: "white",
+                    flexDirection: "column",
+                    // borderWidth: 2,
+                    // borderColor: "white",
                   }}
                 >
                   <View
                     style={{
                       flex: 1,
-                      borderWidth: 2,
-                      borderColor: "green",
+                      // borderWidth: 2,
+                      // borderColor: "green",
+                      marginBottom: Spacing.sm,
                     }}
                   >
-                    <Text>{sheetData.name}</Text>
-                    <Text>This is your bottom sheet content.</Text>
-                    <Text>{sheetData.description}</Text>
+                    <HStack
+                      style={{
+                        alignItems: "center",
+                        justifyContent: "space-evenly",
+                        gap: 10,
+                        backgroundColor: Colors.PrimaryLight[7],
+                        borderRadius: 10,
+                        padding: 10,
+                      }}
+                    >
+                      <VStack style={{ width: "75%" }}>
+                        <Text style={[s.text_title]}>{sheetData.name}</Text>
+                        <Text style={[s.text_address]}>
+                          {sheetData.address}
+                        </Text>
+                      </VStack>
+                      <Button
+                        title="Goto?"
+                        onPressAction={handleGotoPress}
+                        containerStyle={
+                          {
+                            // marginBottom: Spacing.lg,
+                            // alignSelf: "flex-end",
+                            // marginLeft: 0,
+                            padding: 10,
+                            // marginRight: Spacing.lg,
+                          }
+                        }
+                      />
+                    </HStack>
+                    <Text style={[s.text_white]}>
+                      This is your bottom sheet content. asdasd as dasda s a das
+                      dasd asdasdasda sd asda da sdasd a dad sda sda sd asda
+                      sdasd as dasd asd ad adas asdasdaadsasdasd asd
+                      adsadsasdsdasdasd asd asd asdad as
+                    </Text>
                   </View>
-                  <Button
-                    title="Goto?"
-                    onPressAction={handleGotoPress}
-                    containerStyle={{
-                      marginLeft: Spacing.md,
-                    }}
-                  />
                 </View>
               </ScrollView>
             </View>
@@ -236,5 +279,23 @@ const s = StyleSheet.create({
   },
   callout: {
     padding: 10,
+  },
+  text_white: {
+    color: "white",
+  },
+  text_address: {
+    fontSize: Fontsize.sm,
+    paddingTop: 5,
+    color: Colors.TextInverse[2],
+
+    // borderColor: "red",
+    // borderWidth: 3,
+  },
+  text_title: {
+    // borderColor: "red",
+    // borderWidth: 3,
+    color: Colors.TextInverse[1],
+    fontSize: Fontsize.xxl,
+    fontWeight: 900,
   },
 });
