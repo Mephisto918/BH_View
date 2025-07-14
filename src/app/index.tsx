@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 import RootNavigation from './navigation/RootNavigation';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { store } from '../stores';
+import { store } from './store/stores';
 import { GluestackUIProvider } from '@gluestack-ui/themed';
 import { config } from '@gluestack-ui/config'
 

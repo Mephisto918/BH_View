@@ -1,0 +1,40 @@
+import { View, Text } from 'react-native'
+import React from 'react'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
+import MenuMainScreen from '../menu.main.screen';
+import MenuUserEditMainScreen from '../menu.user-edit.main.screen';
+import MenuCustomerHelpMainScreen from '../menu.customer-help.main.screen';
+import MenuAccessibilityMainScreen from '../menu.accessibility.main.screen';
+
+const Stack = createNativeStackNavigator();
+
+const MenuStack = () => {
+  return (
+    <Stack.Navigator
+      initialRouteName='MenuTab'
+			screenOptions={{
+					headerShown: false
+			}}
+    >
+      <Stack.Screen 
+        name='MenuTab'
+        component={MenuMainScreen}
+      />
+      <Stack.Screen 
+        name='UserEdit'
+        component={MenuUserEditMainScreen}
+      />
+      <Stack.Screen 
+        name='CustomerHelp'
+        component={MenuCustomerHelpMainScreen}
+      />
+      <Stack.Screen 
+        name='Accessibility'
+        component={MenuAccessibilityMainScreen}
+      />
+    </Stack.Navigator>
+  )
+}
+
+export default MenuStack
