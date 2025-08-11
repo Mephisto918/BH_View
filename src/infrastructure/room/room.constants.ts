@@ -1,0 +1,41 @@
+export const ROOM_FEATURE_TAGS = [
+  "AirConditioning",
+  "PrivateBathroom",
+  "SharedBathroom",
+  "Balcony",
+  "Kitchenette",
+  "FullKitchen",
+  "TV",
+  "WiFi",
+  "Wardrobe",
+  "Desk",
+  "MiniFridge",
+  "Microwave",
+  "Washer",
+  "AccessibleRoom",
+  "PetFriendly",
+  "SmokeFree",
+  "Bathtub",
+  "HotShower",
+  "LakeView",
+  "MountainView",
+  "CityView",
+  "GardenView",
+  "Soundproofing",
+  "HighFloor",
+  "GroundFloor",
+  "PrivateEntrance",
+  "KeylessEntry",
+  "ServicedCleaning",
+  "LaundryService",
+  "Closet",
+  "Safe",
+  "Fan",
+  "PetsAllowed",
+  "PetsNotAllowed",
+] as const;
+
+export const ROOM_TYPES = ["SOLO", "DUO", "TRIO", "SQUAD", "FAMILY"] as const;
+
+export type RoomFeatureTag = (typeof ROOM_FEATURE_TAGS)[number];
+export type RoomType = (typeof ROOM_TYPES)[number];

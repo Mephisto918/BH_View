@@ -26,14 +26,22 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../types/navigation";
 import { AuthStackParamList } from "../navigation/auth.stack.types";
 
-// api call
-
 // redux
 import { useDispatch } from "react-redux";
 import { login } from "@/infrastructure/auth/auth.redux.slice";
 import { useLoginMutation } from "@/infrastructure/auth/auth.redux.slice";
 import { fetchUserDataThunk } from "@/infrastructure/auth/auth.redux.thunk";
-import { AppDispatch } from '../../../app/store/stores';
+import { AppDispatch } from "../../../app/store/stores";
+import { ActivityIndicator } from "react-native-paper";
+
+const FullScreenLoader = () => (
+  <View style={s.overlay}>
+    <ActivityIndicator size="large" color="#fff" />
+  </View>
+  //  <Overlay isOpen={true}>
+  //   <Spinner size="large" color="$white" />
+  // </Overlay>
+);
 
 export default function LoginMainScreen() {
   const rootNavigation =
@@ -60,8 +68,9 @@ export default function LoginMainScreen() {
       username: username.value,
       password: password.value,
     };
+
     // const packageLoad = {
-    //   username: "edwardOwner",
+    //   username: "tenant1",
     //   password: "123456789",
     // };
     try {
@@ -100,6 +109,7 @@ export default function LoginMainScreen() {
         },
       ]}
     >
+      {isLoginLoading && <FullScreenLoader />}
       <View style={[s.Container]}>
         {/* <Logo
             // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -117,7 +127,7 @@ export default function LoginMainScreen() {
           }}
           // imageStyle={s.logo_Image}
         >
-          BH Hunter
+          Boarding House Hunter
         </Text>
         <View style={[s.Form]}>
           <View style={[s.Form_Inputs]}>
@@ -267,5 +277,17 @@ const s = StyleSheet.create({
     color: Colors.Text[5],
     fontSize: Fontsize.md,
     fontWeight: 100,
+  },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    height: "100%",
+    width: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent dark background
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000, // ensure it's above everything
   },
 });

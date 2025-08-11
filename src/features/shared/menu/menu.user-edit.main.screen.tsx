@@ -197,7 +197,7 @@ export default function MenuUserEditScreen() {
             </Input>
           </FormControl>
         </Box>
-        <Box>
+        {/* <Box>
           <FormControl>
             <FormControl.Label>
               <Text style={[s.Text]}>Password</Text>
@@ -214,7 +214,7 @@ export default function MenuUserEditScreen() {
               />
             </Input>
           </FormControl>
-        </Box>
+        </Box> */}
         <Box>
           <FormControl>
             <FormControl.Label>

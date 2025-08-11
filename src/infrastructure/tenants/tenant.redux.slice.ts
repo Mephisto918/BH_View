@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import api from "@/app/config/api";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ApiResponseType } from "../types/api.types";
+import { ApiResponseType } from "../common/types/api.types";
 import { Tenant, TenantState } from "./tenant.types";
 
 //* createApi

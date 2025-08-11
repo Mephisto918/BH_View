@@ -1,6 +1,5 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import {
@@ -13,8 +12,8 @@ import {
 import { BottomNavBarStyleConfig } from "@/components/layout/BottomNavBarStyleConfig";
 import { CustomTabIcon } from "@/components/layout/BottomNavBarStyleIcon";
 
-import PropertiesMainScreen from "../screens/properties.main.screen";
-import BookingMainScreen from "../screens/booking.main.screen";
+import PropertiesStack from "../screens/properties/navigation/properties.stack";
+import BookingStack from "@/features/tenant/screens/booking/navigation/booking.stack";
 import DashboardMainScreen from "../screens/dashboard.main.screen";
 import NotificationMainScreen from "@/features/shared/notification.main.screen";
 import MenuStack from "@/features/shared/menu/navigation/menu.stack";
@@ -58,8 +57,8 @@ const OwnerTabs = () => {
         };
       }}
     >
-      <Tab.Screen name="Properties" component={PropertiesMainScreen} />
-      <Tab.Screen name="Booking" component={BookingMainScreen} />
+      <Tab.Screen name="Properties" component={PropertiesStack} />
+      <Tab.Screen name="Booking" component={BookingStack} />
       <Tab.Screen name="Dashboard" component={DashboardMainScreen} />
       <Tab.Screen name="Notification" component={NotificationMainScreen} />
       <Tab.Screen

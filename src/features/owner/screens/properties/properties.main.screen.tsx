@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 import { Box } from "@gluestack-ui/themed";
+import { useIsFocused } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 
@@ -14,10 +15,24 @@ import { VStack } from "@gluestack-ui/themed";
 import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Owner } from "@/infrastructure/owner/owner.types";
+import { Button } from "@react-navigation/elements";
 
-export default function PropertiesMainScreen(){
+// navigation
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { PropertiesStackParamList } from './navigation/properties.stack.types';
+
+export default function PropertiesMainScreen() {
+  const propertyNavigation =
+    useNavigation<NativeStackNavigationProp<PropertiesStackParamList>>();
+
+  const isFocused = useIsFocused();
   const { selectedUser: data } = useDynamicUserApi();
   const user = data as Owner;
+
+  // useEffect(() => {
+  //   refetch();
+  // }, [isFocused]);
 
   return (
     <StaticScreenWrapper
@@ -47,10 +62,13 @@ export default function PropertiesMainScreen(){
             <Text style={[s.generic_text_lg]}>...</Text>
           </Box>
         </VStack>
+        <Button onPress={() => propertyNavigation.navigate("PropertyCreate")}>
+          <Text>Add Property</Text>
+        </Button>
       </VStack>
     </StaticScreenWrapper>
   );
-};
+}
 
 const s = StyleSheet.create({
   StaticScreenWrapper: {

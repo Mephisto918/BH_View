@@ -46,9 +46,8 @@ import { AuthStackParamList } from "../../navigation/auth.stack.types";
 import { Owner } from "@/infrastructure/owner/owner.types";
 import { useCreateMutation as useCreateTenant } from "@/infrastructure/owner/owner.redux.slice";
 
-export default function SignUpOwnerScreen(){
-  const route =
-    useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+export default function SignUpOwnerScreen() {
+  const route = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   const [form, setForm] = useState<Owner>({
     username: "",
@@ -123,28 +122,6 @@ export default function SignUpOwnerScreen(){
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
   const [termsModal, setTermsModal] = useState(false);
 
-  // const [pdfItems, setPdfItems] = useState<PDFItemProps[]>([]);
-  // const [pdfName, setPdfName] = useState("");
-  // function generateFakePDFJson(filename: string) {
-  //   const fakeContent = Array.from({ length: 10 }, () =>
-  //     Math.random().toString(36).substring(2, 10)
-  //   ).join('');
-
-  //   return {
-  //     filename,
-  //     mimetype: "application/pdf",
-  //     size: Math.floor(Math.random() * 50000) + 10000, // size in bytes
-  //     content: fakeContent, // can be seen as fake base64
-  //     uploadedAt: new Date().toISOString()
-  //   };
-  // }
-
-  // const createPDFItem = () =>{
-  //   const pdfItem = generateFakePDFJson(pdfName);
-  //   setPdfItems(prev => [...prev, pdfItem]);
-  //   setPdfName("");
-  // }
-
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
@@ -184,19 +161,19 @@ export default function SignUpOwnerScreen(){
               >
                 {field.charAt(0).toUpperCase() + field.slice(1)}:
               </Text>
-              <TextInput
-                value={form[field as keyof typeof form]}
-                onChangeText={(text) => handleChange(field, text)}
-                variant="primary"
-                textInputStyle={{
-                  fontSize: Fontsize.base,
-                  padding: Spacing.xs,
-                  margin: 0,
-                }}
-                containerStyle={{
-                  borderRadius: BorderRadius.md,
-                }}
-              />
+              <Input>
+                <InputField
+                  value={form[field as keyof typeof form]}
+                  onChangeText={(text) => handleChange(field, text)}
+                  variant="secondary"
+                  textInputStyle={{
+                    fontSize: Fontsize.base,
+                    padding: Spacing.xs,
+                    margin: 0,
+                  }}
+                  style={[s.FormTextInput]}
+                />
+              </Input>
             </View>
           ))}
           <View style={{ width: "100%", padding: 10 }}></View>
@@ -257,7 +234,7 @@ export default function SignUpOwnerScreen(){
               I agree to the Terms and Conditions
             </CheckboxLabel>
           </Checkbox>
-          <HStack style={{ marginTop: 10 }}>
+          <HStack style={{ marginTop: 20 }}>
             <Button
               title="Cancel"
               onPressAction={() => {
@@ -265,9 +242,24 @@ export default function SignUpOwnerScreen(){
               }}
               containerStyle={{
                 backgroundColor: Colors.Alert,
+                padding: 10,
+              }}
+              textStyle={{
+                color: Colors.PrimaryLight[9],
               }}
             />
-            <Button title="Create" onPressAction={handleSubmit} />
+            <Button
+              title="Create"
+              onPressAction={handleSubmit}
+              containerStyle={{
+                backgroundColor: "white",
+                padding: 10,
+                // borderColor: Colors.Primary[7],
+              }}
+              textStyle={{
+                color: Colors.Primary[9],
+              }}
+            />
           </HStack>
         </VStack>
       </View>
@@ -331,7 +323,7 @@ export default function SignUpOwnerScreen(){
       )}
     </StaticScreenWrapper>
   );
-};
+}
 
 const s = StyleSheet.create({
   StaticScreenWrapper: {

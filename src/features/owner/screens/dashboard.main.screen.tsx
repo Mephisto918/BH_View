@@ -43,8 +43,6 @@ export default function DashboardMainScreen() {
     >
       <VStack
         style={{
-          // justifyContent: "center",
-          // alignItems: "center",
           gap: Spacing.lg,
         }}
       >
@@ -60,7 +58,7 @@ export default function DashboardMainScreen() {
           </Box>
           <Box style={[s.Widget_item]}>
             <Ionicons name="people" color="white" size={iconSize} />
-            <Text style={[s.generic_text_lg]}>{2}</Text>
+            <Text style={[s.generic_text_lg]}>{0}</Text>
           </Box>
           <Box style={[s.Widget_item]}>
             <Ionicons name="book" color="white" size={iconSize} />
@@ -68,7 +66,7 @@ export default function DashboardMainScreen() {
           </Box>
           <Box style={[s.Widget_item]}>
             <Ionicons name="server" color="white" size={iconSize} />
-            <Text style={[s.generic_text_lg]}>{3}</Text>
+            <Text style={[s.generic_text_lg]}>{0}</Text>
           </Box>
         </VStack>
 
@@ -151,7 +149,7 @@ export default function DashboardMainScreen() {
             !boardingHousesError &&
             (!boardingHouses || boardingHouses.length === 0) && (
               <Text style={{ color: "white", fontSize: Fontsize.xl }}>
-                No boarding houses found!.
+                No boarding houses registered yet.
               </Text>
             )}
           {!boardingHousesLoading &&
@@ -161,26 +159,28 @@ export default function DashboardMainScreen() {
                 key={house.id}
                 style={{
                   borderRadius: BorderRadius.md,
-                  flexDirection: "row",
-                  justifyContent: "center",
-                  alignItems: "flex-start",
-                  gap: 10,
-                  padding: 20,
+                  flexDirection: "column",
                   aspectRatio: 1,
-                  height: "22.5%",
-                  // width: "40%",
+                  height: 200,
+                  padding: 10,
                   backgroundColor: Colors.PrimaryLight[9],
+                  // backgroundColor: Colors.PrimaryLight[2],
                 }}
               >
                 <HStack
                   style={{
-                    alignItems: "center",
-                    justifyContent: "space-between",
+                    // backgroundColor: Colors.PrimaryLight[2],
+                    flexDirection: "column",
+                    // alignItems: "flex-start",
+                    // justifyContent: "flex-start",
                     gap: 10,
                   }}
                 >
-                  <Ionicons name="home" color="white" size={30} />
+                  {/* <Ionicons name="home" color="white" size={30} /> */}
                   <Text style={[s.generic_text_lg]}>{house.name}</Text>
+                  <Text style={[s.generic_text_md]}>
+                    No. of Rooms: {house.rooms?.length}
+                  </Text>
                 </HStack>
               </Box>
             ))}
@@ -240,11 +240,11 @@ const s = StyleSheet.create({
 
   generic_text_sm: {
     fontSize: Fontsize.sm,
-    color: Colors.TextInverse[2],
+    color: Colors.TextInverse[1],
   },
   generic_text_md: {
     fontSize: Fontsize.md,
-    color: Colors.TextInverse[2],
+    color: Colors.TextInverse[1],
   },
   generic_text_lg: {
     fontSize: Fontsize.lg,

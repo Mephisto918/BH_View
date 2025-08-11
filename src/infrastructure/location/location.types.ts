@@ -1,3 +1,5 @@
+import { LocationCoordinates } from "./location.schema";
+
 export interface Location {
   id: number;
   province?: string;
@@ -8,13 +10,3 @@ export interface Location {
   coordinates: LocationCoordinates[];
 }
 
-export interface LocationCoordinates {
-  type: GeometryType;
-  coordinates: [number, number]; // [longitude, latitude]
-}
-
-export enum GeometryType {
-  Point = "Point",
-  LineString = "LineString",
-  Polygon = "Polygon",
-}

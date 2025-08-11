@@ -1,7 +1,6 @@
 import { StyleSheet } from "react-native";
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Ionicons from "react-native-vector-icons/Ionicons";
 
 //ui component
 import { BottomNavBarStyleConfig } from "@/components/layout/BottomNavBarStyleConfig";
@@ -17,15 +16,15 @@ import {
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 import DashboardMainScreen from "../screens/dashboard.main.screen";
-import BookingMainScreen from "../screens/booking.main.screen";
-import MapMainScreen from "@/features/shared/map.main.screen";
+import BookingStack from "../screens/booking/navigation/booking.stack";
+import MapStack from "@/features/shared/map/navigation/map.stack";
 import NotificationMainScreen from "@/features/shared/notification.main.screen";
 import MenuStack from "@/features/shared/menu/navigation/menu.stack";
 import { MenuStackParamListArrayName } from "@/features/shared/menu/navigation/menu.stack.types";
 
 const Tab = createBottomTabNavigator();
 
-export default function TenantTabs(){
+export default function TenantTabs() {
   return (
     <Tab.Navigator
       initialRouteName="Map"
@@ -64,22 +63,18 @@ export default function TenantTabs(){
       }}
     >
       <Tab.Screen name="Dashboard" component={DashboardMainScreen} />
-      <Tab.Screen name="Booking" component={BookingMainScreen} />
-      <Tab.Screen name="Map" component={MapMainScreen} />
-      <Tab.Screen
-        name="Notification"
-        component={NotificationMainScreen}
-      />
+      <Tab.Screen name="Booking" component={BookingStack} />
+      <Tab.Screen name="Map" component={MapStack} />
+      <Tab.Screen name="Notification" component={NotificationMainScreen} />
       <Tab.Screen
         name="Menu"
         component={MenuStack}
         options={({ route }) => {
-          const routeName =
-            getFocusedRouteNameFromRoute(route) ?? "Menu";
+          const routeName = getFocusedRouteNameFromRoute(route) ?? "Menu";
 
-          const hideTabBarRoutes = MenuStackParamListArrayName
+          const hideTabBarRoutes = MenuStackParamListArrayName;
 
-        return {
+          return {
             tabBarStyle: {
               display: hideTabBarRoutes.includes(routeName) ? "none" : "flex",
               backgroundColor: Colors.PrimaryLight[8],
@@ -91,7 +86,7 @@ export default function TenantTabs(){
       />
     </Tab.Navigator>
   );
-};
+}
 
 const s = StyleSheet.create({
   main_container: {},

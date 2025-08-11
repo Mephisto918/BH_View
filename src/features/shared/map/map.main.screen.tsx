@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useState, useRef, useMemo, useEffect } from "react";
+import { HStack, Spinner, VStack } from "@gluestack-ui/themed";
+import { overlay as Overlay } from "react-native-paper";
 
 import Mapview, { Marker, Polygon } from "react-native-maps";
 import {
@@ -13,10 +15,10 @@ import {
 //navigation
 import { useNavigation } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
-import { TenantTabsParamList } from "../tenant/navigation/tenant.tabs.types";
+import { TenantTabsParamList } from "../../tenant/navigation/tenant.tabs.types";
 
 // ui component
-import HeaderSearch from "../../components/HeaderSearch";
+import HeaderSearch from "../../../components/HeaderSearch";
 import Button from "@/components/ui/Button";
 
 // ui lib
@@ -30,16 +32,19 @@ import { DEFAULT_REGION } from "@/app/config/map.config";
 
 // redux
 import { useGetAllQuery as useGetAllBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
-import { BoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.types";
 import { useDispatch } from "react-redux";
 import { selectBoardinHouse } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
-import { HStack, VStack } from "@gluestack-ui/themed";
+import {
+  BoardingHouse,
+  GetBoardingHouse,
+} from "@/infrastructure/boarding-houses/boarding-house.schema";
+import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 
 export default function MapMainScreen() {
   const [search, setSearch] = useState("");
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["25%", "70%"], []);
-  const [sheetData, setDataSheet] = useState<BoardingHouse | null>(null);
+  const [sheetData, setDataSheet] = useState<GetBoardingHouse | null>(null);
   // const [sheetThumbnail, setSheetThumbnail] = useState<BoardingHouseImage | null>(null)
 
   const dispatch = useDispatch();
@@ -61,21 +66,33 @@ export default function MapMainScreen() {
     setSearch(text);
   };
 
-  const handleMarkerPress = (data: BoardingHouse) => {
+  const handleMarkerPress = (data: GetBoardingHouse) => {
     setDataSheet(data);
     bottomSheetRef.current?.expand();
   };
 
   const handleGotoPress = () => {
     if (!sheetData) return;
-    dispatch(selectBoardinHouse(sheetData));
-    navigation.navigate("Booking", { id: sheetData.id });
+    // dispatch(selectBoardinHouse(sheetData));
+    console.log("handleGotoPress id ", sheetData.id);
+    navigation.navigate("Booking", {
+      screen: "BoardingHouseDetails",
+      params: { id: sheetData.id, fromMaps: true },
+    });
   };
 
   // LogBox.ignoreLogs([]); // <-- Don't ignore anything temporarily
 
   return (
-    <View style={[GlobalStyle.Globals, s.con_main]}>
+    <StaticScreenWrapper
+      style={[GlobalStyle.GlobalsContainer, s.con_main]}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
+    >
+      {/* {isBoardingHousesLoading && (
+        <Overlay isOpen={true}>
+          <Spinner size="large" color="$white" />
+        </Overlay>
+      )} */}
       <HeaderSearch
         containerStyle={s.search_headerContainer}
         textPlaceHolderStyle={s.search_headerText}
@@ -93,34 +110,29 @@ export default function MapMainScreen() {
       >
         {/** add loading touches and error later */}
         {!isBoardingHousesLoading &&
-          (boardinghouses ?? [])
-            .filter((house) => {
-              const coords = house?.location?.coordinates?.coordinates;
-              const valid =
-                Array.isArray(coords) &&
-                coords.length === 2 &&
-                coords.every((v) => typeof v === "number");
-              if (!valid) {
-                console.warn("Skipping invalid marker", {
-                  houseId: house?.id,
-                  location: house?.location,
-                });
-              }
-              return valid;
-            })
-            .map((house: BoardingHouse, i) => (
+          (boardinghouses ?? []).map((house: BoardingHouse, i) => {
+            const location = house.location;
+
+            if (
+              !location ||
+              !location.coordinates ||
+              location.coordinates.length !== 2
+            )
+              return null;
+
+            const [lng, lat] = location.coordinates;
+
+            return (
               <Marker
                 key={i}
                 onPress={() => handleMarkerPress(house)}
                 pinColor={house.availabilityStatus ? "green" : "blue"}
-                coordinate={{
-                  latitude: house.location.coordinates.coordinates[1], // Y = lat
-                  longitude: house.location.coordinates.coordinates[0], // X = lng
-                }}
+                coordinate={{ latitude: lat, longitude: lng }}
                 title={house.name}
                 description={house.description}
               />
-            ))}
+            );
+          })}
 
         <Marker
           coordinate={{
@@ -170,13 +182,14 @@ export default function MapMainScreen() {
                 // padding: Global,
                 backgroundColor: Colors.PrimaryLight[8],
                 flex: 1,
+                alignItems: "flex-start",
               }}
             >
               <Image
                 source={
-                  sheetData?.thumbnail
-                    ? { uri: sheetData?.thumbnail }
-                    : require("../../assets/housesSample/1.jpg")
+                  sheetData.thumbnail
+                    ? { uri: sheetData?.thumbnail[0] }
+                    : require("../../../assets/housesSample/1.jpg")
                 }
                 style={{
                   // borderColor: "red",
@@ -187,84 +200,81 @@ export default function MapMainScreen() {
                   borderRadius: BorderRadius.md,
                 }}
               />
-              <ScrollView style={{ flex: 1 }}>
+              <View
+                style={{
+                  marginTop: Spacing.sm,
+                  alignItems: "baseline",
+                  padding: Spacing.md,
+                  flexDirection: "column",
+                }}
+              >
                 <View
                   style={{
-                    marginTop: Spacing.sm,
-                    alignItems: "baseline",
-                    padding: Spacing.md,
-                    flexDirection: "column",
-                    // borderWidth: 2,
-                    // borderColor: "white",
+                    height: 300,
+                    marginBottom: Spacing.sm,
                   }}
                 >
-                  <View
+                  <HStack
                     style={{
-                      flex: 1,
-                      // borderWidth: 2,
-                      // borderColor: "green",
-                      marginBottom: Spacing.sm,
+                      alignItems: "center",
+                      justifyContent: "space-evenly",
+                      gap: 10,
+                      backgroundColor: Colors.PrimaryLight[7],
+                      borderRadius: 10,
+                      padding: 10,
                     }}
                   >
-                    <HStack
-                      style={{
-                        alignItems: "center",
-                        justifyContent: "space-evenly",
-                        gap: 10,
-                        backgroundColor: Colors.PrimaryLight[7],
-                        borderRadius: 10,
+                    <VStack style={{ width: "75%" }}>
+                      <Text style={[s.text_title]}>{sheetData.name}</Text>
+                      <Text style={[s.text_address]}>{sheetData.address}</Text>
+                    </VStack>
+                    <Button
+                      title="Goto?"
+                      onPressAction={handleGotoPress}
+                      containerStyle={{
                         padding: 10,
                       }}
-                    >
-                      <VStack style={{ width: "75%" }}>
-                        <Text style={[s.text_title]}>{sheetData.name}</Text>
-                        <Text style={[s.text_address]}>
-                          {sheetData.address}
-                        </Text>
-                      </VStack>
-                      <Button
-                        title="Goto?"
-                        onPressAction={handleGotoPress}
-                        containerStyle={
-                          {
-                            // marginBottom: Spacing.lg,
-                            // alignSelf: "flex-end",
-                            // marginLeft: 0,
-                            padding: 10,
-                            // marginRight: Spacing.lg,
-                          }
-                        }
-                      />
-                    </HStack>
-                    <Text style={[s.text_white]}>
-                      This is your bottom sheet content. asdasd as dasda s a das
-                      dasd asdasdasda sd asda da sdasd a dad sda sda sd asda
-                      sdasd as dasd asd ad adas asdasdaadsasdasd asd
-                      adsadsasdsdasdasd asd asd asdad as
+                    />
+                  </HStack>
+                  <ScrollView
+                    style={{
+                      marginTop: Spacing.md,
+                      flex: 1,
+                      // borderColor: "red",
+                      // borderWidth: 1,
+                      padding: 10,
+                      borderRadius: BorderRadius.md,
+                      backgroundColor: Colors.PrimaryLight[7],
+                    }}
+                  >
+                    <Text style={[s.text_white, { marginBottom: 20 }]}>
+                      {sheetData.description}
                     </Text>
-                  </View>
+                  </ScrollView>
                 </View>
-              </ScrollView>
+              </View>
             </View>
           )
         }
       </BottomSheet>
-    </View>
+    </StaticScreenWrapper>
   );
 }
 
 const s = StyleSheet.create({
-  con_main: {
-    flex: 1,
-  },
+  con_main: {},
   map: {
-    ...StyleSheet.absoluteFillObject,
+    // ...StyleSheet.absoluteFill,
+    width: "100%",
+    height: "100%",
   },
   search_headerContainer: {
+    position: "absolute",
     width: "90%",
-    height: 40,
-    backgroundColor: Colors.PrimaryLight[8],
+    height: 50,
+    backgroundColor: Colors.PrimaryLight[7],
     top: "5%",
+    left: "5%",
     borderRadius: 10,
     paddingLeft: 5,
     paddingRight: 5,
@@ -272,7 +282,9 @@ const s = StyleSheet.create({
     zIndex: 10,
   },
   search_headerText: {
-    fontSize: Fontsize.xl,
+    // backgroundColor: "red",
+    fontSize: Fontsize.lg,
+    color: Colors.PrimaryLight[8],
   },
   callout: {
     padding: 10,

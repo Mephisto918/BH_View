@@ -1,9 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ApiResponseType } from "../types/api.types";
+import { ApiResponseType } from "../common/types/api.types";
 import api from "@/app/config/api";
-import { BoardingHouse, BoardingHousesState } from "./boarding-house.types";
-import { FindBoardingHouseDto } from "./dto/FindBoardingHouse.dto";
+import { BoardingHousesState } from "./boarding-house.types";
+import {
+  BoardingHouse,
+  QueryBoardingHouse,
+  QueryBoardingHouseSchema,
+  GetBoardingHouse,
+  FindOneBoardingHouse,
+} from "./boarding-house.schema";
+import { CreateBoardingHouse } from "./boarding-house.schema";
 
 //* -- Initial State --
 const initialState: BoardingHousesState = {
@@ -28,36 +35,108 @@ export const boardingHouseApi = createApi({
     // },
   }),
   endpoints: (builder) => ({
-    getAll: builder.query<BoardingHouse[], Partial<FindBoardingHouseDto>>({
-      query: (paramas) => {
-        const queryParamas = new URLSearchParams();
+    getAll: builder.query<
+      GetBoardingHouse[],
+      Partial<QueryBoardingHouse | void>
+    >({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
 
-        Object.entries(paramas || {}).forEach(([key, value]) => {
+        const parsed = QueryBoardingHouseSchema.safeParse(params);
+        if (!parsed.success) {
+          console.warn("Invalid query params", parsed.error);
+          return boardingHouseApiRoute; // Or handle fallback
+        }
+
+        Object.entries(parsed.data).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
-            queryParamas.append(
-              key,
-              value instanceof Date ? value.toISOString() : String(value)
-            );
+            queryParams.append(key, String(value));
           }
         });
 
-        return `${boardingHouseApiRoute}?${queryParamas.toString()}`;
+        return `${boardingHouseApiRoute}?${queryParams.toString()}`;
       },
-      transformResponse: (response: ApiResponseType<BoardingHouse[]>) =>
+      transformResponse: (response: ApiResponseType<GetBoardingHouse[]>) =>
         response.results ?? [],
     }),
-    getOne: builder.query<BoardingHouse, number>({
+    getOne: builder.query<FindOneBoardingHouse | null, number>({
       query: (id) => `${boardingHouseApiRoute}/${id}`,
+      transformResponse: (response: ApiResponseType<FindOneBoardingHouse[]>) =>
+        response.results?.[0] ?? null,
     }),
-    create: builder.mutation<BoardingHouse, Partial<BoardingHouse>>({
-      query: (data) => ({
-        url: boardingHouseApiRoute,
-        method: "POST",
-        body: data,
-      }),
-      //* Optional: invalidates cacche for "BoardingHouse"
-      invalidatesTags: ["BoardingHouse"],
+    // TODO make a dto for one source of truth
+    create: builder.mutation<any, CreateBoardingHouse>({
+      query: (data) => {
+        const formData = new FormData();
+
+        // Text fields
+        formData.append("ownerId", String(data.ownerId));
+        formData.append("name", data.name);
+        formData.append("address", data.address);
+        formData.append("description", data.description || "");
+        formData.append("availabilityStatus", String(data.availabilityStatus));
+        formData.append("amenities", JSON.stringify(data.amenities));
+        formData.append("location", JSON.stringify(data.location));
+
+        // ✅ Only use this version (no gallery)
+        const roomsWithoutGallery = (data.rooms ?? []).map(
+          ({ gallery, ...rest }) => rest
+        );
+        formData.append("rooms", JSON.stringify(roomsWithoutGallery));
+
+        // 📦 Send per-room gallery files
+        data.rooms?.forEach((room, index) => {
+          room.gallery?.forEach((file) => {
+            formData.append(`roomGallery${index}`, {
+              uri: file.uri,
+              name: file.name,
+              type: file.type,
+            } as any);
+          });
+        });
+
+        // ✅ Thumbnail (1 file)
+        if (data.thumbnail?.[0]) {
+          const file = data.thumbnail[0];
+          formData.append("thumbnail", {
+            uri: file.uri,
+            name: file.name,
+            type: file.type,
+          } as any);
+        }
+
+        // ✅ Gallery (multiple)
+        data.gallery?.forEach((file) => {
+          formData.append("gallery", {
+            uri: file.uri,
+            name: file.name,
+            type: file.type,
+          } as any);
+        });
+
+        for (const [key, value] of formData.entries()) {
+          if (typeof value === "object" && value.uri) {
+            console.log(`${key}: [File] ${value.name} (${value.type})`);
+          } else {
+            console.log(`${key}:`, value);
+          }
+        }
+
+        console.log({
+          url: boardingHouseApiRoute,
+          method: "POST",
+          body: formData,
+        });
+
+        return {
+          url: boardingHouseApiRoute,
+          method: "POST",
+          body: formData,
+        };
+        // return {} as any;
+      },
     }),
+
     delete: builder.mutation<BoardingHouse, number>({
       query: (id) => ({
         url: `${boardingHouseApiRoute}/${id}`,

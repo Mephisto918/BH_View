@@ -47,7 +47,7 @@ import { ScrollView } from "@gluestack-ui/themed";
 import { useCreateMutation as useCreateTenant } from "@/infrastructure/tenants/tenant.redux.slice";
 import { Tenant } from "@/infrastructure/tenants/tenant.types";
 
-export default function SignUpTenantScreen(){
+export default function SignUpTenantScreen() {
   // const api = new Api();
   const route = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
@@ -130,14 +130,10 @@ export default function SignUpTenantScreen(){
       style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
       contentContainerStyle={[
         GlobalStyle.GlobalsContentContainer,
-        {
-          justifyContent: "center",
-          alignItems: "center",
-          gap: Spacing.lg,
-        },
+        { justifyContent: "center", alignContent: "stretch" },
       ]}
     >
-      <VStack style={[s.container]}>
+      <VStack style={[s.container, { marginBottom: 100, marginTop: 100 }]}>
         <Heading
           style={{ color: Colors.TextInverse[1], fontSize: Fontsize.h2 }}
         >
@@ -314,17 +310,29 @@ export default function SignUpTenantScreen(){
               I agree to the Terms and Conditions
             </CheckboxLabel>
           </Checkbox>
-          <HStack style={{ marginTop: 10 }}>
+          <HStack style={{ marginTop: 20 }}>
             <Button
               title="Cancel"
               onPressAction={() => {
-                route.navigate("SignUpSelectUserTypeScreen");
+                route.navigate("Login");
               }}
               containerStyle={{
                 backgroundColor: Colors.Alert,
+                padding: 10,
               }}
             />
-            <Button title="Create" onPressAction={handleFormSubmit} />
+            <Button
+              title="Create"
+              onPressAction={handleFormSubmit}
+              containerStyle={{
+                backgroundColor: "white",
+                padding: 10,
+                // borderColor: Colors.Primary[7],
+              }}
+              textStyle={{
+                color: Colors.Primary[9],
+              }}
+            />
           </HStack>
         </VStack>
       </VStack>
@@ -388,7 +396,7 @@ export default function SignUpTenantScreen(){
       )}
     </StaticScreenWrapper>
   );
-};
+}
 
 const s = StyleSheet.create({
   StaticScreenWrapper: {
@@ -396,6 +404,7 @@ const s = StyleSheet.create({
   },
   container: {
     width: "90%",
+    alignSelf: "center",
   },
   FormLabel: {
     fontSize: Fontsize.base,
@@ -434,4 +443,3 @@ const customStyles = {
   em: { color: "white" },
   code: { color: "white", backgroundColor: "#333" },
 };
-
