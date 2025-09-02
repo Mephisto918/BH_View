@@ -1,50 +1,30 @@
-# Welcome to your Expo app 👋
+# BH Hunter
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+BH Hunter is a React Native mobile app (currently Android only) designed for tenants and boarding house owners to easily manage and discover boarding houses.
 
-## Get started
+## Features (Work in Progress)
 
-1. Install dependencies
+- Tenants can search and view available boarding houses
+- Owners can manage listings and tenants
+- Booking system for tenants
+- Authentication and profile management
+- Map integration with interactive markers (renders data from backend)
+- Notifications for updates
 
-   ```bash
-   npm install
-   ```
+> Note: The map is currently limited to our study area, but it can be expanded to other locations as needed.
 
-2. Start the app
+## Tech Stack
 
-   ```bash
-    npx expo start
-   ```
+- **Frontend:** React Native, Expo
+- **State Management:** Redux / Zustand
+- **Navigation:** React Navigation
+- **Backend:** NestJS ([backend repo link](https://github.com/Mephisto918/BH_Back.git)) — currently live and deployed
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Installation
 
 ```bash
-npm run reset-project
+git clone https://github.com/Mephisto918/BH_View.git
+cd BH_Hunter
+npm install
+npx expo start
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
