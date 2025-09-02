@@ -4,7 +4,7 @@
     "slug": "BH_View",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/logos/icon.jpg",
+    "icon": "./src/assets/logos/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,21 +13,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logos/icon.jpg",
+        "foregroundImage": "./src/assets/logos/icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./src/assets/logos/icon.jpg"
+      "favicon": "./src/assets/logos/icon.png"
     },
     "plugins": [
       "expo-splash-screen",
       [
         "expo-splash-screen",
         {
-          "image": "./src/assets/logos/icon.jpg",
+          "image": "./src/assets/logos/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

@@ -3,7 +3,7 @@ import 'dotenv/config'
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "GG View",
-  slug: "GG View",
+  slug: "GG_View",
   version: "1.0.0",
   extra: { // reserved keyword
     api:{
