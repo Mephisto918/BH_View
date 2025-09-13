@@ -10,3 +10,12 @@ export interface Location {
   coordinates: LocationCoordinates[];
 }
 
+export const GetLocationSchema = z.object({
+  id: z.number().int().positive(),
+  coordinates: z.array(z.number()).nonempty(),
+  province: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  country: z.string().nullable().optional(),
+  isDeleted: z.boolean(),
+  deletedAt: z.string().nullable(),
+});

@@ -1,6 +1,7 @@
-import { Alert, View, Text, StyleSheet, ImageStyle } from "react-native";
-import React, { useState, useEffect } from "react";
+import { StyleSheet, ImageStyle } from "react-native";
+import { View, Text } from "@gluestack-ui/themed";
 
+import React, { useState, useEffect } from "react";
 // UI Layout
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 
@@ -31,12 +32,11 @@ import { useDispatch } from "react-redux";
 import { login } from "@/infrastructure/auth/auth.redux.slice";
 import { useLoginMutation } from "@/infrastructure/auth/auth.redux.slice";
 import { fetchUserDataThunk } from "@/infrastructure/auth/auth.redux.thunk";
-import { AppDispatch } from "../../../app/store/stores";
-import { ActivityIndicator } from "react-native-paper";
+import { AppDispatch } from "../../../application/store/stores";
 
 const FullScreenLoader = () => (
   <View style={s.overlay}>
-    <ActivityIndicator size="large" color="#fff" />
+    <Text>Bro is Loading</Text>
   </View>
   //  <Overlay isOpen={true}>
   //   <Spinner size="large" color="$white" />
@@ -57,22 +57,22 @@ export default function LoginMainScreen() {
     useLoginMutation();
   const dispatch = useDispatch<AppDispatch>();
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     onPressLogin();
-  //   }, 700);
-  // }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      onPressLogin();
+    }, 700);
+  }, []);
 
   const onPressLogin = async () => {
-    const packageLoad = {
-      username: username.value,
-      password: password.value,
-    };
-
     // const packageLoad = {
-    //   username: "tenant1",
-    //   password: "123456789",
+    //   username: username.value,
+    //   password: password.value,
     // };
+
+    const packageLoad = {
+      username: "Rosalia.Schmeler",
+      password: "dkO3RxVvsqJZwTY",
+    };
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();
       dispatch(

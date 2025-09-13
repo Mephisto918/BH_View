@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import { HStack, Spinner, VStack } from "@gluestack-ui/themed";
-import { overlay as Overlay } from "react-native-paper";
 
 import Mapview, { Marker, Polygon } from "react-native-maps";
 import {
@@ -27,18 +26,13 @@ import BottomSheet from "@gorhom/bottom-sheet";
 //types
 import { ScrollView } from "react-native-gesture-handler";
 
-// constants
-import { DEFAULT_REGION } from "@/app/config/map.config";
-
 // redux
-import { useGetAllQuery as useGetAllBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
+import { useGetAllQuery as useGetAllBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import { useDispatch } from "react-redux";
 import { selectBoardinHouse } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
-import {
-  BoardingHouse,
-  GetBoardingHouse,
-} from "@/infrastructure/boarding-houses/boarding-house.schema";
+import { GetBoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
+import Map from "./Map";
 
 export default function MapMainScreen() {
   const [search, setSearch] = useState("");
@@ -53,11 +47,11 @@ export default function MapMainScreen() {
     data: boardinghouses,
     isLoading: isBoardingHousesLoading,
     isError: isBoardingHousesError,
-  } = useGetAllBoardingHouses();
-
-  useEffect(() => {
-    console.log("bh: ", boardinghouses);
-  }, [isBoardingHousesLoading]);
+  } = useGetAllBoardingHouses({});
+  // const { data: boardinghouses, ...rest } = useGetAllBoardingHouses({});
+  // useEffect(() => {
+  //   console.log("bh: ", rest);
+  // }, [rest]);
 
   const navigation =
     useNavigation<BottomTabNavigationProp<TenantTabsParamList>>();
@@ -100,68 +94,11 @@ export default function MapMainScreen() {
         value={search}
         onChangeText={onChangeInputValue}
       />
-      <Mapview
-        style={s.map}
-        initialRegion={DEFAULT_REGION}
-        showsUserLocation={true}
-        showsMyLocationButton={true}
-        provider="google"
-        mapType="hybrid"
-      >
-        {/** add loading touches and error later */}
-        {!isBoardingHousesLoading &&
-          (boardinghouses ?? []).map((house: BoardingHouse, i) => {
-            const location = house.location;
-
-            if (
-              !location ||
-              !location.coordinates ||
-              location.coordinates.length !== 2
-            )
-              return null;
-
-            const [lng, lat] = location.coordinates;
-
-            return (
-              <Marker
-                key={i}
-                onPress={() => handleMarkerPress(house)}
-                pinColor={house.availabilityStatus ? "green" : "blue"}
-                coordinate={{ latitude: lat, longitude: lng }}
-                title={house.name}
-                description={house.description}
-              />
-            );
-          })}
-
-        <Marker
-          coordinate={{
-            latitude: 11.0008519,
-            longitude: 124.6095,
-          }}
-          title="Black Whole ni Inigma"
-          description="Wanako kaduwag dota 2"
-        />
-        <Polygon
-          coordinates={[
-            { latitude: 11.0015, longitude: 124.608 },
-            { latitude: 11.002, longitude: 124.61 },
-            { latitude: 11.0, longitude: 124.612 },
-            { latitude: 10.999, longitude: 124.61 },
-            { latitude: 11.0, longitude: 124.608 },
-          ]}
-          holes={[
-            [
-              { latitude: 11.001, longitude: 124.609 },
-              { latitude: 11.0012, longitude: 124.6095 },
-              { latitude: 11.0008, longitude: 124.6097 },
-            ],
-          ]}
-          strokeWidth={2}
-          strokeColor="blue"
-          fillColor="rgba(0,0,255,0.3)"
-        ></Polygon>
-      </Mapview>
+      <Map
+        data={boardinghouses}
+        // handleMarkerPress={handleMarkerPress}
+        // search={search}
+      ></Map>
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}

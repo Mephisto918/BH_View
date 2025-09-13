@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/app/store/stores";
+import { RootState } from "@/application/store/stores";
 import { UserRole } from "@/infrastructure/user/user.types";
 
 import {

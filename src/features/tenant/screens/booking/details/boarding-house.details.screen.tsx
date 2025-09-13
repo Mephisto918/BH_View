@@ -20,9 +20,8 @@ import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 // redux
 import { HStack, VStack } from "@gluestack-ui/themed";
 
-import { useGetOneQuery as useGetOneBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
+import { useGetOneQuery as useGetOneBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import { TenantBookingStackParamList } from "../navigation/booking.types";
-import { ActivityIndicator } from "react-native-paper";
 
 // type Props = NativeStackScreenProps<TenantTabsParamList, "Booking">;
 type RouteProps = RouteProp<
@@ -32,7 +31,7 @@ type RouteProps = RouteProp<
 
 const FullScreenLoader = () => (
   <View style={s.overlay}>
-    <ActivityIndicator size="large" color="#fff" />
+    <Text>Bro is Loading</Text>
   </View>
   //  <Overlay isOpen={true}>
   //   <Spinner size="large" color="$white" />
@@ -54,6 +53,7 @@ export default function BoardingHouseDetailsScreen({ navigation }) {
   // Optional logging
   useEffect(() => {
     if (boardinghouse) {
+      console.log("Boarding house id:", paramsId);
       console.log("Boarding house details", boardinghouse);
     }
   }, [boardinghouse]);

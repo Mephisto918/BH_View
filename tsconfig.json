@@ -1,12 +1,27 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
     "strict": true,
     "jsx": "react-native",
-    "baseUrl": ".", // root of the project
+    "baseUrl": ".",
+    "types": [
+      "react-native",
+      "react-native-reanimated",
+      "node",
+      "./types"
+    ],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "**/*.ts",
+    "**/*.tsx",
+    "scr/application/declarations.d.ts"
+  ]
 }

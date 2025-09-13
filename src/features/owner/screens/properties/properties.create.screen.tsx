@@ -42,11 +42,10 @@ import { ScrollView } from "react-native-gesture-handler";
 
 import { pickImageExpo } from "@/infrastructure/image/image.service";
 import { Ionicons } from "@expo/vector-icons";
-import { ActivityIndicator } from "react-native-paper";
 
 const FullScreenLoader = () => (
   <View style={s.overlay}>
-    <ActivityIndicator size="large" color="#fff" />
+    <Text>Bro is Loading</Text>
   </View>
   //  <Overlay isOpen={true}>
   //   <Spinner size="large" color="$white" />

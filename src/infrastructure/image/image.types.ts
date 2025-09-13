@@ -1,19 +1,17 @@
-export enum ImageType {
-  PFP = "pfp",
-  THUMBNAIL = "thumbnail",
-  MAIN = "main",
-  GALLERY = "gallery",
-  BANNER = "banner",
-  FLOORPLAN = "floorplan",
-  DOCUMENT = "document",
-  QR = "qr",
-  MAP = "map",
-  ROOM = "room",
-  // add more as needed
-}
+import { z } from "zod";
 
-export enum ImageQuality {
-  LOW = "low",
-  MEDIUM = "medium",
-  HIGH = "high",
-}
+export const ImageTypeEnum = z.enum([
+  "PFP",
+  "THUMBNAIL",
+  "MAIN",
+  "GALLERY",
+  "BANNER",
+  "FLOORPLAN",
+  "DOCUMENT",
+  "QR",
+  "MAP",
+  "ROOM",
+]);
+export type ImageType = z.infer<typeof ImageTypeEnum>;
+
+export const ImageQualityEnum = z.enum(["LOW", "MEDIUM", "HIGH"]);

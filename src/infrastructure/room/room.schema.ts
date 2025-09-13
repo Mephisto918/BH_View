@@ -15,7 +15,7 @@ export const GetRoomSchema = z.object({
   roomNumber: z.string(),
   maxCapacity: z.number(),
   currentCapacity: z.number(),
-  price: z.number(), // now a real number, not string
+  price: z.preprocess((val) => Number(val), z.number()),
   gallery: z.array(ImageSchema).optional(),
   thumbnail: z.array(ImageSchema).optional(),
   tags: z.array(z.enum(ROOM_FEATURE_TAGS)).optional(),

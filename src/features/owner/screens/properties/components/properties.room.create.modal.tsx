@@ -1,4 +1,13 @@
-import { Portal } from "react-native-paper";
+import { Button } from "@gluestack-ui/themed";
+import { Overlay } from "@gluestack-ui/overlay";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetItem,
+  ActionsheetItemText,
+} from "@gluestack-ui/actionsheet";
+
 import {
   StyleSheet,
   View,
@@ -25,7 +34,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 // import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { ScrollView, Pressable } from "react-native";
 import { BorderRadius, Colors, Fontsize, Spacing } from "@/constants";
-import { Button, Menu } from "react-native-paper";
 import {
   ROOM_FEATURE_TAGS,
   RoomFeatureTag,
@@ -49,7 +57,7 @@ export default function PropertiesRoomCreateModal({
   initialData,
   isEditing,
 }: PropertiesRoomCreateModalProps) {
-  const [dropDownVisible, setDropDownVisible] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const defaultValues: CreateRoomInput = {
     roomNumber: "",
@@ -132,7 +140,7 @@ export default function PropertiesRoomCreateModal({
   };
 
   return (
-    <Portal>
+    <Overlay>
       <Modal
         visible={visible}
         onRequestClose={onClose}
@@ -242,37 +250,35 @@ export default function PropertiesRoomCreateModal({
                   rules={{ required: "Room Type is required" }}
                   render={({ field: { onChange, value } }) => (
                     <View style={{ marginBottom: 10 }}>
-                      <Menu
-                        visible={dropDownVisible}
-                        onDismiss={() => setDropDownVisible(false)}
-                        anchor={
-                          <Button
-                            mode="outlined"
-                            onPress={() => setDropDownVisible(true)}
-                            contentStyle={{
-                              justifyContent: "space-between",
-                            }}
-                          >
-                            {value || "Select Room Type"}
-                          </Button>
-                        }
-                      >
-                        {/* refactor this into selection of slabs */}
-                        {["SOLO", "DUO", "TRIO", "SQUAD", "FAMILY"].map(
-                          (option) => (
-                            <Menu.Item
-                              key={option}
-                              onPress={() => {
-                                onChange(option);
-                                setDropDownVisible(false);
-                              }}
-                              title={option}
-                            />
-                          )
-                        )}
-                      </Menu>
+                      <Button onPress={() => setIsOpen(true)}>
+                        {value || "Select Room Type"}
+                      </Button>
 
-                      {errors.roomType && (
+                      <Actionsheet
+                        isOpen={isOpen}
+                        onClose={() => setIsOpen(false)}
+                      >
+                        <ActionsheetBackdrop />
+                        <ActionsheetContent>
+                          {["SOLO", "DUO", "TRIO", "SQUAD", "FAMILY"].map(
+                            (option) => (
+                              <ActionsheetItem
+                                key={option}
+                                onPress={() => {
+                                  onChange(option);
+                                  setIsOpen(false);
+                                }}
+                              >
+                                <ActionsheetItemText>
+                                  {option}
+                                </ActionsheetItemText>
+                              </ActionsheetItem>
+                            )
+                          )}
+                        </ActionsheetContent>
+                      </Actionsheet>
+
+                      {errors?.roomType && (
                         <Text style={{ color: "red", marginTop: 4 }}>
                           {errors.roomType.message}
                         </Text>
@@ -475,7 +481,7 @@ export default function PropertiesRoomCreateModal({
           </View>
         </View>
       </Modal>
-    </Portal>
+    </Overlay>
   );
 }
 

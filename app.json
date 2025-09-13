@@ -4,38 +4,28 @@
     "slug": "BH_View",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/logos/icon.png",
+    "icon": "./src/assets/logo/1_1/light/light-512.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "plugins": ["@react-native-community/netinfo"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.GG-View"
     },
     "android": {
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logos/icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./src/assets/logo/1_1/light/light-512.png",
+        "backgroundColor": "#071625"
+      },
+      "package": "com.anonymous.GG_View"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4e9a4dd3-5be7-4a1b-94cf-1b1431d12e5c"
       }
     },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./src/assets/logos/icon.png"
-    },
-    "plugins": [
-      "expo-splash-screen",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./src/assets/logos/icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
-    ],
-    "experiments": {
-      "typedRoutes": true
-    }
+    "owner": "wlcormoc"
   }
 }

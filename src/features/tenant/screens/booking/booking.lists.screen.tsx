@@ -3,12 +3,11 @@ import React, { useState } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import { BorderRadius, Colors, Fontsize, GlobalStyle } from "@/constants";
 import { Box, Image, VStack } from "@gluestack-ui/themed";
-import { useGetAllQuery as useGetAllBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
+import { useGetAllQuery as useGetAllBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import {
   GetBoardingHouse,
   QueryBoardingHouse,
 } from "@/infrastructure/boarding-houses/boarding-house.schema";
-import { ActivityIndicator } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
@@ -16,7 +15,7 @@ import { TenantTabsParamList } from "../../navigation/tenant.tabs.types";
 
 const FullScreenLoader = () => (
   <View style={styles.overlay}>
-    <ActivityIndicator size="large" color="#fff" />
+    <Text>Bro is Loading</Text>
   </View>
   //  <Overlay isOpen={true}>
   //   <Spinner size="large" color="$white" />

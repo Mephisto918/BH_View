@@ -15,7 +15,8 @@ import {
   CheckboxIndicator,
   CheckboxIcon,
 } from "@gluestack-ui/themed";
-import Ionicons from "react-native-vector-icons/Ionicons";
+// import Ionicons from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import Markdown from "react-native-awesome-markdown";
 import { textMD } from "../../TermsAndConditions";
 

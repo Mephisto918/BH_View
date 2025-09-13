@@ -14,11 +14,10 @@ export const BaseLocationSchema = z.object({
     }),
 });
 
-
 export const CreateLocationSchema = BaseLocationSchema.extend({
-  city: z.string().optional(),
-  province: z.string().optional(),
-  country: z.string().optional(),
+  city: z.string().nullable().optional(),
+  province: z.string().nullable().optional(),
+  country: z.string().nullable().optional(),
 });
 
 export const GetLocationSchema = CreateLocationSchema.extend({

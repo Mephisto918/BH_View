@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
-import api from "@/app/config/api";
+import api from "@/application/config/api";
 import { Room } from "./room.dto";
 import { ApiResponseType } from "../common/types/api.types";
 

@@ -65,4 +65,18 @@ export const Colors = {
   SuccessLight: "#D8F3E3",
   Alert: "#F78C6B",
   AlertLight: "#FFE0D9",
+
+  // 🔴 New for destructive / delete / danger buttons
+  Danger: [
+    "#FDEAEA", // 0 - Very light red (backgrounds)
+    "#FACDCD", // 1 - Light red
+    "#F29B9B", // 2 - Softer red
+    "#E66A6A", // 3 - Core red
+    "#D64545", // 4 - Recommended base for delete
+    "#BA2525", // 5 - Strong red
+    "#A61B1B", // 6 - Dark red
+    "#911111", // 7 - Deeper red
+    "#780A0A", // 8 - Very dark red
+    "#610404", // 9 - Near black red
+  ],
 };

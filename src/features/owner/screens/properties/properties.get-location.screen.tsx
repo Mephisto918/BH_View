@@ -14,7 +14,7 @@ import { VStack } from "@gluestack-ui/themed";
 import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import MapView, { Marker, MapPressEvent } from "react-native-maps";
-import { DEFAULT_REGION } from "@/app/config/map.config";
+import { DEFAULT_REGION } from "@/application/config/map.config";
 
 //* navigation
 import { usePropertyNavigation } from "./navigation/properties.navigation.hooks";

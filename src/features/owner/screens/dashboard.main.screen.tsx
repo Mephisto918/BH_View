@@ -17,7 +17,7 @@ import { VStack } from "@gluestack-ui/themed";
 //redux
 import { Ionicons } from "@expo/vector-icons";
 import { Owner } from "@/infrastructure/owner/owner.types";
-import { useGetAllQuery } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
+import { useGetAllQuery } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
 
 export default function DashboardMainScreen() {

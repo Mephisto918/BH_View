@@ -1,6 +1,10 @@
 import os from "os";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function getBackendIP(): string {
   const interfaces = os.networkInterfaces();
@@ -20,7 +24,7 @@ const envPath = path.resolve(__dirname, "..", ".env"); // go one level up if scr
 const IP = getBackendIP();
 const env_port = 3000;
 const newValues: Record<string, string> = {
-  EXPO_PUBLIC_BASE_URL: `http://${IP}:`,
+  EXPO_PUBLIC_BASE_URL: `http://${IP}`,
   EXPO_PUBLIC_BACKEND_PORT: env_port.toString(),
 };
 
