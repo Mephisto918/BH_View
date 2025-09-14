@@ -10,7 +10,7 @@ import {
 } from "../location/location.schema";
 import { ImageResponseSchema, ImageUploadSchema } from "../image/image.schema";
 // import { GetBookingSchema } from "../booking/booking.schema"; // if you really need it on read
-import { PDFSchema } from "../pdf/pdf.schema";
+import { PDFSchema } from "../valid-docs/pdf/pdf.schema";
 import { AMENITIES } from "./boarding-house.constants";
 
 /**

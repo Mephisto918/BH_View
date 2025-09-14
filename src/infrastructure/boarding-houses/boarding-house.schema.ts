@@ -11,7 +11,7 @@ import {
 } from "../location/location.schema";
 import { BoardingHouseImageSchema, ImageSchema } from "../image/image.schema";
 import { GetBookingSchema } from "../booking/booking.schema";
-import { PDFSchema } from "../pdf/pdf.schema";
+import { PDFSchema } from "../valid-docs/pdf/pdf.schema";
 
 export const BaseBoardingHouseSchema = z.object({
   id: z.number(),
