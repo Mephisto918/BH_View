@@ -1,5 +1,5 @@
 import { Location } from "../location/location.types";
-import { Permit } from "../common/types/permits.types";
+// import { Permit } from "../valid-docs/permits.types";
 
 // export interface BoardingHouse {
 //   id: number;

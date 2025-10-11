@@ -1,112 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import api from "@/application/config/api";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ApiResponseType } from "../common/types/api.types";
-import { Tenant, TenantState } from "./tenant.types";
+import { Tenant } from "./tenant.types";
 
-//* createApi
-//* For accessing the API with built-in abstractions
-//* such as isLoading, error, and others.
-const tenantApiRoute = `/api/tenants`;
-export const tenantApi = createApi({
-  tagTypes: ["Tenant"],
-  reducerPath: "tenantApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: api.BASE_URL,
-    fetchFn: async (input, init) => {
-      console.log("FETCHING URL:", input);
-      console.log("FETCH INIT:", init);
-      return fetch(input, init);
-    },
-  }),
-
-  endpoints: (builder) => ({
-    getAll: builder.query<Tenant[], void>({
-      // TODO: add pagination
-      query: () => tenantApiRoute,
-      transformResponse: (response: ApiResponseType<Tenant[]>) =>
-        response.results ?? [],
-    }),
-    getOne: builder.query<Tenant, number>({
-      query: (id) => `${tenantApiRoute}/${id}`,
-      transformResponse: (response: ApiResponseType<Tenant>) =>
-        response.results ?? null,
-      //* Optional: invalidates cache for "Tenant"
-      providesTags: (result, error, id) => [{ type: "Tenant", id }],
-    }),
-    create: builder.mutation<Tenant, Partial<Tenant>>({
-      query: (data) => {
-        const trans = {
-          ...data,
-          age: data.age !== undefined ? Number(data.age) : undefined,
-        };
-        return {
-          url: tenantApiRoute,
-          method: "POST",
-          body: trans,
-        };
-      },
-      //* Optional: invalidates cache for "Tenant"
-      invalidatesTags: ["Tenant"],
-    }),
-    patch: builder.mutation<Tenant, { id: number; data: Partial<Tenant> }>({
-      query: ({ id, data }) => ({
-        url: `${tenantApiRoute}/${id}`,
-        method: "PATCH",
-        body: data,
-      }),
-      //* Optional: invalidates cache for "Tenant"
-      invalidatesTags: ["Tenant"],
-    }),
-    delete: builder.mutation<Tenant, number>({
-      query: (id) => ({
-        url: `${tenantApiRoute}/${id}`,
-        method: "DELETE",
-      }),
-      //* Optional: invalidates cache for "Tenant"
-      invalidatesTags: ["Tenant"],
-    }),
-  }),
-});
-// Export hooks for usage in functional components
-export const {
-  useGetAllQuery,
-  useGetOneQuery,
-  useCreateMutation,
-  usePatchMutation,
-  useDeleteMutation,
-} = tenantApi;
-
-// * -- createApi Usage --
-/*
- * // Fetch all tenants
- * const { data: tenants, isLoading, error } = useGetAllQuery();
- *
- * // Fetch a tenant by ID
- * const { data: tenant, isLoading: isTenantLoading, error: tenantError } = useGetOneQuery(id);
- *
- * // Create a tenant
- * const [createTenant, { isLoading: isCreating, error: createError }] = useCreateMutation();
- * // createTenant({ username: "john", ... });
- *
- * // Delete a tenant
- * const [deleteTenant, { isLoading: isDeleting, error: deleteError }] = useDeleteMutation();
- * // deleteTenant(id);
- */
-
-//* -- Thunks --
-//* this is a side effect, you can call it like a function
-//* has no plan to use it for now
-// export const fetchTenantsThunk = createAsyncThunk(
-//   "tenants/fetchAll",
-//   async () => {
-
-//     const response = await tenantsApi.endpoints.getAll.initiate();
-
-//     return response.results ?? [];
-//   }
-// );
-
+export interface TenantState {
+  selectedUser: Tenant | null;
+  filter: string | null;
+  loading: boolean;
+  error: string | null;
+}
 //* -- Initial State --
 const initialState: TenantState = {
   selectedUser: null,

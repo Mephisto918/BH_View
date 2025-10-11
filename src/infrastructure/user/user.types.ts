@@ -1,26 +1,27 @@
-export interface BaseUser {
-  id?: number;
-  username: string;
-  firstname: string;
-  lastname: string;
-  email: string;
-  password: string;
-  role?: UserRole; // Assuming your UserRole enum resolves like this
-  isActive?: boolean;
-  isVerified?: boolean;
-  createdAt?: string; // Prisma will return ISO string
-  updatedAt?: string;
-  age: number;
-  address: string;
-  phone_number: string;
-}
+import { z } from "zod";
 
-export enum UserRole {
-  TENANT = "TENANT",
-  OWNER = "OWNER",
-  ADMIN = "ADMIN",
-  GUEST = "GUEST",
-}
+/** Shared UserRole enum */
+export const UserRoleSchema = z.enum(["TENANT", "OWNER", "ADMIN", "GUEST"]);
+export type UserRole = z.infer<typeof UserRoleSchema>;
+export const UserRoleEnum = UserRoleSchema.enum;
+
+/** BaseUser (decoupled, minimal shape) */
+export const BaseUserSchema = z.object({
+  id: z.number().int().positive().optional(),
+  username: z.string().min(1).optional(),
+  firstname: z.string().optional(),
+  lastname: z.string().optional(),
+  email: z.string().email().optional(),
+  role: UserRoleSchema.optional(),
+  isActive: z.boolean().optional(),
+  isVerified: z.boolean().optional(),
+  createdAt: z.string().datetime({ offset: true }).optional(),
+  updatedAt: z.string().datetime({ offset: true }).optional(),
+  age: z.number().int().optional(),
+  address: z.string().optional(),
+  phone_number: z.string().optional(),
+});
+export type BaseUser = z.infer<typeof BaseUserSchema>;
 
 export const roleToSliceMap = {
   TENANT: "tenants",

@@ -43,21 +43,16 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../../navigation/auth.stack.types";
-import { Owner } from "@/infrastructure/owner/owner.types";
-import { useCreateMutation as useCreateTenant } from "@/infrastructure/owner/owner.redux.slice";
+import { RegisterOwner } from "@/infrastructure/owner/owner.types";
+import { useCreateMutation as useCreateTenant } from "@/infrastructure/owner/owner.redux.api";
 
 export default function SignUpOwnerScreen() {
   const route = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
-  const [form, setForm] = useState<Owner>({
+  const [form, setForm] = useState<RegisterOwner>({
     username: "",
-    firstname: "",
-    lastname: "",
     password: "",
     email: "",
-    age: 0,
-    address: "",
-    phone_number: "",
   });
   const [confirmPassword, setConfirmPassword] = useState<{
     value: string;
@@ -103,13 +98,8 @@ export default function SignUpOwnerScreen() {
       Alert.alert("You are registered!");
       setForm({
         username: "",
-        firstname: "",
-        lastname: "",
         password: "",
         email: "",
-        age: 0,
-        address: "",
-        phone_number: "",
       });
       setConfirmPassword({ value: "", isTrue: false });
       route.navigate("Login");
@@ -144,12 +134,7 @@ export default function SignUpOwnerScreen() {
         <View>
           {[
             "username",
-            "firstname",
-            "lastname",
             "email",
-            "age",
-            "address",
-            "phone_number",
           ].map((field) => (
             <View key={field}>
               <Text

@@ -37,7 +37,7 @@ import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
 import { Admin } from "@/infrastructure/admin/admin.types";
 import { Owner } from "@/infrastructure/owner/owner.types";
 import { Tenant } from "@/infrastructure/tenants/tenant.types";
-import { UserRole } from "@/infrastructure/user/user.types";
+import { UserRoleEnum, UserRole } from "@/infrastructure/user/user.types";
 
 // TODO: abstract this 1
 type UserFormType = Partial<Tenant> | Partial<Owner> | Partial<Admin>;
@@ -61,17 +61,17 @@ export default function MenuUserEditScreen() {
   function cleanUserForm(role: UserRole | undefined, form: UserFormType) {
     const copy = { ...form };
 
-    if (role === UserRole.TENANT) {
+    if (role === UserRoleEnum.TENANT) {
       delete (copy as any).boardingHouse;
       delete (copy as any).permits;
     }
-    if (role === UserRole.OWNER) {
+    if (role === UserRoleEnum.OWNER) {
       delete (copy as any).guardian;
       delete (copy as any).boardingHouse;
       delete (copy as any).permits;
     }
 
-    if (role === UserRole.ADMIN) {
+    if (role === UserRoleEnum.ADMIN) {
       delete (copy as any).guardian;
     }
 

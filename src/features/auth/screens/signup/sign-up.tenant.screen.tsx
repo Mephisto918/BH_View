@@ -45,24 +45,18 @@ import { Heading } from "@gluestack-ui/themed";
 import { ScrollView } from "@gluestack-ui/themed";
 
 // redux
-import { useCreateMutation as useCreateTenant } from "@/infrastructure/tenants/tenant.redux.slice";
-import { Tenant } from "@/infrastructure/tenants/tenant.types";
+import { useCreateMutation as useCreateTenant } from "@/infrastructure/tenants/tenant.redux.api";
+import { RegisterTenant, Tenant } from "@/infrastructure/tenants/tenant.types";
 
 export default function SignUpTenantScreen() {
   // const api = new Api();
   const route = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   // const [loading, setLoading] = React.useState(false);
-  const [tenantForm, setTenantForm] = useState<Tenant>({
+  const [tenantForm, setTenantForm] = useState<RegisterTenant>({
     username: "",
-    firstname: "",
-    lastname: "",
     email: "",
     password: "",
-    age: 0,
-    guardian: "",
-    address: "",
-    phone_number: "",
   });
   const [confirmPassword, setConfirmPassword] = useState<{
     value: string;
@@ -106,14 +100,8 @@ export default function SignUpTenantScreen() {
       Alert.alert("You are registered!");
       setTenantForm({
         username: "",
-        firstname: "",
-        lastname: "",
         email: "",
         password: "",
-        age: 0,
-        guardian: "",
-        address: "",
-        phone_number: "",
       });
       setConfirmPassword({ value: "", isTrue: false });
       route.navigate("Login");
@@ -156,63 +144,6 @@ export default function SignUpTenantScreen() {
         </FormControl>
         <FormControl>
           <FormControl.Label>
-            <Text style={[s.FormLabel]}>Firstname</Text>
-          </FormControl.Label>
-          <Input>
-            <InputField
-              value={tenantForm.firstname}
-              onChangeText={(text: string) =>
-                setTenantForm({ ...tenantForm, firstname: text })
-              }
-              style={[s.FormTextInput]}
-            />
-          </Input>
-        </FormControl>
-        <FormControl>
-          <FormControl.Label>
-            <Text style={[s.FormLabel]}>Lastname</Text>
-          </FormControl.Label>
-          <Input>
-            <InputField
-              value={tenantForm.lastname}
-              onChangeText={(text: string) =>
-                setTenantForm({ ...tenantForm, lastname: text })
-              }
-              style={[s.FormTextInput]}
-            />
-          </Input>
-        </FormControl>
-        <FormControl>
-          <FormControl.Label>
-            <Text style={[s.FormLabel]}>Age</Text>
-          </FormControl.Label>
-          <Input>
-            <InputField
-              value={tenantForm.age}
-              onChangeText={(text: string) =>
-                setTenantForm({ ...tenantForm, age: text })
-              }
-              style={[s.FormTextInput]}
-              keyboardType="numeric"
-            />
-          </Input>
-        </FormControl>
-        <FormControl>
-          <FormControl.Label>
-            <Text style={[s.FormLabel]}>Guardian Name</Text>
-          </FormControl.Label>
-          <Input>
-            <InputField
-              value={tenantForm.guardian}
-              onChangeText={(text: string) =>
-                setTenantForm({ ...tenantForm, guardian: text })
-              }
-              style={[s.FormTextInput]}
-            />
-          </Input>
-        </FormControl>
-        <FormControl>
-          <FormControl.Label>
             <Text style={[s.FormLabel]}>Email</Text>
           </FormControl.Label>
           <Input>
@@ -222,35 +153,6 @@ export default function SignUpTenantScreen() {
                 setTenantForm({ ...tenantForm, email: text })
               }
               keyboardType="email-address"
-              style={[s.FormTextInput]}
-            />
-          </Input>
-        </FormControl>
-        <FormControl>
-          <FormControl.Label>
-            <Text style={[s.FormLabel]}>Home Address</Text>
-          </FormControl.Label>
-          <Input>
-            <InputField
-              value={tenantForm.address}
-              onChangeText={(text: string) =>
-                setTenantForm({ ...tenantForm, address: text })
-              }
-              style={[s.FormTextInput]}
-            />
-          </Input>
-        </FormControl>
-        <FormControl>
-          <FormControl.Label>
-            <Text style={[s.FormLabel]}>Phone Number</Text>
-          </FormControl.Label>
-          <Input>
-            <InputField
-              value={tenantForm.phone_number}
-              onChangeText={(text: string) =>
-                setTenantForm({ ...tenantForm, phone_number: text })
-              }
-              keyboardType="phone-pad"
               style={[s.FormTextInput]}
             />
           </Input>

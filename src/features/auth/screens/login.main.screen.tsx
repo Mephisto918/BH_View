@@ -57,22 +57,22 @@ export default function LoginMainScreen() {
     useLoginMutation();
   const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
-    setTimeout(() => {
-      onPressLogin();
-    }, 700);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     onPressLogin();
+  //   }, 700);
+  // }, []);
 
   const onPressLogin = async () => {
-    // const packageLoad = {
-    //   username: username.value,
-    //   password: password.value,
-    // };
-
     const packageLoad = {
-      username: "Rosalia.Schmeler",
-      password: "dkO3RxVvsqJZwTY",
+      username: username.value,
+      password: password.value,
     };
+
+    // const packageLoad = {
+    //   username: "Rosalia.Schmeler",
+    //   password: "dkO3RxVvsqJZwTY",
+    // };
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();
       dispatch(

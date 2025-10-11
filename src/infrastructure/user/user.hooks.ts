@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/application/store/stores";
-import { UserRole } from "@/infrastructure/user/user.types";
+import { UserRoleEnum } from "@/infrastructure/user/user.types";
 
 import {
   useGetAllQuery as getAllTenant,
@@ -8,8 +8,8 @@ import {
   useCreateMutation as createTenant,
   usePatchMutation as patchTenant,
   useDeleteMutation as deleteTenant,
-  selectUser as selectTenant,
-} from "@/infrastructure/tenants/tenant.redux.slice";
+} from "@/infrastructure/tenants/tenant.redux.api";
+import { selectUser as selectTenant } from "@/infrastructure/tenants/tenant.redux.slice";
 import { Tenant } from "@/infrastructure/tenants/tenant.types";
 
 import {
@@ -18,8 +18,8 @@ import {
   useCreateMutation as createOwner,
   usePatchMutation as patchOwner,
   useDeleteMutation as deleteOwner,
-  selectUser as selectOwner,
-} from "@/infrastructure/owner/owner.redux.slice";
+} from "@/infrastructure/owner/owner.redux.api";
+import { selectUser as selectOwner } from "@/infrastructure/owner/owner.redux.slice";
 import { Owner } from "@/infrastructure/owner/owner.types";
 
 import {
@@ -38,7 +38,7 @@ const noop = (...args: unknown[]) => {
 };
 
 type ApiMapRecord = {
-  [UserRole.TENANT]: {
+  [UserRoleEnum.TENANT]: {
     getAll: typeof getAllTenant;
     getOne: typeof getOneTenant;
     create: typeof createTenant;
@@ -46,7 +46,7 @@ type ApiMapRecord = {
     delete: typeof deleteTenant;
     selector: (state: RootState) => Tenant | null;
   };
-  [UserRole.OWNER]: {
+  [UserRoleEnum.OWNER]: {
     getAll: typeof getAllOwner;
     getOne: typeof getOneOwner;
     create: typeof createOwner;
@@ -54,7 +54,7 @@ type ApiMapRecord = {
     delete: typeof deleteOwner;
     selector: (state: RootState) => Owner | null;
   };
-  [UserRole.ADMIN]: {
+  [UserRoleEnum.ADMIN]: {
     getAll: typeof getAllAdmin;
     getOne: typeof getOneAdmin;
     create: typeof createAdmin;
@@ -62,7 +62,7 @@ type ApiMapRecord = {
     delete: typeof deleteAdmin;
     selector: (state: RootState) => Admin | null;
   };
-  [UserRole.GUEST]: {
+  [UserRoleEnum.GUEST]: {
     getAll: () => undefined;
     getOne: () => undefined;
     create: () => undefined;
@@ -73,7 +73,7 @@ type ApiMapRecord = {
 };
 
 export const apiMap: ApiMapRecord = {
-  [UserRole.TENANT]: {
+  [UserRoleEnum.TENANT]: {
     getAll: getAllTenant,
     getOne: getOneTenant,
     create: createTenant,
@@ -81,7 +81,7 @@ export const apiMap: ApiMapRecord = {
     delete: deleteTenant,
     selector: (state: RootState) => state.tenants.selectedUser,
   },
-  [UserRole.OWNER]: {
+  [UserRoleEnum.OWNER]: {
     getAll: getAllOwner,
     getOne: getOneOwner,
     create: createOwner,
@@ -89,7 +89,7 @@ export const apiMap: ApiMapRecord = {
     delete: deleteOwner,
     selector: (state: RootState) => state.owners.selectedUser,
   },
-  [UserRole.ADMIN]: {
+  [UserRoleEnum.ADMIN]: {
     getAll: getAllAdmin,
     getOne: getOneAdmin,
     create: createAdmin,
@@ -97,7 +97,7 @@ export const apiMap: ApiMapRecord = {
     delete: deleteAdmin,
     selector: (state: RootState) => state.admins.selectedUser,
   },
-  [UserRole.GUEST]: {
+  [UserRoleEnum.GUEST]: {
     getAll: () => noop(),
     getOne: () => noop(),
     create: () => noop(),
@@ -110,10 +110,10 @@ export const apiMap: ApiMapRecord = {
 export function useDynamicUserApi() {
   const dispatch = useDispatch();
   const authUser = useSelector((state: RootState) => state.auth.userData);
-  const role = authUser?.role ?? UserRole.GUEST;
+  const role = authUser?.role ?? UserRoleEnum.GUEST;
   const id = authUser?.id;
 
-  if (role === UserRole.GUEST) {
+  if (role === UserRoleEnum.GUEST) {
     const patchUser = async () => {
       throw new Error("No patch for guest");
     };
@@ -154,13 +154,13 @@ export function useDynamicUserApi() {
     id: number,
     data: Partial<Tenant> | Partial<Owner> | Partial<Admin>
   ) => Promise<Tenant | Owner | Admin> = async (id, data) => {
-    if (role === UserRole.TENANT) {
+    if (role === UserRoleEnum.TENANT) {
       return tenantPatch({ id, data: data as Partial<Tenant> }).unwrap();
     }
-    if (role === UserRole.OWNER) {
+    if (role === UserRoleEnum.OWNER) {
       return ownerPatch({ id, data: data as Partial<Owner> }).unwrap();
     }
-    if (role === UserRole.ADMIN) {
+    if (role === UserRoleEnum.ADMIN) {
       return adminPatch({ id, data: data as Partial<Admin> }).unwrap();
     }
     throw new Error("Patch not allowed for this role");
@@ -180,9 +180,9 @@ export function useDynamicUserApi() {
   );
 
   const selectedUser =
-    role === UserRole.TENANT
+    role === UserRoleEnum.TENANT
       ? selectedTenant
-      : role === UserRole.OWNER
+      : role === UserRoleEnum.OWNER
       ? selectedOwner
       : selectedAdmin;
 
@@ -191,11 +191,11 @@ export function useDynamicUserApi() {
     if (!apis.getOne) throw new Error("getOne is not defined for this role");
     const res = await apis.getOne(id)?.refetch();
     if (res?.data) {
-      if (role === UserRole.TENANT) {
+      if (role === UserRoleEnum.TENANT) {
         dispatch(selectTenant(res.data as Tenant));
-      } else if (role === UserRole.OWNER) {
+      } else if (role === UserRoleEnum.OWNER) {
         dispatch(selectOwner(res.data as Owner));
-      } else if (role === UserRole.ADMIN) {
+      } else if (role === UserRoleEnum.ADMIN) {
         dispatch(selectAdmin(res.data as Admin));
       }
     }

@@ -3,11 +3,11 @@ import boardingHouseSlice from "@/infrastructure/boarding-houses/boarding-house.
 import { boardingHouseApi } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import authSlice, { authApi } from "@/infrastructure/auth/auth.redux.slice";
 import adminSlice, { adminApi } from "@/infrastructure/admin/admin.redux.slice";
-import ownerSlice, { ownerApi } from "@/infrastructure/owner/owner.redux.slice";
-import tenantSlice, {
-  tenantApi,
-} from "@/infrastructure/tenants/tenant.redux.slice";
-// import authSlice from '../../infrastructure/auth/auth';
+
+import ownerReducer from "@/infrastructure/owner/owner.redux.slice";
+import { ownerApi } from "@/infrastructure/owner/owner.redux.api";
+import tenantReducer from "@/infrastructure/tenants/tenant.redux.slice";
+import { tenantApi } from "@/infrastructure/tenants/tenant.redux.api";
 
 export const store = configureStore({
   reducer: {
@@ -15,9 +15,9 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     admins: adminSlice,
     [adminApi.reducerPath]: adminApi.reducer,
-    tenants: tenantSlice,
+    tenants: tenantReducer,
     [tenantApi.reducerPath]: tenantApi.reducer,
-    owners: ownerSlice,
+    owners: ownerReducer,
     [ownerApi.reducerPath]: ownerApi.reducer,
     boardingHouses: boardingHouseSlice,
     [boardingHouseApi.reducerPath]: boardingHouseApi.reducer,

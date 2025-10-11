@@ -1,15 +1,34 @@
-import { BaseUser, UserRole } from "../user/user.types";
-import { Booking } from "../boarding-houses/boarding-house.types";
+import { z } from "zod";
+import { BaseUserSchema } from "../user/user.types";
+import { BookingSchema } from "../boarding-houses/boarding-house.types";
 
-export interface Tenant extends BaseUser{
-  role?: UserRole.TENANT;
-  bookings?: Array<Booking>;
-  guardian?: string | null;
-}
+/** ---------------- SCHEMAS ---------------- **/
 
-export interface TenantState {
-  selectedUser: Tenant | null;
-  filter: string | null;
-  loading: boolean;
-  error: string | null;
-}
+// TenantSchema = BaseUser + tenant-specific fields
+export const TenantSchema = BaseUserSchema.extend({
+  role: z.literal("TENANT").optional(),
+  guardian: z.string().nullable().optional(),
+  bookings: z.array(BookingSchema).optional(),
+});
+
+/** RegisterTenant — minimal self-registration (like Owner’s Register) */
+export const RegisterTenantSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+/** UpdateTenant — all fields optional */
+export const UpdateTenantSchema = TenantSchema.partial();
+
+/** GetTenant — fully loaded entity */
+export const GetTenantSchema = TenantSchema.extend({
+  id: z.number().int().positive(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
+export type Tenant = z.infer<typeof TenantSchema>;
+export type RegisterTenant = z.infer<typeof RegisterTenantSchema>;
+export type UpdateTenant = z.infer<typeof UpdateTenantSchema>;
+export type GetTenant = z.infer<typeof GetTenantSchema>;

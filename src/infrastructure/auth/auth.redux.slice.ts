@@ -3,14 +3,14 @@ import api from "@/application/config/api";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ApiResponseType } from "../common/types/api.types";
 import { AuthState, AuthUser, LoginResults } from "./auth.types";
-import { UserRole } from "../user/user.types";
+import { UserRoleEnum } from "../user/user.types";
 
 const initialState: AuthState = {
   userData: {
     id: null,
     username: "guest",
     email: "",
-    role: UserRole.GUEST,
+    role: UserRoleEnum.GUEST,
     isActive: false,
     isVerified: false,
   },

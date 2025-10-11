@@ -15,10 +15,10 @@
   phone_number String
 */
 
-import { BaseUser, UserRole } from "../user/user.types";
+import { BaseUser, UserRoleEnum } from "../user/user.types";
 
-export interface Admin extends BaseUser{
-  role: UserRole.ADMIN;
+export interface Admin extends BaseUser {
+  role: "ADMIN";
 }
 
 export interface AdminState {

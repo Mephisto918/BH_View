@@ -19,9 +19,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     fallbackToCacheTimeout: 0,
   },
   plugins: [
+    "expo-secure-store",
+    "expo-sqlite",
+    "expo-font",
     [
       "@maplibre/maplibre-react-native",
-      { // this is suppose to target andriod or ios version for compatibility reasons
+      {
+        // this is suppose to target andriod or ios version for compatibility reasons
         // android: {
         //   nativeVersion: "x.x.x",
         // },
