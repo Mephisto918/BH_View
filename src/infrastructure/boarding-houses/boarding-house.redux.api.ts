@@ -11,6 +11,7 @@ import {
 } from "./boarding-house.schema";
 
 import z from "zod";
+import { uploadBoardingHouse } from "../utils/upload.service";
 
 //* -- createApi --
 const boardingHouseApiRoute = `/api/boarding-houses`;
@@ -19,13 +20,20 @@ export const boardingHouseApi = createApi({
   reducerPath: "boardingHouseApi",
   baseQuery: fetchBaseQuery({
     baseUrl: api.BASE_URL,
-    // skips the fetchFn that logs, for debugging only
+    prepareHeaders: (headers, { endpoint }) => {
+      // Only remove Content-Type for FormData endpoints
+      if (endpoint === "create") {
+        headers.delete("Content-Type");
+      }
+      return headers;
+    },
     fetchFn: async (input, init) => {
       console.log("FETCHING URL:", input);
       console.log("FETCH INIT:", init);
       return fetch(input, init);
     },
   }),
+
   endpoints: (builder) => ({
     getAll: builder.query<BoardingHouse[], QueryBoardingHouse | undefined>({
       query: (params) => {
@@ -62,88 +70,160 @@ export const boardingHouseApi = createApi({
       },
     }),
     // TODO make a dto for one source of truth
-    create: builder.mutation<any, CreateBoardingHouseInput>({
-      query: (data) => {
-        const formData = new FormData();
+    create: builder.mutation<ApiResponseType<any>, CreateBoardingHouseInput>({
+      async queryFn(data) {
+        try {
+          const result = await uploadBoardingHouse(data);
 
-        // --- Simple text/primitive fields ---
-        formData.append("ownerId", String(Number(data.ownerId)));
-        formData.append("name", data.name);
-        formData.append("address", data.address);
-        formData.append("description", data.description || "");
-        formData.append(
-          "availabilityStatus",
-          data.availabilityStatus ? "true" : "false"
-        );
-
-        // --- Arrays / complex objects ---
-        formData.append("amenities", JSON.stringify(data.amenities ?? []));
-        formData.append("location", JSON.stringify(data.location ?? {}));
-
-        // --- Normalize numeric/boolean fields in rooms ---
-        const normalizedRooms = (data.rooms ?? []).map(
-          ({ gallery, ...rest }) => ({
-            ...rest,
-            maxCapacity: rest.maxCapacity ? Number(rest.maxCapacity) : 0,
-            price: rest.price ? Number(rest.price) : 0,
-            // add any other numeric fields your backend expects
-          })
-        );
-
-        formData.append("rooms", JSON.stringify(normalizedRooms));
-
-        // --- Upload per-room gallery files ---
-        data.rooms?.forEach((room, index) => {
-          room.gallery?.forEach((file) => {
-            formData.append(`roomGallery${index}`, {
-              uri: file.uri,
-              name: file.name,
-              type: file.type,
-            } as any);
-          });
-        });
-
-        // --- Thumbnail (1 file) ---
-        if (data.thumbnail?.[0]) {
-          const file = data.thumbnail[0];
-          formData.append("thumbnail", {
-            uri: file.uri,
-            name: file.name,
-            type: file.type,
-          } as any);
-        }
-
-        // --- Gallery (multiple) ---
-        data.gallery?.forEach((file) => {
-          formData.append("gallery", {
-            uri: file.uri,
-            name: file.name,
-            type: file.type,
-          } as any);
-        });
-
-        // Debug log
-        for (const [key, value] of (formData as any).entries()) {
-          if (typeof value === "object" && value.uri) {
-            console.log(`${key}: [File] ${value.name} (${value.type})`);
-          } else {
-            console.log(`${key}:`, value);
+          if (result.success) {
+            return {
+              data: {
+                success: true,
+                results: result.data,
+                timestamp: new Date().toISOString(),
+              },
+            };
           }
+
+          // ❌ Backend returned success=false (e.g. validation or DB error)
+          return {
+            error: {
+              status: "SERVER_REJECTED",
+              data: result.error,
+            },
+          };
+        } catch (error: any) {
+          // ❌ Catch runtime or unhandled issues
+          return {
+            error: {
+              status: "EXCEPTION",
+              data: error?.message ?? "Unexpected error",
+            } as any,
+          };
         }
-
-        console.log({
-          url: boardingHouseApiRoute,
-          method: "POST",
-          body: formData,
-        });
-
-        return {
-          url: boardingHouseApiRoute,
-          method: "POST",
-          body: formData,
-        };
       },
     }),
+
+    // create: builder.mutation<any, CreateBoardingHouseInput>({
+    //   query: (data) => {
+    //     const formData = new FormData();
+
+    //     // --- Basic fields ---
+    //     formData.append("ownerId", String(data.ownerId));
+    //     formData.append("name", data.name);
+    //     formData.append("address", data.address);
+    //     formData.append("description", data.description || "");
+    //     formData.append(
+    //       "availabilityStatus",
+    //       data.availabilityStatus ? "true" : "false"
+    //     );
+
+    //     // --- Arrays / complex objects ---
+    //     formData.append("amenities", JSON.stringify(data.amenities ?? []));
+    //     formData.append("location", JSON.stringify(data.location ?? {}));
+
+    //     // --- Normalize numeric/boolean fields in rooms ---
+    //     const normalizedRooms = (data.rooms ?? []).map(
+    //       ({ gallery, ...rest }) => ({
+    //         ...rest,
+    //         maxCapacity: Number(rest.maxCapacity ?? 0),
+    //         price: Number(rest.price ?? 0),
+    //       })
+    //     );
+
+    //     formData.append("rooms", JSON.stringify(normalizedRooms));
+
+    //     // --- Thumbnail (1 file) ---
+    //     if (data.thumbnail?.[0]) {
+    //       const file = data.thumbnail[0];
+    //       if (file.uri) {
+    //         const cleanUri = file.uri.startsWith("file://")
+    //           ? file.uri
+    //           : `file://${file.uri}`;
+    //         const fileType = file.type ?? "image/jpeg";
+    //         const fileName =
+    //           file.name ?? `thumbnail.${fileType.split("/")[1] ?? "jpg"}`;
+
+    //         formData.append("thumbnail", {
+    //           uri: cleanUri,
+    //           name: fileName,
+    //           type: fileType.toLowerCase(),
+    //         } as any);
+    //       }
+    //     }
+
+    //     // --- Gallery (multiple files) ---
+    //     data.gallery?.forEach((file, i) => {
+    //       if (file?.uri) {
+    //         const cleanUri = file.uri.startsWith("file://")
+    //           ? file.uri
+    //           : `file://${file.uri}`;
+    //         const uriParts = cleanUri.split(".");
+    //         const ext = uriParts[uriParts.length - 1].toLowerCase();
+
+    //         // Always use a valid MIME and lowercase it
+    //         const fileType =
+    //           file.type?.toLowerCase() ??
+    //           `image/${ext === "jpg" ? "jpeg" : ext}`;
+    //         const fileName = file.name ?? `gallery-${i}.${ext}`;
+
+    //         formData.append("gallery", {
+    //           uri: cleanUri,
+    //           name: fileName,
+    //           type: fileType,
+    //         } as any);
+    //       }
+    //     });
+
+    //     // --- Per-room gallery ---
+    //     data.rooms?.forEach((room, index) => {
+    //       room.gallery?.forEach((file, j) => {
+    //         if (file?.uri) {
+    //           const cleanUri = file.uri.startsWith("file://")
+    //             ? file.uri
+    //             : `file://${file.uri}`;
+    //           const uriParts = cleanUri.split(".");
+    //           const ext = uriParts[uriParts.length - 1].toLowerCase();
+
+    //           const fileType =
+    //             file.type?.toLowerCase() ??
+    //             `image/${ext === "jpg" ? "jpeg" : ext}`;
+    //           const fileName = file.name ?? `room-${index}-${j}.${ext}`;
+
+    //           formData.append(`roomGallery${index}_${j}`, {
+    //             uri: cleanUri,
+    //             name: fileName,
+    //             type: fileType,
+    //           } as any);
+    //         }
+    //       });
+    //     });
+
+    //     // 🔍 Debug logs
+    //     console.log("🧾 FORMDATA CONTENTS:");
+    //     (formData as any)._parts?.forEach?.(([key, value]: any) => {
+    //       if (typeof value === "object" && value.uri) {
+    //         console.log(` → ${key}: ${value.uri}`);
+    //       } else {
+    //         console.log(` → ${key}: ${value}`);
+    //       }
+    //     });
+
+    //     let totalFiles = 0;
+    //     data.thumbnail?.length && (totalFiles += data.thumbnail.length);
+    //     data.gallery?.length && (totalFiles += data.gallery.length);
+    //     data.rooms?.forEach((r) => (totalFiles += r.gallery?.length ?? 0));
+    //     console.log("🧩 Total files being uploaded:", totalFiles);
+
+    //     return {
+    //       url: "/api/boarding-houses",
+    //       method: "POST",
+    //       // ❌ DO NOT set Content-Type manually
+    //       // fetchBaseQuery will detect FormData automatically
+    //       body: formData,
+    //     };
+    //   },
+    // }),
 
     delete: builder.mutation<BoardingHouse, number>({
       query: (id) => ({

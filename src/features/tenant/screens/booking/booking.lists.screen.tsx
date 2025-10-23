@@ -13,12 +13,7 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import { TenantTabsParamList } from "../../navigation/tenant.tabs.types";
 import { Spinner } from "@gluestack-ui/themed";
-
-const FullScreenLoader = () => (
-  <View style={styles.overlay}>
-    <Spinner size="large" color="$white" />
-  </View>
-);
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 
 export default function BookingListsScreen() {
   const navigation =
@@ -34,7 +29,7 @@ export default function BookingListsScreen() {
   } = useGetAllBoardingHouses(filters);
 
   const handleGotoPress = (id: number) => {
-    console.log("handleGotoPress", id);
+    // console.log("handleGotoPress", id);
     navigation.navigate("Booking", {
       screen: "BoardingHouseDetails",
       params: { id: id, fromMaps: true },
@@ -45,7 +40,7 @@ export default function BookingListsScreen() {
       style={[GlobalStyle.GlobalsContainer]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      {isBoardingHousesLoading && <FullScreenLoader />}
+      {isBoardingHousesLoading && <FullScreenLoaderAnimated />}
       <VStack>
         <ScrollView
           style={{ backgroundColor: Colors.PrimaryLight[8], flex: 1 }}

@@ -4,7 +4,7 @@ import { backButtonConfig } from "@/constants/navigation/screenOptions";
 
 import BookingListsScreen from "../booking.lists.screen";
 import BoardingHouseDetailsScreen from "../details/boarding-house.details.screen";
-import RoomsBookingScreen from "../rooms.selection/rooms.booking.screen";
+import RoomsBookingListsScreen from "../rooms.selection/rooms.booking-list.screen";
 import RoomsDetailsScreen from "../rooms.selection/rooms.details.screen";
 import RoomsCheckoutScreen from "../rooms.selection/rooms.checkout.screen";
 import { TenantBookingStackParamList } from "./booking.types";
@@ -34,8 +34,8 @@ export default function BookingStack() {
       />
       {/* 3rd */}
       <Stack.Screen
-        name="RoomsBookingScreen"
-        component={RoomsBookingScreen}
+        name="RoomsBookingListsScreen"
+        component={RoomsBookingListsScreen}
         options={backButtonConfig}
       />
       {/* 4th */}

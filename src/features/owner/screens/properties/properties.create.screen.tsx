@@ -41,15 +41,7 @@ import { ScrollView } from "react-native-gesture-handler";
 
 import { pickImageExpo } from "@/infrastructure/image/image.service";
 import { createIconSetFromFontello, Ionicons } from "@expo/vector-icons";
-
-const FullScreenLoader = () => (
-  <View style={s.overlay}>
-    <Text>Bro is Loading</Text>
-  </View>
-  //  <Overlay isOpen={true}>
-  //   <Spinner size="large" color="$white" />
-  // </Overlay>
-);
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 
 export default function PropertiesCreateScreen() {
   const propertyNavigation = usePropertyNavigation();
@@ -57,7 +49,8 @@ export default function PropertiesCreateScreen() {
   const { selectedUser: data } = useDynamicUserApi();
   const user = data;
 
-  const [createBh, { isLoading, isError }] = useCreateMutation();
+  const [createBh, { isLoading, isError: isCreateBhError }] =
+    useCreateMutation();
   const [currentHeight, setCurrentHeight] = React.useState<number>(0);
 
   // TODO: Abstract this later
@@ -128,18 +121,20 @@ export default function PropertiesCreateScreen() {
     }
 
     try {
-      // const transformedData = CreateBoardingHouseSchema.parse(data);
       const transformedData = {
         ...data,
         rooms:
           data.rooms?.map((room) => ({
             ...room,
-            maxCapacity: String(room.maxCapacity),
-            price: String(room.price),
+            maxCapacity: Number(room.maxCapacity),
+            price: Number(room.price),
           })) ?? [],
       };
+
       // console.log("Submitted:", JSON.stringify(transformedData, null, 2));
       await createBh(transformedData).unwrap(); // Wait for mutation to complete
+      // await createBh(data).unwrap(); // Wait for mutation to complete
+      // if(isCreateBhError) return
       propertyNavigation.navigate("PropertiesHome");
     } catch (error) {
       console.error("Submission error:", error);
@@ -169,7 +164,7 @@ export default function PropertiesCreateScreen() {
       style={[GlobalStyle.GlobalsContainer, s.main_container_style]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      {isLoading && <FullScreenLoader />}
+      {isLoading && <FullScreenLoaderAnimated />}
       <VStack space="md">
         <Box>
           <Pressable onPress={handlePickThumbnailImage}>

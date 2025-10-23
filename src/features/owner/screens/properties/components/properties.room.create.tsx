@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import React, { useState } from "react";
 import { Box, VStack } from "@gluestack-ui/themed";
 import { ScrollView } from "react-native-gesture-handler";
+import z from "zod";
 
 // form hook
 import { useForm } from "react-hook-form";
@@ -12,6 +13,7 @@ import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import {
   CreateRoomInput,
   CreateRoomInputSchema,
+  UnifiedRoomCreate,
 } from "../../../../../infrastructure/room/room.schema";
 import PropertiesRoomCreateModal from "./properties.room.create.modal";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,8 +29,8 @@ export default function PropertiesRoomCreate({
 
   const initialDefaultValues: CreateRoomInput = {
     roomNumber: "",
-    maxCapacity: "",
-    price: "",
+    maxCapacity: 0,
+    price: 0.0,
     tags: [],
     roomType: "SOLO",
     gallery: [],
@@ -36,7 +38,7 @@ export default function PropertiesRoomCreate({
 
   const {
     formState: { errors },
-  } = useForm<CreateRoomInput>({
+  } = useForm<z.input<typeof CreateRoomInputSchema>>({
     resolver: zodResolver(CreateRoomInputSchema),
     defaultValues: initialDefaultValues,
   });

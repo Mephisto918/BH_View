@@ -12,7 +12,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       baseUrl: `${process.env.EXPO_PUBLIC_BASE_URL}${process.env.EXPO_PUBLIC_BACKEND_PORT}`, // ✅ must be prefixed
     },
     eas: {
-      projectId: "4e9a4dd3-5be7-4a1b-94cf-1b1431d12e5c", // Ensure projectId is included
+      projectId: "f972946f-0577-48b6-bb4d-3eca11be116a", // Ensure projectId is included
     },
   },
   updates: {

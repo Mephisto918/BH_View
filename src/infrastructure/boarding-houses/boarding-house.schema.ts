@@ -3,6 +3,7 @@ import {
   CreateRoomInputSchema,
   CreateRoomSchema,
   GetRoomSchema,
+  UnifiedRoomCreateSchema,
 } from "../room/room.schema";
 import { AMENITIES } from "./boarding-house.constants";
 import {
@@ -130,7 +131,8 @@ export const CreateBoardingHouseInputSchema = z.object({
   thumbnail: z.array(ImageUploadSchema).optional(),
   gallery: z.array(ImageUploadSchema).optional(),
   location: BaseLocationSchema,
-  rooms: z.array(CreateRoomInputSchema).optional(),
+  // rooms: z.array(CreateRoomInputSchema).optional(),
+  rooms: z.array(UnifiedRoomCreateSchema).optional(),
 });
 
 // Output schema with transformations
@@ -139,7 +141,7 @@ export const CreateBoardingHouseSchema =
     ...data,
     rooms: data.rooms
       ? data.rooms.map(
-          (room) => CreateRoomSchema.parse(room) // Transform each room to output type
+          (room) => UnifiedRoomCreateSchema.parse(room) // Transform each room to output type
         )
       : undefined,
   }));

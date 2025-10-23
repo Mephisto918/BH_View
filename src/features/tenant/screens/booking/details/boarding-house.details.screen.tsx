@@ -8,7 +8,7 @@ import {
   BorderRadius,
 } from "@/constants";
 import { Spinner } from "@gluestack-ui/themed";
-import { useRoute, RouteProp } from "@react-navigation/native";
+import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { useNavigationState } from "@react-navigation/native";
 
 // ui components
@@ -24,6 +24,7 @@ import { HStack, VStack } from "@gluestack-ui/themed";
 import { useGetOneQuery as useGetOneBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import { TenantBookingStackParamList } from "../navigation/booking.types";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 // type Props = NativeStackScreenProps<TenantTabsParamList, "Booking">;
 type RouteProps = RouteProp<
@@ -31,9 +32,9 @@ type RouteProps = RouteProp<
   "BoardingHouseDetails"
 >;
 
-export default function BoardingHouseDetailsScreen({ navigation }) {
-  // const navigateToDetails =
-  //   useNavigation<NativeStackNavigationProp<TenantBookingStackParamList>>();
+export default function BoardingHouseDetailsScreen() {
+  const navigateToDetails =
+    useNavigation<NativeStackNavigationProp<TenantBookingStackParamList>>();
   const route = useRoute<RouteProps>();
   const { id: paramsId, fromMaps } = route.params;
 
@@ -50,6 +51,13 @@ export default function BoardingHouseDetailsScreen({ navigation }) {
       console.log("Boarding house details", boardinghouse);
     }
   }, [boardinghouse]);
+
+  const handleGotoRoomLists = (bhNumber: number) => {
+    if (!bhNumber) return "Invald Boarding House Number";
+    navigateToDetails.navigate("RoomsBookingListsScreen", {
+      paramsId: bhNumber,
+    });
+  };
 
   return (
     <StaticScreenWrapper>
@@ -135,7 +143,7 @@ export default function BoardingHouseDetailsScreen({ navigation }) {
                       marginRight: 0,
                       padding: 10,
                     }}
-                    onPressAction={() => {}}
+                    onPressAction={() => handleGotoRoomLists(boardinghouse.id)}
                   >
                     <Text>View Rooms</Text>
                   </Button>

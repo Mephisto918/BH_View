@@ -33,6 +33,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { pickImageExpo } from "@/infrastructure/image/image.service";
 import ButtomSheetSelector from "@/components/ui/ButtomSheetSelector";
+import z from "zod";
 
 type RoomWithIndex = CreateRoomInput & { index?: number };
 interface PropertiesRoomCreateModalProps {
@@ -57,8 +58,8 @@ export default function PropertiesRoomCreateModal({
 
   const defaultValues: CreateRoomInput = {
     roomNumber: "",
-    maxCapacity: "",
-    price: "",
+    maxCapacity: 0,
+    price: 0,
     tags: [],
     roomType: "SOLO",
     gallery: [],
@@ -72,7 +73,7 @@ export default function PropertiesRoomCreateModal({
     watch,
     reset,
     formState: { errors },
-  } = useForm<CreateRoomInput>({
+  } = useForm<z.input<typeof CreateRoomInputSchema>>({
     resolver: zodResolver(CreateRoomInputSchema),
     defaultValues: initialData || defaultValues,
   });
@@ -129,7 +130,15 @@ export default function PropertiesRoomCreateModal({
     setValue("gallery", newGallery); // update the form
   };
 
-  const handleFinalSubmit = (data: CreateRoomInput) => {
+  // const handleFinalSubmit = (data: CreateRoomInput) => {
+  //   const index = isEditing ? initialData?.index : undefined;
+  //   onSubmit(data, index);
+  //   onClose();
+  // };
+  const handleFinalSubmit = (
+    rawData: z.input<typeof CreateRoomInputSchema>
+  ) => {
+    const data = CreateRoomInputSchema.parse(rawData);
     const index = isEditing ? initialData?.index : undefined;
     onSubmit(data, index);
     onClose();
@@ -197,7 +206,7 @@ export default function PropertiesRoomCreateModal({
                       <InputField
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        value={value}
+                        value={value?.toString() ?? ""}
                         keyboardType="numeric"
                         style={[s.Form_Input_Placeholder]}
                       />
@@ -224,7 +233,7 @@ export default function PropertiesRoomCreateModal({
                       <InputField
                         onChangeText={onChange}
                         onBlur={onBlur}
-                        value={value}
+                        value={value?.toString() ?? ""}
                         keyboardType="numeric"
                         style={[s.Form_Input_Placeholder]}
                       />

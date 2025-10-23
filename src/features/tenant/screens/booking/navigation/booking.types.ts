@@ -1,3 +1,5 @@
+import type { RouteProp } from "@react-navigation/native";
+
 export type TenantBookingStackParamList = {
   BoardingHouseLists: undefined;
   BoardingHouseDetails: {
@@ -5,7 +7,9 @@ export type TenantBookingStackParamList = {
     fromMaps?: boolean;
     [key: string]: any; // allow extra params if needed
   };
-  RoomsBookingScreen: undefined;
+  RoomsBookingListsScreen: {
+    paramsId: number;
+  };
   RoomsDetailsScreen: {
     boardingHouseId: number | undefined;
     roomId: number | undefined;
@@ -15,10 +19,15 @@ export type TenantBookingStackParamList = {
   RoomsCheckoutScreen: undefined;
 };
 
+export type RoomsBookingScreenRouteProp = RouteProp<
+  TenantBookingStackParamList,
+  "RoomsBookingListsScreen"
+>;
+
 export const TenantBookingStackParamListArrayName = [
   "BoardingHouseLists",
   "BoardingHouseDetails",
-  "RoomsBookingScreen",
+  "RoomsBookingListsScreen",
   "RoomsDetailsScreen",
   "RoomsCheckoutScreen",
 ];
