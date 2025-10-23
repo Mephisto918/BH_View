@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, Pressable } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useState, useEffect } from "react";
 import {
   Colors,
@@ -7,7 +7,6 @@ import {
   Fontsize,
   BorderRadius,
 } from "@/constants";
-import { Spinner } from "@gluestack-ui/themed";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import { useNavigationState } from "@react-navigation/native";
 
@@ -22,16 +21,21 @@ import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import { HStack, VStack } from "@gluestack-ui/themed";
 
 import { useGetOneQuery as useGetOneBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
-import { TenantBookingStackParamList } from "../navigation/booking.types";
-import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import { OwnerBookingStackParamList } from "../navigation/booking.types";
 
 // type Props = NativeStackScreenProps<TenantTabsParamList, "Booking">;
-type RouteProps = RouteProp<
-  TenantBookingStackParamList,
-  "BoardingHouseDetails"
->;
+type RouteProps = RouteProp<OwnerBookingStackParamList, "BoardingHouseDetails">;
 
-export default function BoardingHouseDetailsScreen({ navigation }) {
+const FullScreenLoader = () => (
+  <View style={s.overlay}>
+    <Text>Bro is Loading</Text>
+  </View>
+  //  <Overlay isOpen={true}>
+  //   <Spinner size="large" color="$white" />
+  // </Overlay>
+);
+
+export default function PropertiesDetailsScreen({ navigation }) {
   // const navigateToDetails =
   //   useNavigation<NativeStackNavigationProp<TenantBookingStackParamList>>();
   const route = useRoute<RouteProps>();
@@ -53,7 +57,7 @@ export default function BoardingHouseDetailsScreen({ navigation }) {
 
   return (
     <StaticScreenWrapper>
-      {isBoardingHouseLoading && <FullScreenLoaderAnimated />}
+      {isBoardingHouseLoading && <FullScreenLoader />}
       <View style={[GlobalStyle.GlobalsContainer, s.main_container]}>
         <View style={[s.main_item]}>
           <View style={[s.group_main]}>
@@ -135,9 +139,8 @@ export default function BoardingHouseDetailsScreen({ navigation }) {
                       marginRight: 0,
                       padding: 10,
                     }}
-                    onPressAction={() => {}}
                   >
-                    <Text>View Rooms</Text>
+                    <Text>Book Now</Text>
                   </Button>
                 </HStack>
                 <Text style={[s.text_description]}>
@@ -154,6 +157,9 @@ export default function BoardingHouseDetailsScreen({ navigation }) {
                     Additional Information:
                   </Text>
                   <VStack>
+                    <Text style={[s.text_generic_medium]}>
+                      Price: {boardinghouse?.price}
+                    </Text>
                     <VStack
                       style={[
                         s.text_generic_medium,

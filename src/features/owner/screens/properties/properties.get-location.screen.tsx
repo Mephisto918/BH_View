@@ -1,7 +1,13 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState, useRef } from "react";
+import { View, Text, StyleSheet, Pressable, Image } from "react-native";
+import { VStack } from "@gluestack-ui/themed";
+import {
+  MapView,
+  Camera,
+  UserLocation,
+  MarkerView,
+} from "@maplibre/maplibre-react-native";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
-
 import {
   Colors,
   Fontsize,
@@ -9,38 +15,29 @@ import {
   Spacing,
   BorderRadius,
 } from "@/constants";
-
-import { VStack } from "@gluestack-ui/themed";
-import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import MapView, { Marker, MapPressEvent } from "react-native-maps";
-import { DEFAULT_REGION } from "@/application/config/map.config";
-
-//* navigation
 import { usePropertyNavigation } from "./navigation/properties.navigation.hooks";
 import { useRoute } from "@react-navigation/native";
+
+const DEFAULT_COORDS: [number, number] = [124.6095, 11.0008519]; // [lng, lat]
 
 export default function PropertiesGetLocationScreen() {
   const route = useRoute();
   const propertyNavigation = usePropertyNavigation();
-  const { onSelect } = route.params;
+  const { onSelect } = route.params || {};
 
-  const [location, setLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  }>({
-    latitude: 0,
-    longitude: 0,
-  });
+  // const cameraRef = useRef<Camera>(null);
 
-  const handleMapPress = (event: MapPressEvent) => {
-    const { coordinate } = event.nativeEvent;
-    setLocation({ ...coordinate });
+  const [location, setLocation] = useState<[number, number] | null>(null);
+
+  const handleMapPress = (e: any) => {
+    const [longitude, latitude] = e.geometry.coordinates;
+    setLocation([longitude, latitude]);
   };
 
   const handleConfirmLocation = () => {
     if (location) {
-      onSelect?.(location);
+      const [longitude, latitude] = location;
+      onSelect?.({ latitude, longitude });
       propertyNavigation.goBack();
     }
   };
@@ -50,45 +47,38 @@ export default function PropertiesGetLocationScreen() {
       style={[GlobalStyle.GlobalsContainer]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      <VStack
-        style={{
-          flex: 1,
-        }}
-      >
+      <VStack style={{ flex: 1 }}>
         <MapView
-          style={[
-            StyleSheet.absoluteFill,
-            { flex: 1, borderRadius: 19, borderColor: "red" },
-          ]}
-          initialRegion={DEFAULT_REGION}
-          showsUserLocation={true}
-          showsMyLocationButton={true}
-          provider="google"
-          mapType="hybrid"
+          style={s.map}
+          mapStyle="https://tiles.openfreemap.org/styles/liberty"
+          logoEnabled={false}
+          attributionEnabled={true}
           onPress={handleMapPress}
         >
-          {location && <Marker coordinate={location} />}
-        </MapView>
-        {location && (
-          <View
-            style={{
-              position: "absolute",
-              bottom: 50,
-              left: 10,
-              backgroundColor: "white",
-              padding: 10,
+          <Camera
+            // ref={cameraRef}
+            defaultSettings={{
+              centerCoordinate: DEFAULT_COORDS,
+              zoomLevel: 14,
             }}
-          >
-            <Text>Latitude: {location.latitude.toFixed(5)}</Text>
-            <Text>Longitude: {location.longitude.toFixed(5)}</Text>
-            <Pressable
-              onPress={() => handleConfirmLocation()}
-              style={{
-                padding: 10,
-                backgroundColor: Colors.PrimaryLight[8],
-                borderRadius: BorderRadius.md,
-              }}
-            >
+            
+          />
+          <UserLocation />
+          {location && (
+            <MarkerView coordinate={location}>
+              <Image
+                source={require("@/assets/static/green-marker.png")}
+                style={{ width: 32, height: 32 }}
+              />
+            </MarkerView>
+          )}
+        </MapView>
+
+        {location && (
+          <View style={s.infoBox}>
+            <Text>Latitude: {location[1].toFixed(5)}</Text>
+            <Text>Longitude: {location[0].toFixed(5)}</Text>
+            <Pressable onPress={handleConfirmLocation} style={s.button}>
               <Text style={{ color: Colors.PrimaryLight[1] }}>
                 Set Location
               </Text>
@@ -99,3 +89,24 @@ export default function PropertiesGetLocationScreen() {
     </StaticScreenWrapper>
   );
 }
+
+const s = StyleSheet.create({
+  map: {
+    flex: 1,
+  },
+  infoBox: {
+    position: "absolute",
+    bottom: 50,
+    left: 10,
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 8,
+    elevation: 3,
+  },
+  button: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: Colors.PrimaryLight[8],
+    borderRadius: BorderRadius.md,
+  },
+});

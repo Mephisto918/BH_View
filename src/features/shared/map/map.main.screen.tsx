@@ -33,6 +33,7 @@ import { selectBoardinHouse } from "@/infrastructure/boarding-houses/boarding-ho
 import { GetBoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import Map from "./Map";
+import { BoardingHouse, QueryBoardingHouse } from "@/tests/boardingHouseMock";
 
 export default function MapMainScreen() {
   const [search, setSearch] = useState("");

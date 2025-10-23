@@ -1,12 +1,5 @@
 import { Button } from "@gluestack-ui/themed";
 import { Overlay } from "@gluestack-ui/overlay";
-import {
-  Actionsheet,
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetItem,
-  ActionsheetItemText,
-} from "@gluestack-ui/actionsheet";
 
 import {
   StyleSheet,
@@ -31,7 +24,6 @@ import {
 } from "@/infrastructure/room/room.schema";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { Pressable, ScrollView } from "react-native-gesture-handler";
 import { ScrollView, Pressable } from "react-native";
 import { BorderRadius, Colors, Fontsize, Spacing } from "@/constants";
 import {
@@ -40,6 +32,7 @@ import {
 } from "@/infrastructure/room/room.constants";
 import { Ionicons } from "@expo/vector-icons";
 import { pickImageExpo } from "@/infrastructure/image/image.service";
+import ButtomSheetSelector from "@/components/ui/ButtomSheetSelector";
 
 type RoomWithIndex = CreateRoomInput & { index?: number };
 interface PropertiesRoomCreateModalProps {
@@ -58,6 +51,9 @@ export default function PropertiesRoomCreateModal({
   isEditing,
 }: PropertiesRoomCreateModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<string>("");
 
   const defaultValues: CreateRoomInput = {
     roomNumber: "",
@@ -140,13 +136,15 @@ export default function PropertiesRoomCreateModal({
   };
 
   return (
-    <Overlay>
-      <Modal
+    <>
+      {/* <Modal
         visible={visible}
         onRequestClose={onClose}
         transparent
         animationType="fade"
-      >
+      > */}
+      <Overlay isOpen={visible} onRequestClose={onClose}>
+        {/* // <Overlay isOpen={visible} onRequestClose={onClose}> */}
         <View style={[modalStyles.overlay]}>
           <View style={[modalStyles.container]}>
             {/* Close Button */}
@@ -250,48 +248,33 @@ export default function PropertiesRoomCreateModal({
                   rules={{ required: "Room Type is required" }}
                   render={({ field: { onChange, value } }) => (
                     <View style={{ marginBottom: 10 }}>
-                      <Button onPress={() => setIsOpen(true)}>
-                        {value || "Select Room Type"}
+                      <Button onPress={() => setIsActionSheetOpen(true)}>
+                        <Text>{value || "Select Room Type"}</Text>
                       </Button>
 
-                      <Actionsheet
-                        isOpen={isOpen}
-                        onClose={() => setIsOpen(false)}
-                      >
-                        <ActionsheetBackdrop />
-                        <ActionsheetContent>
-                          {["SOLO", "DUO", "TRIO", "SQUAD", "FAMILY"].map(
-                            (option) => (
-                              <ActionsheetItem
-                                key={option}
-                                onPress={() => {
-                                  onChange(option);
-                                  setIsOpen(false);
-                                }}
-                              >
-                                <ActionsheetItemText>
-                                  {option}
-                                </ActionsheetItemText>
-                              </ActionsheetItem>
-                            )
-                          )}
-                        </ActionsheetContent>
-                      </Actionsheet>
-
+                      {/* Display validation error if any */}
                       {errors?.roomType && (
                         <Text style={{ color: "red", marginTop: 4 }}>
                           {errors.roomType.message}
                         </Text>
                       )}
+
+                      {/* You can optionally show selected type below the button */}
+                      {value && (
+                        <Text
+                          style={{
+                            color: Colors.TextInverse[2],
+                            fontSize: Fontsize.md,
+                            marginTop: 6,
+                            textAlign: "center",
+                          }}
+                        >
+                          Selected: {value}
+                        </Text>
+                      )}
                     </View>
                   )}
                 />
-
-                {errors.roomType && (
-                  <Text style={{ color: "red", marginTop: 4 }}>
-                    {errors.roomType.message}
-                  </Text>
-                )}
               </FormControl>
 
               {/* Tags */}
@@ -464,7 +447,12 @@ export default function PropertiesRoomCreateModal({
                     justifyContent: "center",
                   }}
                 >
-                  <TouchableOpacity onPress={handleSubmit(handleFinalSubmit)}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      handleSubmit(handleFinalSubmit)();
+                      console.log("clicked..?");
+                    }}
+                  >
                     <Text
                       style={{
                         color: "black",
@@ -480,8 +468,19 @@ export default function PropertiesRoomCreateModal({
             </ScrollView>
           </View>
         </View>
-      </Modal>
-    </Overlay>
+        {/* </Modal> */}
+      </Overlay>
+      <ButtomSheetSelector<"SOLO" | "DUO" | "TRIO" | "SQUAD" | "FAMILY">
+        values={["SOLO", "DUO", "TRIO", "SQUAD", "FAMILY"]}
+        isOpen={isActionSheetOpen}
+        onClose={() => setIsActionSheetOpen(false)}
+        onSelect={(value) => {
+          setSelectedType(value);
+          setValue("roomType", value); // update the form’s field
+          setIsActionSheetOpen(false);
+        }}
+      />
+    </>
   );
 }
 

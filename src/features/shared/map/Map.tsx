@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Image } from "react-native";
 import {
   MapView,
   Camera,
   UserLocation,
   MarkerView,
 } from "@maplibre/maplibre-react-native";
-import { BoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema-improved";
+import { BoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema";
 import { Text, View } from "@gluestack-ui/themed";
 import * as Location from "expo-location"; // ✅ import Location
 
@@ -51,14 +51,6 @@ export default function Map({ data, isBoardingHousesLoading }: MapProps) {
           animationDuration={0}
         />
 
-        {/* Show user location, causes some `Index: 2, Size: 1` error */}
-        {/* {locationGranted ? (
-          <UserLocation visible={true} />
-        ) : (
-          <Text style={styles.errorText}>
-            {errorMsg || "Location unavailable"}
-          </Text>
-        )} */}
         {locationGranted && <UserLocation visible={true} />}
 
         {/* Markers */}
@@ -73,45 +65,33 @@ export default function Map({ data, isBoardingHousesLoading }: MapProps) {
               return null;
 
             const [lng, lat] = location.coordinates;
-            console.log('long, lat', lng, lat);
+            console.log("long, lat", lng, lat);
 
             return (
               <MarkerView key={i} coordinate={[lng, lat]}>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                    borderRadius: 6,
-                    borderWidth: 1,
-                    borderColor: "gray",
-                    flexShrink: 0, // important
-                    minWidth: 50, // give enough space
-                  }}
-                >
-                  <Text style={{ fontSize: 12 }}>{house.name}</Text>
-                  <Text style={{ fontSize: 12 }}>{house.description}</Text>
-                  <Text style={{ fontSize: 12 }}>{house.ownerId}</Text>
-                  <Text style={{ fontSize: 12 }}>{house.amenities}</Text>
+                <View style={{}}>
+                  <Image
+                    source={require("@/assets/static/green-marker.png")}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      backgroundColor: "transparent",
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 6,
+                      // borderWidth: 1,
+                      // borderColor: "gray",
+                      flexShrink: 0, // important
+                    }}
+                  />
+                  {/* <Text style={{ fontSize: 4 }}>{house.name}</Text> */}
+                  {/* <Text style={{ fontSize: 12 }}>{house.description}</Text> */}
+                  {/* <Text style={{ fontSize: 12 }}>{house.ownerId}</Text> */}
+                  {/* <Text style={{ fontSize: 12 }}>{house.amenities}</Text> */}
                 </View>
               </MarkerView>
             );
           })}
-
-        {/* Example marker */}
-        {/* <MarkerView coordinate={[124.6095, 11.0008519]}>
-          <View
-            style={{
-              backgroundColor: "red",
-              padding: 0,
-              borderRadius: 0,
-              borderWidth: 0,
-              borderColor: "gray",
-            }}
-          >
-            <Text style={{ fontSize: 12 }}>ABC</Text>
-          </View>
-        </MarkerView> */}
       </MapView>
       <View style={styles.attributionContainer}>
         <Text style={styles.attributionText}>

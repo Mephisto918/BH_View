@@ -23,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 // * Redux
 import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
-import { useCreateMutation } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
+import { useCreateMutation } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import {
   CreateBoardingHouseInput,
   CreateBoardingHouseInputSchema,
@@ -37,11 +37,10 @@ import {
 // * Routing
 import { usePropertyNavigation } from "./navigation/properties.navigation.hooks";
 import PropertiesRoomCreate from "./components/properties.room.create";
-import { CreateBoardingHouseSchema } from "../../../../infrastructure/boarding-houses/boarding-house.schema";
 import { ScrollView } from "react-native-gesture-handler";
 
 import { pickImageExpo } from "@/infrastructure/image/image.service";
-import { Ionicons } from "@expo/vector-icons";
+import { createIconSetFromFontello, Ionicons } from "@expo/vector-icons";
 
 const FullScreenLoader = () => (
   <View style={s.overlay}>
@@ -115,6 +114,7 @@ export default function PropertiesCreateScreen() {
   };
 
   const onSubmit = async (data: CreateBoardingHouseInput) => {
+    console.log("Submitting....");
     if (!data.location.coordinates) {
       alert("User ID is missing. Please log in.");
       return;
@@ -128,7 +128,16 @@ export default function PropertiesCreateScreen() {
     }
 
     try {
-      const transformedData = CreateBoardingHouseSchema.parse(data);
+      // const transformedData = CreateBoardingHouseSchema.parse(data);
+      const transformedData = {
+        ...data,
+        rooms:
+          data.rooms?.map((room) => ({
+            ...room,
+            maxCapacity: String(room.maxCapacity),
+            price: String(room.price),
+          })) ?? [],
+      };
       // console.log("Submitted:", JSON.stringify(transformedData, null, 2));
       await createBh(transformedData).unwrap(); // Wait for mutation to complete
       propertyNavigation.navigate("PropertiesHome");
@@ -455,14 +464,23 @@ export default function PropertiesCreateScreen() {
         {/* Submit Button */}
         <View style={{ marginBottom: Spacing.xxl }}>
           <FormControl>
-            <Input
-              onTouchStart={handleSubmit(onSubmit)}
-              style={{ backgroundColor: "#1E90FF", padding: 12 }}
+            <Pressable
+              onPress={() => {
+                console.log("Clicked the submit...");
+                console.log("Current form errors:", errors);
+                handleSubmit(onSubmit)();
+              }}
+              style={{
+                backgroundColor: "#1E90FF",
+                padding: 12,
+                borderRadius: 8,
+                alignItems: "center",
+              }}
             >
-              <Text style={{ color: "white", textAlign: "center" }}>
-                Submit
+              <Text style={{ color: "white", fontWeight: "bold" }}>
+                Submit -
               </Text>
-            </Input>
+            </Pressable>
           </FormControl>
         </View>
       </VStack>

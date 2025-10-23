@@ -8,6 +8,7 @@ import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 // UI comopnent
 import TextInput from "@/components/ui/TextInput";
 import Button from "@/components/ui/Button";
+import { Spinner } from "@gluestack-ui/themed";
 
 // constants
 import {
@@ -33,15 +34,7 @@ import { login } from "@/infrastructure/auth/auth.redux.slice";
 import { useLoginMutation } from "@/infrastructure/auth/auth.redux.slice";
 import { fetchUserDataThunk } from "@/infrastructure/auth/auth.redux.thunk";
 import { AppDispatch } from "../../../application/store/stores";
-
-const FullScreenLoader = () => (
-  <View style={s.overlay}>
-    <Text>Bro is Loading</Text>
-  </View>
-  //  <Overlay isOpen={true}>
-  //   <Spinner size="large" color="$white" />
-  // </Overlay>
-);
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 
 export default function LoginMainScreen() {
   const rootNavigation =
@@ -70,8 +63,8 @@ export default function LoginMainScreen() {
     };
 
     // const packageLoad = {
-    //   username: "Rosalia.Schmeler",
-    //   password: "dkO3RxVvsqJZwTY",
+    //   username: "tenant1",
+    //   password: "123456789",
     // };
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();
@@ -109,7 +102,7 @@ export default function LoginMainScreen() {
         },
       ]}
     >
-      {isLoginLoading && <FullScreenLoader />}
+      {isLoginLoading && <FullScreenLoaderAnimated />}
       <View style={[s.Container]}>
         {/* <Logo
             // eslint-disable-next-line @typescript-eslint/no-require-imports

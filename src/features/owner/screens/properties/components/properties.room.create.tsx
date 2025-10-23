@@ -91,6 +91,7 @@ export default function PropertiesRoomCreate({
               setEditingRoomIndex(null); // this means ADD
               // setEditingRoomData(null); // start fresh
               setModalVisible(true);
+              console.log("Modal visible?", modalVisible);
             }}
           >
             <Text style={[s.generic_text, { fontSize: Fontsize.md }]}>

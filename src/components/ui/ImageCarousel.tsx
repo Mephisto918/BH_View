@@ -8,7 +8,7 @@ import {
   ViewStyle,
 } from "react-native";
 import React, { useState } from "react";
-import { ImageType } from "../../infrastructure/image/image.schema";
+import { BackendImage } from "../../infrastructure/image/image.schema";
 import {
   BorderRadius,
   BorderWidth,
@@ -18,7 +18,7 @@ import {
 } from "@/constants";
 
 interface CarouselProps {
-  images: Array<ImageType | undefined>;
+  images: Array<BackendImage | undefined>;
   variant?: "primary" | "secondary" | "fullBleed";
   containerStyle?: StyleProp<ViewStyle>;
   scrollStyle?: StyleProp<ViewStyle>;
@@ -33,7 +33,6 @@ export default function ImageCarousel({
   const [imageIndex, setImageIndex] = useState(0);
   const [mainImage, setMainImage] = useState(0);
   // make 404 images report to not found in images
-
 
   const setSelectedIndex = (i: number) => {
     setImageIndex(i);
@@ -110,7 +109,7 @@ export default function ImageCarousel({
         </View>
       ) : (
         <Image
-          source={{ uri: images[mainImage] }}
+          source={{ uri: images[mainImage].url }}
           style={[variantStyle[variant].mainImage]}
           resizeMode="cover"
         />
@@ -133,9 +132,9 @@ export default function ImageCarousel({
               ) : (
                 <Image
                   source={
-                    typeof images[i] === "string"
-                      ? { uri: images[i] }
-                      : images[i]
+                    typeof images[i]?.url === "string"
+                      ? { uri: images[i].url }
+                      : images[i]?.url
                   }
                   style={{
                     width: variantStyle[variant].thumbnailSize,

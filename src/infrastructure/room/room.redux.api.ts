@@ -1,7 +1,7 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import api from "@/application/config/api";
-import { Room } from "./room.dto";
 import { ApiResponseType } from "../common/types/api.types";
+import { CreateRoom, FindOneRoom, GetRoom } from "./room.schema";
 
 const roomApiRoute = `/api/boarding-houses/`;
 export const roomApi = createApi({
@@ -18,22 +18,25 @@ export const roomApi = createApi({
   }),
 
   endpoints: (builder) => ({
-    getAll: builder.query<Room[], number>({
+    getAll: builder.query<GetRoom[], number>({
       query: (id) => `${roomApiRoute}/${id}/rooms`,
-      transformResponse: (response: ApiResponseType<Room[]>) =>
+      transformResponse: (response: ApiResponseType<GetRoom[]>) =>
         response.results ?? [],
     }),
-    getOne: builder.query<Room, { boardingHouseId: number; roomId: number }>({
+    getOne: builder.query<
+      FindOneRoom,
+      { boardingHouseId: number; roomId: number }
+    >({
       query: ({ boardingHouseId, roomId }) => ({
         url: `${roomApiRoute}/${boardingHouseId}/rooms/${roomId}`,
         method: "GET",
       }),
-      transformResponse: (response: ApiResponseType<Room>) =>
+      transformResponse: (response: ApiResponseType<FindOneRoom>) =>
         response.results ?? null,
     }),
     create: builder.mutation<
-      Room,
-      { boardingHouseId: number | string; data: Partial<Room>[] }
+      CreateRoom,
+      { boardingHouseId: number | string; data: Partial<CreateRoom>[] }
     >({
       query: ({ boardingHouseId, data }) => ({
         url: `${roomApiRoute}/${boardingHouseId}/rooms`,
@@ -42,15 +45,16 @@ export const roomApi = createApi({
       }),
       invalidatesTags: ["Room"],
     }),
-    delete: builder.mutation<Room, { boardingHouseId: number; roomId: number }>(
-      {
-        query: ({ boardingHouseId, roomId }) => ({
-          url: `${roomApiRoute}/${boardingHouseId}/rooms/${roomId}`,
-          method: "DELETE",
-        }),
-        invalidatesTags: ["Room"],
-      }
-    ),
+    delete: builder.mutation<
+      GetRoom,
+      { boardingHouseId: number; roomId: number }
+    >({
+      query: ({ boardingHouseId, roomId }) => ({
+        url: `${roomApiRoute}/${boardingHouseId}/rooms/${roomId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Room"],
+    }),
   }),
 });
 

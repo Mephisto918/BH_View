@@ -11,18 +11,18 @@ import Purchases from "react-native-purchases";
 
 export default function App() {
   // Initialize RevenueCat
-  useEffect(() => {
-    Purchases.configure({
-      apiKey: "YOUR_REVENUECAT_PUBLIC_API_KEY",
-      appUserID: null, // optional
-    });
+  // useEffect(() => {
+  //   Purchases.configure({
+  //     apiKey: "YOUR_REVENUECAT_PUBLIC_API_KEY",
+  //     appUserID: null, // optional
+  //   });
 
-    // Enable debug logs in dev builds
-    if (__DEV__) {
-      Purchases.setDebugLogsEnabled(true);
-      console.log("RevenueCat debug logs enabled");
-    }
-  }, []);
+  //   // Enable debug logs in dev builds
+  //   if (__DEV__) {
+  //     Purchases.setDebugLogsEnabled(true);
+  //     console.log("RevenueCat debug logs enabled");
+  //   }
+  // }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

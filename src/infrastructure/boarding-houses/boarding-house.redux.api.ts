@@ -5,11 +5,10 @@ import {
   QueryBoardingHouse,
   QueryBoardingHouseSchema,
   FindOneBoardingHouseSchema,
-  BoardingHouseReadSchema,
   BoardingHouse,
   FindOneBoardingHouse,
   CreateBoardingHouseInput,
-} from "./boarding-house.schema-improved";
+} from "./boarding-house.schema";
 
 import z from "zod";
 
@@ -59,7 +58,7 @@ export const boardingHouseApi = createApi({
         // Use Zod to validate / parse the single result
         // return FindOneBoardingHouseSchema.parse(response.results[0]);
         const res = response.results;
-        return res[0];
+        return res;
       },
     }),
     // TODO make a dto for one source of truth
@@ -67,22 +66,33 @@ export const boardingHouseApi = createApi({
       query: (data) => {
         const formData = new FormData();
 
-        // Text fields
-        formData.append("ownerId", String(data.ownerId));
+        // --- Simple text/primitive fields ---
+        formData.append("ownerId", String(Number(data.ownerId)));
         formData.append("name", data.name);
         formData.append("address", data.address);
         formData.append("description", data.description || "");
-        formData.append("availabilityStatus", String(data.availabilityStatus));
-        formData.append("amenities", JSON.stringify(data.amenities));
-        formData.append("location", JSON.stringify(data.location));
-
-        // ✅ Only use this version (no gallery)
-        const roomsWithoutGallery = (data.rooms ?? []).map(
-          ({ gallery, ...rest }) => rest
+        formData.append(
+          "availabilityStatus",
+          data.availabilityStatus ? "true" : "false"
         );
-        formData.append("rooms", JSON.stringify(roomsWithoutGallery));
 
-        // 📦 Send per-room gallery files
+        // --- Arrays / complex objects ---
+        formData.append("amenities", JSON.stringify(data.amenities ?? []));
+        formData.append("location", JSON.stringify(data.location ?? {}));
+
+        // --- Normalize numeric/boolean fields in rooms ---
+        const normalizedRooms = (data.rooms ?? []).map(
+          ({ gallery, ...rest }) => ({
+            ...rest,
+            maxCapacity: rest.maxCapacity ? Number(rest.maxCapacity) : 0,
+            price: rest.price ? Number(rest.price) : 0,
+            // add any other numeric fields your backend expects
+          })
+        );
+
+        formData.append("rooms", JSON.stringify(normalizedRooms));
+
+        // --- Upload per-room gallery files ---
         data.rooms?.forEach((room, index) => {
           room.gallery?.forEach((file) => {
             formData.append(`roomGallery${index}`, {
@@ -93,7 +103,7 @@ export const boardingHouseApi = createApi({
           });
         });
 
-        // ✅ Thumbnail (1 file)
+        // --- Thumbnail (1 file) ---
         if (data.thumbnail?.[0]) {
           const file = data.thumbnail[0];
           formData.append("thumbnail", {
@@ -103,7 +113,7 @@ export const boardingHouseApi = createApi({
           } as any);
         }
 
-        // ✅ Gallery (multiple)
+        // --- Gallery (multiple) ---
         data.gallery?.forEach((file) => {
           formData.append("gallery", {
             uri: file.uri,
@@ -112,7 +122,8 @@ export const boardingHouseApi = createApi({
           } as any);
         });
 
-        for (const [key, value] of formData.entries()) {
+        // Debug log
+        for (const [key, value] of (formData as any).entries()) {
           if (typeof value === "object" && value.uri) {
             console.log(`${key}: [File] ${value.name} (${value.type})`);
           } else {
@@ -131,7 +142,6 @@ export const boardingHouseApi = createApi({
           method: "POST",
           body: formData,
         };
-        // return {} as any;
       },
     }),
 

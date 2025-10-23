@@ -35,7 +35,7 @@ import Button from "@/components/ui/Button";
 
 // redux
 import { RootState } from "@/stores";
-import { useGetAllQuery } from "@/infrastructure/tenants/tenant.redux.slice";
+import { useGetAllQuery } from "@/infrastructure/tenants/tenant.redux.api";
 
 export default function OwnerManagementMainScreen() {
   const { data: ownersArray, isLoading, isError } = useGetAllQuery();

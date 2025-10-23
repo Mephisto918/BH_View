@@ -1,18 +1,19 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import { BorderRadius, Colors, Fontsize, GlobalStyle } from "@/constants";
-import { Box, Image, VStack } from "@gluestack-ui/themed";
+import { Box, Image, Spinner, VStack } from "@gluestack-ui/themed";
 import { useGetAllQuery as useGetAllBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import {
-  // GetBoardingHouse,
+  GetBoardingHouse,
   QueryBoardingHouse,
 } from "@/infrastructure/boarding-houses/boarding-house.schema";
 import { ScrollView } from "react-native-gesture-handler";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
-import { TenantTabsParamList } from "../../navigation/tenant.tabs.types";
-import { Spinner } from "@gluestack-ui/themed";
+import { OwnerTabsParamList } from "../../navigation/owner.tabs.type";
+import { BoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema";
+import { mockBoardingHouses } from "@/tests/boardingHouseMock";
 
 const FullScreenLoader = () => (
   <View style={styles.overlay}>
@@ -20,23 +21,29 @@ const FullScreenLoader = () => (
   </View>
 );
 
-export default function BookingListsScreen() {
+export default function PropertiesListScreen() {
   const navigation =
-    useNavigation<BottomTabNavigationProp<TenantTabsParamList>>();
+    useNavigation<BottomTabNavigationProp<OwnerTabsParamList>>();
 
   const [filters, setFilters] = useState<QueryBoardingHouse>({
     minPrice: 1500,
   });
-  const {
-    data: boardinghouses,
-    isLoading: isBoardingHousesLoading,
-    isError: isBoardingHousesError,
-  } = useGetAllBoardingHouses(filters);
+  // const {
+  //   data: boardinghouses,
+  //   isLoading: isBoardingHousesLoading,
+  //   isError: isBoardingHousesError,
+  // } = useGetAllBoardingHouses(filters);
+  const isBoardingHousesLoading = false;
+  const [boardinghouses, setBoardinghouses] = useState<BoardingHouse[]>([]);
+
+  useEffect(() => {
+    setBoardinghouses(mockBoardingHouses);
+  }, []);
 
   const handleGotoPress = (id: number) => {
     console.log("handleGotoPress", id);
-    navigation.navigate("Booking", {
-      screen: "BoardingHouseDetails",
+    navigation.navigate("Books", {
+      screen: "PropertiesBookingListsScreen",
       params: { id: id, fromMaps: true },
     });
   };
@@ -47,6 +54,20 @@ export default function BookingListsScreen() {
     >
       {isBoardingHousesLoading && <FullScreenLoader />}
       <VStack>
+        <Box>
+          <Text
+            style={{
+              color: Colors.TextInverse[2],
+              fontWeight: "bold",
+              fontSize: Fontsize.display1,
+              marginBottom: 6,
+              paddingLeft: 10,
+              flexWrap: "wrap",
+            }}
+          >
+            Bookings
+          </Text>
+        </Box>
         <ScrollView
           style={{ backgroundColor: Colors.PrimaryLight[8], flex: 1 }}
           contentContainerStyle={{
@@ -57,7 +78,8 @@ export default function BookingListsScreen() {
           }}
         >
           {boardinghouses &&
-            boardinghouses.map((boardinghouse: QueryBoardingHouse, index) => {
+            boardinghouses.map((boardinghouse: BoardingHouse, index) => {
+              // boardinghouses.map((boardinghouse: GetBoardingHouse, index) => {
               return (
                 <VStack
                   key={index}
@@ -100,11 +122,11 @@ export default function BookingListsScreen() {
                     </VStack>
                     <VStack>
                       <Text style={[styles.Item_SubLabel]}>
-                        {boardinghouse.capacity?.currentCapacity ?? 0}/
-                        {boardinghouse.capacity?.totalCapacity ?? 0}
+                        {boardinghouse.capacity.currentCapacity}/
+                        {boardinghouse.capacity.totalCapacity}
                       </Text>
                       <Pressable
-                        onPress={() => handleGotoPress(boardinghouse.id ?? 0)}
+                        onPress={() => handleGotoPress(boardinghouse.id)}
                         style={{
                           borderRadius: BorderRadius.sm,
                           padding: 8,
@@ -113,7 +135,9 @@ export default function BookingListsScreen() {
                         }}
                       >
                         <View>
-                          <Text style={[styles.Item_Normal]}>View</Text>
+                          <Text style={[styles.Item_Normal]}>
+                            View Booking Requests
+                          </Text>
                         </View>
                       </Pressable>
                     </VStack>
@@ -145,7 +169,7 @@ const styles = StyleSheet.create({
   Item_Label: {
     color: Colors.TextInverse[2],
     fontWeight: "bold",
-    fontSize: Fontsize.xl,
+    fontSize: Fontsize.md,
     marginBottom: 6,
     flexWrap: "wrap",
     // flexShrink: 1,
@@ -153,16 +177,16 @@ const styles = StyleSheet.create({
   Item_SubLabel: {
     color: Colors.TextInverse[2],
     fontWeight: "bold",
-    fontSize: Fontsize.lg,
+    fontSize: Fontsize.md,
     marginBottom: 6,
   },
   Item_Normal: {
     color: Colors.TextInverse[2],
     fontWeight: "bold",
-    fontSize: Fontsize.md,
+    fontSize: Fontsize.sm,
   },
   Item_Input_Placeholder: {
     color: Colors.TextInverse[2],
-    fontSize: Fontsize.md,
+    fontSize: Fontsize.sm,
   },
 });

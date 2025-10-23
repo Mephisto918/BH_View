@@ -5,7 +5,7 @@ import {
 
 import * as ImagePicker from "expo-image-picker";
 import { Platform } from "react-native";
-import { AppImageFile, ImageSchema } from "./image.schema";
+import { AppImageFile, ImageUploadSchema } from "./image.schema";
 
 export async function pickImage(
   limit: number = 1
@@ -43,7 +43,7 @@ export async function pickImage(
           quality: "medium",
         };
 
-        const parse = ImageSchema.safeParse(image);
+        const parse = ImageUploadSchema.safeParse(image);
         if (!parse.success) {
           return reject(new Error("Invalid image file"));
         }
@@ -104,7 +104,7 @@ export async function pickImageExpo(
       size: asset.fileSize || 0, // expo-image-picker may not always provide fileSize
     };
 
-    const parse = ImageSchema.safeParse(image);
+    const parse = ImageUploadSchema.safeParse(image);
     if (!parse.success) {
       console.log("Zod parsing error:", parse.error.format());
       throw new Error("Invalid image file");

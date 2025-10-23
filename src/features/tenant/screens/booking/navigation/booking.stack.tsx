@@ -1,11 +1,15 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-import BoardingHouseDetailsScreen from "../details/boarding-house.details.screen";
-import BookingListsScreen from "../booking.lists.screen";
 import { backButtonConfig } from "@/constants/navigation/screenOptions";
 
-const Stack = createNativeStackNavigator();
+import BookingListsScreen from "../booking.lists.screen";
+import BoardingHouseDetailsScreen from "../details/boarding-house.details.screen";
+import RoomsBookingScreen from "../rooms.selection/rooms.booking.screen";
+import RoomsDetailsScreen from "../rooms.selection/rooms.details.screen";
+import RoomsCheckoutScreen from "../rooms.selection/rooms.checkout.screen";
+import { TenantBookingStackParamList } from "./booking.types";
+
+const Stack = createNativeStackNavigator<TenantBookingStackParamList>();
 
 export default function BookingStack() {
   return (
@@ -14,16 +18,37 @@ export default function BookingStack() {
       screenOptions={{
         headerShown: false,
       }}
+      // routing problem
     >
+      {/* 1st */}
+      <Stack.Screen
+        name="BoardingHouseLists"
+        component={BookingListsScreen}
+        options={backButtonConfig}
+      />
+      {/* 2nd */}
       <Stack.Screen
         name="BoardingHouseDetails"
         component={BoardingHouseDetailsScreen}
         options={backButtonConfig}
       />
+      {/* 3rd */}
       <Stack.Screen
-        name="BoardingHouseLists"
-        component={BookingListsScreen}
-        // options={backButtonConfig}
+        name="RoomsBookingScreen"
+        component={RoomsBookingScreen}
+        options={backButtonConfig}
+      />
+      {/* 4th */}
+      <Stack.Screen
+        name="RoomsDetailsScreen"
+        component={RoomsDetailsScreen}
+        options={backButtonConfig}
+      />
+      {/* 5th */}
+      <Stack.Screen
+        name="RoomsCheckoutScreen"
+        component={RoomsCheckoutScreen}
+        options={backButtonConfig}
       />
     </Stack.Navigator>
   );

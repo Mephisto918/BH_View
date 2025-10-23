@@ -9,7 +9,10 @@ import {
   BaseLocationSchema,
   GetLocationSchema,
 } from "../location/location.schema";
-import { BoardingHouseImageSchema, ImageSchema } from "../image/image.schema";
+import {
+  BoardingHouseImageSchema,
+  ImageUploadSchema,
+} from "../image/image.schema";
 import { GetBookingSchema } from "../booking/booking.schema";
 import { PDFSchema } from "../valid-docs/pdf/pdf.schema";
 
@@ -34,8 +37,8 @@ export const BaseBoardingHouseSchema = z.object({
   bookings: z.array(GetBookingSchema), // or CreateBookingSchema if needed
   boardingHouseImage: z.array(BoardingHouseImageSchema),
   permits: z.array(PDFSchema),
-  thumbnail: z.array(ImageSchema).optional(),
-  gallery: z.array(ImageSchema).optional(),
+  thumbnail: z.array(ImageUploadSchema).optional(),
+  gallery: z.array(ImageUploadSchema).optional(),
 });
 
 export type BoardingHouse = z.infer<typeof BaseBoardingHouseSchema>;
@@ -53,8 +56,8 @@ export const GetBoardingHouseSchema = z.object({
   updatedAt: z.string(),
   isDeleted: z.boolean(),
   deletedAt: z.string().nullable(),
-  thumbnail: z.array(ImageSchema).optional(),
-  gallery: z.array(ImageSchema).optional(),
+  thumbnail: z.array(ImageUploadSchema).optional(),
+  gallery: z.array(ImageUploadSchema).optional(),
   location: GetLocationSchema,
   rooms: z.array(GetRoomSchema).optional(),
   capacity: z.object({
@@ -74,11 +77,19 @@ export const QueryBoardingHouseSchema = z.object({
   updatedAt: z.string().optional(),
   isDeleted: z.boolean().optional(),
   deletedAt: z.string().optional(),
+  location: GetLocationSchema.optional(),
+  thumbnail: z.array(ImageUploadSchema).optional(),
   minPrice: z.number().optional(),
   maxPrice: z.number().optional(),
   sortBy: z.string().optional(),
   page: z.number().optional(),
   offset: z.number().optional(),
+  capacity: z
+    .object({
+      totalCapacity: z.number(),
+      currentCapacity: z.number(),
+    })
+    .optional(),
 });
 export type QueryBoardingHouse = z.infer<typeof QueryBoardingHouseSchema>;
 
@@ -96,8 +107,8 @@ export const FindOneBoardingHouseSchema = z.object({
   isDeleted: z.boolean(),
   deletedAt: z.string().nullable(),
   location: GetLocationSchema,
-  thumbnail: z.array(ImageSchema).optional(),
-  gallery: z.array(ImageSchema).optional(),
+  thumbnail: z.array(ImageUploadSchema).optional(),
+  gallery: z.array(ImageUploadSchema).optional(),
   rooms: z.array(GetRoomSchema).optional(),
   capacity: z.object({
     totalCapacity: z.number(),
@@ -116,8 +127,8 @@ export const CreateBoardingHouseInputSchema = z.object({
   description: z.string().optional(),
   amenities: z.array(z.enum(AMENITIES)),
   availabilityStatus: z.boolean(),
-  thumbnail: z.array(ImageSchema).optional(),
-  gallery: z.array(ImageSchema).optional(),
+  thumbnail: z.array(ImageUploadSchema).optional(),
+  gallery: z.array(ImageUploadSchema).optional(),
   location: BaseLocationSchema,
   rooms: z.array(CreateRoomInputSchema).optional(),
 });

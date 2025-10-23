@@ -6,13 +6,29 @@ import { ImageQualityEnum, ImageTypeEnum } from "./image.types";
    =========================== */
 
 export const ImageUploadSchema = z.object({
-  uri: z.string(), // local file path
-  name: z.string(), // filename
-  type: z.enum(["image/jpeg", "image/jpg", "image/png"]), // MIME type
-  quality: z.enum(["low", "medium", "high"]).optional(), // optional quality hint
+  uri: z.string().url().or(z.string()), // local or remote paths
+  name: z.string(),
+
+  // Type narrowing for MIME type
+  type: z
+    .string()
+    .transform((t) => t.toLowerCase())
+    .refine(
+      (t) => ["image/jpeg", "image/jpg", "image/png"].includes(t),
+      "Unsupported image type"
+    ),
+
+  // Type narrowing for quality
+  quality: z
+    .string()
+    .transform((q) => q.toLowerCase())
+    .refine((q) => ["low", "medium", "high"].includes(q), "Invalid quality")
+    .optional(),
+
+  // Size validation
   size: z
     .number()
-    .max(5 * 1024 * 1024, { message: "Image size must not exceed 5MB" }) // 5MB limit
+    .max(5 * 1024 * 1024, { message: "Image size must not exceed 5MB" })
     .optional(),
 });
 
