@@ -1,44 +1,82 @@
-import { View, ViewStyle, StyleSheet, StyleProp, TextInput, TextInputProps } from 'react-native'
-import React from 'react'
+import React from "react";
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+  TextInputProps,
+  TouchableOpacity,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-import { Ionicons } from '@expo/vector-icons'
-
-interface SearchProps {
-  containerStyle?: StyleProp<ViewStyle>
-  textPlaceHolderStyle?: StyleProp<TextInputProps>
-  placeholder: string
-  value: string
-  setValue: (value: string) => void
+interface HeaderSearchProps extends TextInputProps {
+  containerStyle?: StyleProp<ViewStyle>;
+  placeholder?: string;
+  value: string;
+  setValue: (value: string) => void;
 }
 
-export default function HeaderSearch({containerStyle, textPlaceHolderStyle, placeholder, value, setValue, ...props}: SearchProps) {
+export default function HeaderSearch({
+  containerStyle,
+  placeholder = "Search...",
+  value,
+  setValue,
+  ...props
+}: HeaderSearchProps) {
   return (
-    <View style={[s.default, containerStyle]}>
+    <View style={[styles.container, containerStyle]}>
+      <Ionicons name="search" size={24} color="#666" style={styles.icon} />
       <TextInput
-        style={[s.text_placeholder, textPlaceHolderStyle]}
+        style={styles.input}
         placeholder={placeholder}
         value={value}
         onChangeText={setValue}
         {...props}
       />
-      {!value.length && (
-        <>
-          <Ionicons name="search" size={30} style={{  }}/>
-        </>
+      {value.length > 0 && (
+        <TouchableOpacity onPress={() => setValue("")}>
+          <Ionicons
+            name="close-circle"
+            size={20}
+            color="#666"
+            style={styles.clearIcon}
+          />
+        </TouchableOpacity>
       )}
     </View>
-  )
+  );
 }
 
-const s = StyleSheet.create({
-  default:{
-    position: 'absolute',
-    top: 0,
-    // left: '50%',
-    flexDirection: 'row',
-    alignItems: 'center'},
-  text_placeholder:{
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f1f1f1",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  icon: {
+    marginRight: 8,
+  },
+  input: {
     flex: 1,
-    fontSize: 23,
-  }
-})
+    fontSize: 16,
+  },
+  clearIcon: {
+    marginLeft: 8,
+  },
+});
+
+/* Usage
+<SearchBar
+  placeholder="Search boarding houses"
+  value={search}
+  setValue={setSearch}
+  onSearch={(query: string) => {
+    const filtered = data.filter(item => item.name.includes(query))
+    setFilteredResults(filtered)
+  }}
+/>
+ */

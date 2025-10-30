@@ -29,7 +29,7 @@ export default function MenuMainScreen() {
   const dispatch = useDispatch();
   // TODO: put a wrapper function or do an abstraction on this operation
   // const userRole = useSelector((state: RootState) => state.auth.userData?.role);
-  const { selectedUser: userData,  } = useDynamicUserApi();
+  const { selectedUser: userData } = useDynamicUserApi();
 
   //* data is userData
   // TODO: put a wrapper function or do an abstraction on this operation
@@ -140,7 +140,7 @@ export default function MenuMainScreen() {
             <Button
               style={[s.buttons_Array_button]}
               onPress={() => {
-                navigateRoot.navigate("SyslogsScreen");
+                navigateRoot.navigate("Auth");
               }}
             >
               <Ionicons name="receipt-outline" size={24} color="black" />

@@ -16,7 +16,9 @@ export type TenantBookingStackParamList = {
     fromMaps?: boolean;
     [key: string]: any; // allow extra params if needed
   };
-  RoomsCheckoutScreen: undefined;
+  RoomsCheckoutScreen: {
+    roomId: number | undefined;
+  };
 };
 
 export type RoomsBookingScreenRouteProp = RouteProp<

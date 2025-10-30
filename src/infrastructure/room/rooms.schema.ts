@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ImageUploadSchema, ImageResponseSchema } from "../image/image.schema";
-import { ROOM_FEATURE_TAGS } from "./room.constants";
+import { ROOM_FEATURE_TAGS } from "./rooms.constants";
 
 /* -----------------------------------------
    ENUMS & BASE SCHEMAS
@@ -22,6 +22,7 @@ export const GetRoomSchema = z.object({
   id: z.number(),
   boardingHouseId: z.number(),
   roomNumber: z.string(),
+  description: z.string(),
   maxCapacity: z.number(),
   currentCapacity: z.number(),
   price: z.preprocess((val) => Number(val), z.number()),
@@ -46,15 +47,21 @@ export type FindOneRoom = z.infer<typeof FindOneRoomSchema>;
 ------------------------------------------ */
 
 export const CreateRoomInputSchema = z.object({
-  roomNumber: z.string().min(1, "Room number is required"),
-  maxCapacity: z.coerce
-    .number()
-    .int()
-    .positive("Capacity must be a positive number"),
-  price: z.coerce.number().positive("Price must be positive"),
+  roomNumber: z.string(),
+  description: z.string().optional(),
+  maxCapacity: z.union([z.string(), z.number()]),
+  price: z.union([z.string(), z.number()]),
   tags: z.array(z.string()).default([]),
-  roomType: z.enum(["SOLO", "DUO", "TRIO", "SQUAD", "FAMILY"]),
   gallery: z
+    .array(
+      z.object({
+        uri: z.string(),
+        name: z.string().optional(),
+        type: z.string().optional(),
+      })
+    )
+    .default([]),
+  thumbnail: z
     .array(
       z.object({
         uri: z.string(),
@@ -70,11 +77,10 @@ export const CreateRoomSchema = CreateRoomInputSchema.transform((data) => ({
   maxCapacity: data.maxCapacity,
   price: data.price,
   tags: data.tags ?? [],
-  roomType: data.roomType ?? "SOLO",
 }));
 
 export type CreateRoomInput = z.infer<typeof CreateRoomInputSchema>;
-export type CreateRoom = z.infer<typeof CreateRoomSchema>;
+export type CreateRoom = z.input<typeof CreateRoomSchema>;
 
 /* -----------------------------------------
    CREATE (UNIFIED WITH BOARDING HOUSE)
@@ -106,4 +112,4 @@ export const UnifiedRoomCreateSchema = z
     roomType: data.roomType ?? "SOLO",
   }));
 
-export type UnifiedRoomCreate = z.infer<typeof UnifiedRoomCreateSchema>;
+export type UnifiedRoomCreate = z.output<typeof UnifiedRoomCreateSchema>;

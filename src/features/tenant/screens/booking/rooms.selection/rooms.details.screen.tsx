@@ -1,24 +1,26 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
 import React from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 import { Box, Button, VStack } from "@gluestack-ui/themed";
-import { useGetOneQuery } from "@/infrastructure/room/room.redux.api";
+import { useGetOneQuery } from "@/infrastructure/room/rooms.redux.api";
 import ImageCarousel from "@/components/ui/ImageCarousel";
-import { BorderRadius, Colors } from "@/constants";
+import {
+  BorderRadius,
+  Colors,
+  Fontsize,
+  GlobalStyle,
+  Spacing,
+} from "@/constants";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { TenantBookingStackParamList } from "../navigation/booking.types";
+import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
 
 type RoomsDetailsScreenProps = NativeStackScreenProps<
   TenantBookingStackParamList,
   "RoomsDetailsScreen"
 >;
-
-// interface RoomsDetailsScreenProps {
-//   boardingHouseId: number;
-//   roomId: number;
-// }
 
 export default function RoomsDetailsScreen({
   route,
@@ -30,28 +32,55 @@ export default function RoomsDetailsScreen({
     return <Text>Invalid room or boarding house</Text>;
   }
 
-  // if (boardingHouseId && roomId) return "No Info about the room found";
-
+  //!
   const {
     data: roomData,
     isLoading: isRoomDataLoading,
     isError: isRoomDataError,
+    error: roomDataError,
   } = useGetOneQuery({ boardingHouseId, roomId });
 
+  if (isRoomDataError) {
+    console.log("Room data error:", roomDataError);
+  }
+
   return (
-    <StaticScreenWrapper style={[]}>
+    <StaticScreenWrapper
+      style={[GlobalStyle.GlobalsContainer, s.container]}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
+    >
       {isRoomDataLoading && <FullScreenLoaderAnimated />}
+      {isRoomDataError && <FullScreenErrorModal />}
       {roomData && (
         <VStack>
           <Box>
-            <Text>{roomData.roomNumber}</Text>
+            <Text style={[s.textColor, { fontSize: Fontsize.display1 }]}>
+              {roomData.roomNumber}
+            </Text>
+          </Box>
+          <Box>
+            <Image
+              source={
+                roomData?.thumbnail?.[0]?.url
+                  ? { uri: roomData.thumbnail[0].url }
+                  : require("@/assets/housesSample/1.jpg")
+              }
+              style={{
+                margin: "auto",
+                width: "98%",
+                height: 200,
+                borderRadius: BorderRadius.md,
+              }}
+            />
           </Box>
           <ImageCarousel images={roomData.gallery ?? []}></ImageCarousel>
           <Box>
             <Box>
-              <Text>{roomData.price}</Text>
+              <Text style={[s.textColor]}>{roomData.price}</Text>
             </Box>
-            <Button>Book Now</Button>
+            <Button>
+              <Text style={[s.textColor]}>Book Now</Text>
+            </Button>
           </Box>
           <Box>
             <ScrollView
@@ -75,7 +104,7 @@ export default function RoomsDetailsScreen({
                     backgroundColor: Colors.PrimaryLight[6],
                   }}
                 >
-                  <Text style={[s.generic_text]}>{item}</Text>
+                  <Text style={[s.generic_text, s.textColor]}>{item}</Text>
                 </Box>
               ))}
             </ScrollView>
@@ -87,5 +116,12 @@ export default function RoomsDetailsScreen({
 }
 
 const s = StyleSheet.create({
+  container: {
+    padding: Spacing.md,
+  },
   generic_text: {},
+
+  textColor: {
+    color: Colors.TextInverse[2],
+  },
 });

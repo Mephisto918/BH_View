@@ -4,7 +4,7 @@ import { OwnerBookingStackParamList } from "../screens/booking/navigation/bookin
 
 export type OwnerTabsParamList = {
   Properties: undefined;
-  Books: {
+  Booking: {
     screen: keyof OwnerBookingStackParamList;
     params?: OwnerBookingStackParamList[keyof OwnerBookingStackParamList];
   };

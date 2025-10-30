@@ -21,14 +21,13 @@ import {
 } from "@gluestack-ui/themed";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Markdown from "react-native-awesome-markdown";
-import { textMD } from "../../TermsAndConditions";
+import TermsAndConditions from "../../../../data/TermsAndConditions";
 
 // UI layout
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 
 // UI Component
 import Button from "@/components/ui/Button";
-import TextInput from "@/components/ui/TextInput";
 
 // Global Styles
 import {
@@ -45,6 +44,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../../navigation/auth.stack.types";
 import { RegisterOwner } from "@/infrastructure/owner/owner.types";
 import { useCreateMutation as useCreateTenant } from "@/infrastructure/owner/owner.redux.api";
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 
 export default function SignUpOwnerScreen() {
   const route = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
@@ -58,7 +58,7 @@ export default function SignUpOwnerScreen() {
     value: string;
     isTrue: boolean;
   }>({ value: "", isTrue: false });
-  const [createOwner, { isLoading: isCreating, error: createError }] =
+  const [createOwner, { isLoading: isLoading, error: isError }] =
     useCreateTenant();
 
   const handleChange = (field: string, value: string) => {
@@ -105,7 +105,7 @@ export default function SignUpOwnerScreen() {
       route.navigate("Login");
     } catch (error: any) {
       console.log(error);
-      Alert.alert("Error", error.details);
+      Alert.alert("Error", error.data.message);
     }
   }
 
@@ -120,6 +120,7 @@ export default function SignUpOwnerScreen() {
         { justifyContent: "center", alignContent: "stretch" },
       ]}
     >
+      {isLoading && <FullScreenLoaderAnimated></FullScreenLoaderAnimated>}
       <View style={[s.container, { marginBottom: 100, marginTop: 100 }]}>
         <View>
           <Text
@@ -132,10 +133,7 @@ export default function SignUpOwnerScreen() {
           </Text>
         </View>
         <View>
-          {[
-            "username",
-            "email",
-          ].map((field) => (
+          {["username", "email"].map((field) => (
             <View key={field}>
               <Text
                 style={{
@@ -277,7 +275,7 @@ export default function SignUpOwnerScreen() {
               </Text>
             </Heading>
             <ScrollView>
-              <Markdown styles={customStyles} text={textMD} />
+              <Markdown styles={customStyles} text={TermsAndConditions} />
             </ScrollView>
             <VStack>
               <Button

@@ -107,68 +107,82 @@ export const apiMap: ApiMapRecord = {
   },
 };
 
+export type PatchData = Partial<Tenant> | Partial<Owner> | Partial<Admin>;
+
 export function useDynamicUserApi() {
   const dispatch = useDispatch();
   const authUser = useSelector((state: RootState) => state.auth.userData);
   const role = authUser?.role ?? UserRoleEnum.GUEST;
   const id = authUser?.id;
 
-  if (role === UserRoleEnum.GUEST) {
-    const patchUser = async () => {
-      throw new Error("No patch for guest");
-    };
-    return {
-      role,
-      id,
-      selectedUser: null,
-      allQuery: null,
-      oneQuery: null,
-      createMutation: () => {
-        throw new Error("No create for guest");
-      },
-      patchUser,
-      deleteMutation: () => {
-        throw new Error("No delete for guest");
-      },
-      fetchAndSelect: async () => {
-        throw new Error("No fetchAndSelect for guest");
-      },
-    };
-  }
+  // ✅ Call all possible hooks once, at the top level (this keeps React happy)
+  const tenantAll = getAllTenant();
+  const ownerAll = getAllOwner();
+  const adminAll = getAllAdmin();
 
-  const apis = apiMap[role];
+  const tenantOne = id ? getOneTenant(id, { skip: !id }) : null;
+  const ownerOne = id ? getOneOwner(id, { skip: !id }) : null;
+  const adminOne = id ? getOneAdmin(id, { skip: !id }) : null;
 
-  //* Access Queries Mutation
-  const allQuery = apis.getAll();
-  const oneQuery = id ? apis.getOne(id, { skip: !id }) : null;
+  const [tenantCreate] = createTenant();
+  const [ownerCreate] = createOwner();
+  const [adminCreate] = createAdmin();
 
-  //* create mutation
-  const [createMutation] = apis.create();
-
-  //* path
   const [tenantPatch] = patchTenant();
   const [ownerPatch] = patchOwner();
   const [adminPatch] = patchAdmin();
 
-  const patchUser: (
-    id: number,
-    data: Partial<Tenant> | Partial<Owner> | Partial<Admin>
-  ) => Promise<Tenant | Owner | Admin> = async (id, data) => {
-    if (role === UserRoleEnum.TENANT) {
-      return tenantPatch({ id, data: data as Partial<Tenant> }).unwrap();
-    }
-    if (role === UserRoleEnum.OWNER) {
-      return ownerPatch({ id, data: data as Partial<Owner> }).unwrap();
-    }
-    if (role === UserRoleEnum.ADMIN) {
-      return adminPatch({ id, data: data as Partial<Admin> }).unwrap();
-    }
-    throw new Error("Patch not allowed for this role");
-  };
+  const [tenantDelete] = deleteTenant();
+  const [ownerDelete] = deleteOwner();
+  const [adminDelete] = deleteAdmin();
 
-  const [deleteMutation] = apis.delete();
+  // ✅ Pick the active API set based on role
+  const allQuery =
+    role === UserRoleEnum.TENANT
+      ? tenantAll
+      : role === UserRoleEnum.OWNER
+      ? ownerAll
+      : role === UserRoleEnum.ADMIN
+      ? adminAll
+      : undefined;
 
-  // TODO: fix
+  const oneQuery =
+    role === UserRoleEnum.TENANT
+      ? tenantOne
+      : role === UserRoleEnum.OWNER
+      ? ownerOne
+      : role === UserRoleEnum.ADMIN
+      ? adminOne
+      : undefined;
+
+  const createMutation =
+    role === UserRoleEnum.TENANT
+      ? tenantCreate
+      : role === UserRoleEnum.OWNER
+      ? ownerCreate
+      : role === UserRoleEnum.ADMIN
+      ? adminCreate
+      : undefined;
+
+  const patchMutation =
+    role === UserRoleEnum.TENANT
+      ? tenantPatch
+      : role === UserRoleEnum.OWNER
+      ? ownerPatch
+      : role === UserRoleEnum.ADMIN
+      ? adminPatch
+      : undefined;
+
+  const deleteMutation =
+    role === UserRoleEnum.TENANT
+      ? tenantDelete
+      : role === UserRoleEnum.OWNER
+      ? ownerDelete
+      : role === UserRoleEnum.ADMIN
+      ? adminDelete
+      : undefined;
+
+  // ✅ Select user slice
   const selectedTenant = useSelector(
     (state: RootState) => state.tenants.selectedUser
   );
@@ -186,19 +200,35 @@ export function useDynamicUserApi() {
       ? selectedOwner
       : selectedAdmin;
 
-  //* TODO: Explain!
+  // ✅ fetchAndSelect helper
   const fetchAndSelect = async (id: number) => {
-    if (!apis.getOne) throw new Error("getOne is not defined for this role");
-    const res = await apis.getOne(id)?.refetch();
+    const query = oneQuery;
+    const res = await query?.refetch?.();
     if (res?.data) {
-      if (role === UserRoleEnum.TENANT) {
+      if (role === UserRoleEnum.TENANT)
         dispatch(selectTenant(res.data as Tenant));
-      } else if (role === UserRoleEnum.OWNER) {
+      else if (role === UserRoleEnum.OWNER)
         dispatch(selectOwner(res.data as Owner));
-      } else if (role === UserRoleEnum.ADMIN) {
+      else if (role === UserRoleEnum.ADMIN)
         dispatch(selectAdmin(res.data as Admin));
-      }
     }
+  };
+
+  // ✅ patchUser helper
+  const patchUser = async (id: number, data: PatchData) => {
+    let result;
+    if (role === UserRoleEnum.TENANT) {
+      result = await tenantPatch({
+        id,
+        data: data as Partial<Tenant>,
+      }).unwrap();
+    } else if (role === UserRoleEnum.OWNER) {
+      result = await ownerPatch({ id, data: data as Partial<Owner> }).unwrap();
+    } else if (role === UserRoleEnum.ADMIN) {
+      result = await adminPatch({ id, data: data as Partial<Admin> }).unwrap();
+    }
+
+    return result;
   };
 
   return {

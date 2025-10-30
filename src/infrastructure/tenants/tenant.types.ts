@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseUserSchema } from "../user/user.types";
-import { BookingSchema } from "../boarding-houses/boarding-house.types";
+import { bookingSchema } from "../booking/booking.schema";
 
 /** ---------------- SCHEMAS ---------------- **/
 
@@ -8,7 +8,7 @@ import { BookingSchema } from "../boarding-houses/boarding-house.types";
 export const TenantSchema = BaseUserSchema.extend({
   role: z.literal("TENANT").optional(),
   guardian: z.string().nullable().optional(),
-  bookings: z.array(BookingSchema).optional(),
+  bookings: z.array(bookingSchema).optional(),
 });
 
 /** RegisterTenant — minimal self-registration (like Owner’s Register) */

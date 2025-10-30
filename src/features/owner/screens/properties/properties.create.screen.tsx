@@ -27,6 +27,7 @@ import { useCreateMutation } from "@/infrastructure/boarding-houses/boarding-hou
 import {
   CreateBoardingHouseInput,
   CreateBoardingHouseInputSchema,
+  CreateBoardingHouseSchema,
 } from "@/infrastructure/boarding-houses/boarding-house.schema";
 
 import {
@@ -40,7 +41,7 @@ import PropertiesRoomCreate from "./components/properties.room.create";
 import { ScrollView } from "react-native-gesture-handler";
 
 import { pickImageExpo } from "@/infrastructure/image/image.service";
-import { createIconSetFromFontello, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 
 export default function PropertiesCreateScreen() {
@@ -75,9 +76,10 @@ export default function PropertiesCreateScreen() {
     handleSubmit,
     setValue,
     watch,
+    getValues,
     formState: { errors },
   } = useForm<CreateBoardingHouseInput>({
-    resolver: zodResolver(CreateBoardingHouseInputSchema),
+    resolver: zodResolver(CreateBoardingHouseInputSchema) as any,
     defaultValues: initialDefaultValues,
   });
   const [availableAmenities, setAvailableAmenities] = React.useState<
@@ -121,20 +123,19 @@ export default function PropertiesCreateScreen() {
     }
 
     try {
-      const transformedData = {
+      const transformedData = CreateBoardingHouseSchema.parse({
         ...data,
         rooms:
           data.rooms?.map((room) => ({
             ...room,
             maxCapacity: Number(room.maxCapacity),
             price: Number(room.price),
-          })) ?? [],
-      };
+            tags: room.tags ?? [],
+            gallery: room.gallery ?? [],
+          })) || [],
+      });
 
-      // console.log("Submitted:", JSON.stringify(transformedData, null, 2));
-      await createBh(transformedData).unwrap(); // Wait for mutation to complete
-      // await createBh(data).unwrap(); // Wait for mutation to complete
-      // if(isCreateBhError) return
+      await createBh(transformedData).unwrap();
       propertyNavigation.navigate("PropertiesHome");
     } catch (error) {
       console.error("Submission error:", error);
@@ -146,17 +147,35 @@ export default function PropertiesCreateScreen() {
 
   const handlePickThumbnailImage = async () => {
     try {
-      const picked = await pickImageExpo(1); // returns array of 1 image
+      const picked = await pickImageExpo(1);
+      console.log("Picked images:", picked); // 👈 log this
       if (picked && picked.length > 0) {
         setValue("thumbnail", [picked[0]], { shouldValidate: true });
       }
     } catch (err) {
-      console.log(err);
-      Alert.alert("Error", "Failed to pick thumbnail");
+      console.log("Pick error:", err);
+      Alert.alert("Error", "Invalid image file");
     }
   };
   const handleRemoveThumbnailImage = () => {
     setValue("thumbnail", []);
+  };
+
+  const handleRemoveGalleryImage = (indexToRemove: number) => {
+    const newGallery = [...(getValues("gallery") ?? [])]; // get current value
+    newGallery.splice(indexToRemove, 1); // remove item by index
+    setValue("gallery", newGallery); // update the form
+  };
+  const handlePickGalleryImages = async () => {
+    try {
+      const pick = await pickImageExpo(10);
+      if (pick && pick.length > 0) {
+        setValue("gallery", pick);
+      }
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Error", "Invalid image file");
+    }
   };
 
   return (
@@ -190,9 +209,13 @@ export default function PropertiesCreateScreen() {
                     <>
                       {thumbnailImage ? (
                         <Image
-                          source={{ uri: thumbnailImage.uri }}
-                          alt="Thumbnail"
+                          source={{
+                            uri: thumbnailImage.uri.startsWith("file://")
+                              ? thumbnailImage.uri
+                              : `file://${thumbnailImage.uri}`,
+                          }}
                           style={{ width: "100%", height: "100%" }}
+                          alt="Thumbnail"
                         />
                       ) : (
                         <Text style={{ color: "#888" }}>Tap to upload</Text>
@@ -319,6 +342,92 @@ export default function PropertiesCreateScreen() {
               )}
             />
           </FormControl>
+        </VStack>
+
+        {/* image selection */}
+        <VStack>
+          <VStack>
+            <Pressable
+              onPress={handlePickGalleryImages}
+              style={{
+                padding: Spacing.sm,
+                alignSelf: "flex-start",
+                backgroundColor: Colors.PrimaryLight[6],
+                borderRadius: BorderRadius.md,
+              }}
+            >
+              <Text style={[s.generic_text, { fontSize: Fontsize.md }]}>
+                Select Images
+              </Text>
+            </Pressable>
+            <Controller
+              control={control}
+              name="gallery"
+              render={({ field: { value } }) => {
+                const galleryImage = value || [];
+
+                return (
+                  <>
+                    <ScrollView
+                      horizontal
+                      style={{
+                        width: "100%",
+                        height: 100,
+                        marginTop: 10,
+                        marginBottom: 10,
+                      }}
+                      contentContainerStyle={{
+                        marginTop: 10,
+                        flexDirection: "row",
+                        alignItems: "center",
+                        paddingHorizontal: 8,
+                      }}
+                    >
+                      {galleryImage.length > 0 ? (
+                        galleryImage.map((image, index) => (
+                          <View key={index}>
+                            <Image
+                              source={{
+                                uri: image.uri.startsWith("file://")
+                                  ? image.uri
+                                  : `file://${image.uri}`,
+                              }}
+                              style={{
+                                width: 100,
+                                height: 100,
+                                borderRadius: 8,
+                                marginRight: 8,
+                                backgroundColor: "#ccc",
+                              }}
+                              alt={`Gallery image ${index + 1}`}
+                            />
+                            <Pressable
+                              onPress={() => handleRemoveGalleryImage(index)}
+                              style={{
+                                position: "absolute",
+                                top: "0%",
+                                right: "9%",
+                              }}
+                            >
+                              <Ionicons
+                                name="close-circle"
+                                size={20}
+                                color="white"
+                              />
+                            </Pressable>
+                          </View>
+                        ))
+                      ) : (
+                        <Text style={{ color: "white" }}>
+                          No Images Selected
+                        </Text>
+                      )}
+                    </ScrollView>
+                  </>
+                );
+              }}
+            />
+          </VStack>
         </VStack>
 
         {/* Amenities */}
@@ -462,6 +571,7 @@ export default function PropertiesCreateScreen() {
             <Pressable
               onPress={() => {
                 console.log("Clicked the submit...");
+                console.log("Current form rooms:", watch("rooms"));
                 console.log("Current form errors:", errors);
                 handleSubmit(onSubmit)();
               }}

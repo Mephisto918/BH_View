@@ -1,18 +1,15 @@
 import api from "@/application/config/api";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ApiResponseType } from "../common/types/api.types";
-import {
-  Owner,
-  RegisterOwner,
-  UpdateOwner,
-  GetOwner,
-} from "./owner.types";
+import { Owner, RegisterOwner, UpdateOwner, GetOwner } from "./owner.types";
 
 const ownerApiRoute = `/api/owners`;
 
 export const ownerApi = createApi({
   reducerPath: "ownersApi",
   tagTypes: ["Owner"],
+  refetchOnFocus: true, // ✅ automatically refetch on screen focus
+  refetchOnMountOrArgChange: true, // optional: also refetch on mount
   baseQuery: fetchBaseQuery({
     baseUrl: api.BASE_URL,
   }),

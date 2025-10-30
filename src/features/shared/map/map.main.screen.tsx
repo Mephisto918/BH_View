@@ -2,7 +2,6 @@ import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import { HStack, Spinner, VStack } from "@gluestack-ui/themed";
 
-import Mapview, { Marker, Polygon } from "react-native-maps";
 import {
   Colors,
   GlobalStyle,
@@ -29,17 +28,22 @@ import { ScrollView } from "react-native-gesture-handler";
 // redux
 import { useGetAllQuery as useGetAllBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import { useDispatch } from "react-redux";
-import { selectBoardinHouse } from "@/infrastructure/boarding-houses/boarding-house.redux.slice";
-import { GetBoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema";
+import {
+  GetBoardingHouse,
+  BoardingHouse,
+} from "@/infrastructure/boarding-houses/boarding-house.schema";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import Map from "./Map";
-import { BoardingHouse, QueryBoardingHouse } from "@/tests/boardingHouseMock";
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 
 export default function MapMainScreen() {
   const [search, setSearch] = useState("");
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ["25%", "70%"], []);
-  const [sheetData, setDataSheet] = useState<GetBoardingHouse | null>(null);
+  const [sheetData, setDataSheet] = useState<BoardingHouse | null>(null);
+  const mapRef = useRef<{ moveCamera: (lng: number, lat: number) => void }>(
+    null
+  );
   // const [sheetThumbnail, setSheetThumbnail] = useState<BoardingHouseImage | null>(null)
 
   const dispatch = useDispatch();
@@ -49,10 +53,6 @@ export default function MapMainScreen() {
     isLoading: isBoardingHousesLoading,
     isError: isBoardingHousesError,
   } = useGetAllBoardingHouses({});
-  // const { data: boardinghouses, ...rest } = useGetAllBoardingHouses({});
-  // useEffect(() => {
-  //   console.log("bh: ", rest);
-  // }, [rest]);
 
   const navigation =
     useNavigation<BottomTabNavigationProp<TenantTabsParamList>>();
@@ -61,8 +61,11 @@ export default function MapMainScreen() {
     setSearch(text);
   };
 
-  const handleMarkerPress = (data: GetBoardingHouse) => {
+  const handleMarkerPress = (data: BoardingHouse) => {
+    console.log("pressed");
+    if (sheetData?.id === data.id) return;
     setDataSheet(data);
+
     bottomSheetRef.current?.expand();
   };
 
@@ -76,35 +79,29 @@ export default function MapMainScreen() {
     });
   };
 
-  // LogBox.ignoreLogs([]); // <-- Don't ignore anything temporarily
-
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer, s.con_main]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      {/* {isBoardingHousesLoading && (
-        <Overlay isOpen={true}>
-          <Spinner size="large" color="$white" />
-        </Overlay>
-      )} */}
+      {isBoardingHousesLoading && <FullScreenLoaderAnimated />}
       <HeaderSearch
         containerStyle={s.search_headerContainer}
-        textPlaceHolderStyle={s.search_headerText}
         placeholder="Search"
         value={search}
-        onChangeText={onChangeInputValue}
+        setValue={onChangeInputValue}
       />
       <Map
         data={boardinghouses}
-        // handleMarkerPress={handleMarkerPress}
-        // search={search}
-      ></Map>
+        isBoardingHousesLoading={isBoardingHousesLoading}
+        handleMarkerPress={handleMarkerPress}
+      />
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
         snapPoints={snapPoints}
         enablePanDownToClose
+        onClose={() => setDataSheet(null)} // 👈 reset
         enableDynamicSizing={false}
         backgroundStyle={{ backgroundColor: Colors.PrimaryLight[8] }}
         style={
@@ -113,87 +110,85 @@ export default function MapMainScreen() {
           }
         }
       >
-        {
-          /* kay bsin object daw Array.isArray(sheetData)*/ sheetData && (
+        {sheetData && (
+          <View
+            style={{
+              // padding: Global,
+              backgroundColor: Colors.PrimaryLight[8],
+              flex: 1,
+              alignItems: "flex-start",
+            }}
+          >
+            <Image
+              source={
+                sheetData?.thumbnail?.[0]?.url
+                  ? { uri: sheetData.thumbnail[0].url }
+                  : require("../../../assets/housesSample/1.jpg")
+              }
+              style={{
+                // borderColor: "red",
+                // borderWidth: 2,
+                margin: "auto",
+                width: "98%",
+                height: 200,
+                borderRadius: BorderRadius.md,
+              }}
+            />
             <View
               style={{
-                // padding: Global,
-                backgroundColor: Colors.PrimaryLight[8],
-                flex: 1,
-                alignItems: "flex-start",
+                marginTop: Spacing.sm,
+                alignItems: "baseline",
+                padding: Spacing.md,
+                flexDirection: "column",
               }}
             >
-              <Image
-                source={
-                  sheetData.thumbnail
-                    ? { uri: sheetData?.thumbnail[0] }
-                    : require("../../../assets/housesSample/1.jpg")
-                }
-                style={{
-                  // borderColor: "red",
-                  // borderWidth: 2,
-                  margin: "auto",
-                  width: "98%",
-                  height: 200,
-                  borderRadius: BorderRadius.md,
-                }}
-              />
               <View
                 style={{
-                  marginTop: Spacing.sm,
-                  alignItems: "baseline",
-                  padding: Spacing.md,
-                  flexDirection: "column",
+                  height: 300,
+                  marginBottom: Spacing.sm,
                 }}
               >
-                <View
+                <HStack
                   style={{
-                    height: 300,
-                    marginBottom: Spacing.sm,
+                    alignItems: "center",
+                    justifyContent: "space-evenly",
+                    gap: 10,
+                    backgroundColor: Colors.PrimaryLight[7],
+                    borderRadius: 10,
+                    padding: 10,
                   }}
                 >
-                  <HStack
-                    style={{
-                      alignItems: "center",
-                      justifyContent: "space-evenly",
-                      gap: 10,
-                      backgroundColor: Colors.PrimaryLight[7],
-                      borderRadius: 10,
+                  <VStack style={{ width: "75%" }}>
+                    <Text style={[s.text_title]}>{sheetData.name}</Text>
+                    <Text style={[s.text_address]}>{sheetData.address}</Text>
+                  </VStack>
+                  <Button
+                    title="Goto?"
+                    onPressAction={handleGotoPress}
+                    containerStyle={{
                       padding: 10,
                     }}
-                  >
-                    <VStack style={{ width: "75%" }}>
-                      <Text style={[s.text_title]}>{sheetData.name}</Text>
-                      <Text style={[s.text_address]}>{sheetData.address}</Text>
-                    </VStack>
-                    <Button
-                      title="Goto?"
-                      onPressAction={handleGotoPress}
-                      containerStyle={{
-                        padding: 10,
-                      }}
-                    />
-                  </HStack>
-                  <ScrollView
-                    style={{
-                      marginTop: Spacing.md,
-                      flex: 1,
-                      // borderColor: "red",
-                      // borderWidth: 1,
-                      padding: 10,
-                      borderRadius: BorderRadius.md,
-                      backgroundColor: Colors.PrimaryLight[7],
-                    }}
-                  >
-                    <Text style={[s.text_white, { marginBottom: 20 }]}>
-                      {sheetData.description}
-                    </Text>
-                  </ScrollView>
-                </View>
+                  />
+                </HStack>
+                <ScrollView
+                  style={{
+                    marginTop: Spacing.md,
+                    flex: 1,
+                    // borderColor: "red",
+                    // borderWidth: 1,
+                    padding: 10,
+                    borderRadius: BorderRadius.md,
+                    backgroundColor: Colors.PrimaryLight[7],
+                  }}
+                >
+                  <Text style={[s.text_white, { marginBottom: 20 }]}>
+                    {sheetData.description}
+                  </Text>
+                </ScrollView>
               </View>
             </View>
-          )
-        }
+          </View>
+        )}
       </BottomSheet>
     </StaticScreenWrapper>
   );

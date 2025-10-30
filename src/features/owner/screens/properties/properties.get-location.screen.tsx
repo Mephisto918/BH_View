@@ -61,7 +61,6 @@ export default function PropertiesGetLocationScreen() {
               centerCoordinate: DEFAULT_COORDS,
               zoomLevel: 14,
             }}
-            
           />
           <UserLocation />
           {location && (

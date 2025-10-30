@@ -20,7 +20,8 @@ import { Button } from "@react-navigation/elements";
 // navigation
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { PropertiesStackParamList } from './navigation/properties.stack.types';
+import { PropertiesStackParamList } from "./navigation/properties.stack.types";
+import ScreenHeaderComponent from "@/components/layout/ScreenHeaderComponent";
 
 export default function PropertiesMainScreen() {
   const propertyNavigation =
@@ -46,10 +47,7 @@ export default function PropertiesMainScreen() {
           gap: Spacing.lg,
         }}
       >
-        <VStack style={[s.Hero]}>
-          <Ionicons name="business-outline" color="white" size={50} />
-          <Text style={[s.Hero_text1]}>Properties</Text>
-        </VStack>
+        <ScreenHeaderComponent text={{ textValue: "Properties" }} />
         <VStack style={[s.Widget]}>
           <Box style={[s.Widget_item]}>
             <Ionicons name="notifications" color="white" size={25} />
@@ -76,7 +74,8 @@ const s = StyleSheet.create({
     padding: 10,
   },
   Hero: {
-    justifyContent: "center",
+    flexDirection: "row",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   Hero_text1: {

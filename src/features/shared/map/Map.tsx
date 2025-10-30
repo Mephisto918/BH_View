@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Image } from "react-native";
 import {
   MapView,
   Camera,
   UserLocation,
   MarkerView,
+  PointAnnotation,
 } from "@maplibre/maplibre-react-native";
 import { BoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema";
 import { Text, View } from "@gluestack-ui/themed";
@@ -15,9 +16,14 @@ const DEFAULT_COORDS: [number, number] = [124.6095, 11.0008519]; // [lng, lat]
 interface MapProps {
   data: BoardingHouse[];
   isBoardingHousesLoading?: boolean;
+  handleMarkerPress: (house: BoardingHouse) => void;
 }
 
-export default function Map({ data, isBoardingHousesLoading }: MapProps) {
+export default function Map({
+  data,
+  isBoardingHousesLoading,
+  handleMarkerPress,
+}: MapProps) {
   // Request location permission on mount
   const [locationGranted, setLocationGranted] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -35,6 +41,20 @@ export default function Map({ data, isBoardingHousesLoading }: MapProps) {
       console.log(errorMsg);
     }
   }, [errorMsg]);
+  const [imageSize, setImageSize] = useState(25);
+  const attempts = React.useRef(0);
+  const maxAttempts = 5;
+
+  useEffect(() => {
+    if (attempts.current >= maxAttempts) return;
+
+    const timer = setTimeout(() => {
+      setImageSize((prev) => prev + 1);
+      attempts.current += 1;
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [imageSize]); // ← Re-run when size changes
 
   return (
     <View style={styles.container}>
@@ -68,12 +88,17 @@ export default function Map({ data, isBoardingHousesLoading }: MapProps) {
             console.log("long, lat", lng, lat);
 
             return (
-              <MarkerView key={i} coordinate={[lng, lat]}>
+              <PointAnnotation
+                key={i}
+                id={`marker-${i}`}
+                coordinate={[lng, lat]}
+                onSelected={() => handleMarkerPress?.(house)}
+              >
                 <View style={{}}>
                   <Image
                     source={require("@/assets/static/green-marker.png")}
                     style={{
-                      width: 32,
+                      width: imageSize,
                       height: 32,
                       backgroundColor: "transparent",
                       paddingHorizontal: 8,
@@ -89,7 +114,7 @@ export default function Map({ data, isBoardingHousesLoading }: MapProps) {
                   {/* <Text style={{ fontSize: 12 }}>{house.ownerId}</Text> */}
                   {/* <Text style={{ fontSize: 12 }}>{house.amenities}</Text> */}
                 </View>
-              </MarkerView>
+              </PointAnnotation>
             );
           })}
       </MapView>

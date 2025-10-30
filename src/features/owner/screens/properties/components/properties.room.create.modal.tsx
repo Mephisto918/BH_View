@@ -21,7 +21,7 @@ import {
 import {
   CreateRoomInput,
   CreateRoomInputSchema,
-} from "@/infrastructure/room/room.schema";
+} from "@/infrastructure/room/rooms.schema";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ScrollView, Pressable } from "react-native";
@@ -29,7 +29,7 @@ import { BorderRadius, Colors, Fontsize, Spacing } from "@/constants";
 import {
   ROOM_FEATURE_TAGS,
   RoomFeatureTag,
-} from "@/infrastructure/room/room.constants";
+} from "@/infrastructure/room/rooms.constants";
 import { Ionicons } from "@expo/vector-icons";
 import { pickImageExpo } from "@/infrastructure/image/image.service";
 import ButtomSheetSelector from "@/components/ui/ButtomSheetSelector";
@@ -40,7 +40,8 @@ interface PropertiesRoomCreateModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit: (data: CreateRoomInput, indexToReplace?: number) => void;
-  initialData?: RoomWithIndex;
+  // initialData?: RoomWithIndex;
+  initialData?: CreateRoomInput & { index: number };
   isEditing?: boolean;
 }
 
@@ -58,11 +59,12 @@ export default function PropertiesRoomCreateModal({
 
   const defaultValues: CreateRoomInput = {
     roomNumber: "",
+    description: "",
     maxCapacity: 0,
     price: 0,
     tags: [],
-    roomType: "SOLO",
     gallery: [],
+    thumbnail: [],
   };
 
   const {
@@ -73,8 +75,8 @@ export default function PropertiesRoomCreateModal({
     watch,
     reset,
     formState: { errors },
-  } = useForm<z.input<typeof CreateRoomInputSchema>>({
-    resolver: zodResolver(CreateRoomInputSchema),
+  } = useForm<z.infer<typeof CreateRoomInputSchema>>({
+    resolver: zodResolver(CreateRoomInputSchema) as any,
     defaultValues: initialData || defaultValues,
   });
 
@@ -120,7 +122,7 @@ export default function PropertiesRoomCreateModal({
       }
     } catch (err) {
       console.log(err);
-      Alert.alert("Error", "Failed to pick thumbnail");
+      Alert.alert("Error", "Invalid image file");
     }
   };
 
@@ -130,30 +132,31 @@ export default function PropertiesRoomCreateModal({
     setValue("gallery", newGallery); // update the form
   };
 
-  // const handleFinalSubmit = (data: CreateRoomInput) => {
-  //   const index = isEditing ? initialData?.index : undefined;
-  //   onSubmit(data, index);
-  //   onClose();
-  // };
-  const handleFinalSubmit = (
-    rawData: z.input<typeof CreateRoomInputSchema>
-  ) => {
-    const data = CreateRoomInputSchema.parse(rawData);
+  const handleFinalSubmit = (data: CreateRoomInput) => {
     const index = isEditing ? initialData?.index : undefined;
     onSubmit(data, index);
     onClose();
   };
 
+  const handlePickThumbnailImage = async () => {
+    try {
+      const picked = await pickImageExpo(1);
+      console.log("Picked images:", picked); // 👈 log this
+      if (picked && picked.length > 0) {
+        setValue("thumbnail", [picked[0]], { shouldValidate: true });
+      }
+    } catch (err) {
+      console.log("Pick error:", err);
+      Alert.alert("Error", "Invalid image file");
+    }
+  };
+  const handleRemoveThumbnailImage = () => {
+    setValue("thumbnail", []);
+  };
+
   return (
     <>
-      {/* <Modal
-        visible={visible}
-        onRequestClose={onClose}
-        transparent
-        animationType="fade"
-      > */}
       <Overlay isOpen={visible} onRequestClose={onClose}>
-        {/* // <Overlay isOpen={visible} onRequestClose={onClose}> */}
         <View style={[modalStyles.overlay]}>
           <View style={[modalStyles.container]}>
             {/* Close Button */}
@@ -166,6 +169,46 @@ export default function PropertiesRoomCreateModal({
 
             {/* Modal Form Content */}
             <ScrollView contentContainerStyle={{ paddingBottom: Spacing.sm }}>
+              <Pressable onPress={handlePickThumbnailImage}>
+                <Box
+                  style={{
+                    width: "75%",
+                    height: 200,
+                    borderRadius: 8,
+                    backgroundColor: "#f0f0f0",
+                    overflow: "hidden",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Controller
+                    control={control}
+                    name="thumbnail"
+                    render={({ field: { value } }) => {
+                      const thumbnailImage =
+                        value && value.length > 0 ? value[0] : null;
+
+                      return (
+                        <>
+                          {thumbnailImage ? (
+                            <Image
+                              source={{
+                                uri: thumbnailImage.uri.startsWith("file://")
+                                  ? thumbnailImage.uri
+                                  : `file://${thumbnailImage.uri}`,
+                              }}
+                              style={{ width: "100%", height: "100%" }}
+                              alt="Thumbnail"
+                            />
+                          ) : (
+                            <Text style={{ color: "#888" }}>Tap to upload</Text>
+                          )}
+                        </>
+                      );
+                    }}
+                  />
+                </Box>
+              </Pressable>
               {/* Room Number */}
               <FormControl isInvalid={!!errors.roomNumber}>
                 <FormControl.Label>
@@ -245,7 +288,38 @@ export default function PropertiesRoomCreateModal({
                 )}
               </FormControl>
 
+              {/* Room Description */}
+              <FormControl
+                isInvalid={!!errors.description}
+                style={{ paddingBottom: Spacing.md }}
+              >
+                <FormControl.Label>
+                  <Text style={[s.Form_SubLabel]}>Description</Text>
+                </FormControl.Label>
+                <Controller
+                  control={control}
+                  name="description"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input borderColor="$coolGray400">
+                      <InputField
+                        placeholder=""
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        value={value}
+                        style={[s.Form_Input_Placeholder]}
+                      />
+                    </Input>
+                  )}
+                />
+                {errors.roomNumber && (
+                  <Text style={{ color: "red" }}>
+                    {errors.roomNumber.message}
+                  </Text>
+                )}
+              </FormControl>
+
               {/* Room type */}
+              {/* 
               <FormControl isInvalid={!!errors.roomType}>
                 <FormControl.Label>
                   <Text style={[s.Form_SubLabel]}>Room Type</Text>
@@ -261,14 +335,12 @@ export default function PropertiesRoomCreateModal({
                         <Text>{value || "Select Room Type"}</Text>
                       </Button>
 
-                      {/* Display validation error if any */}
                       {errors?.roomType && (
                         <Text style={{ color: "red", marginTop: 4 }}>
                           {errors.roomType.message}
                         </Text>
                       )}
 
-                      {/* You can optionally show selected type below the button */}
                       {value && (
                         <Text
                           style={{
@@ -285,6 +357,7 @@ export default function PropertiesRoomCreateModal({
                   )}
                 />
               </FormControl>
+               */}
 
               {/* Tags */}
               <VStack
@@ -405,7 +478,11 @@ export default function PropertiesRoomCreateModal({
                                 galleryImage.map((image, index) => (
                                   <View key={index}>
                                     <Image
-                                      source={{ uri: image.uri }}
+                                      source={{
+                                        uri: image.uri.startsWith("file://")
+                                          ? image.uri
+                                          : `file://${image.uri}`,
+                                      }}
                                       style={{
                                         width: 100,
                                         height: 100,

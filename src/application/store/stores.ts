@@ -9,6 +9,10 @@ import { ownerApi } from "@/infrastructure/owner/owner.redux.api";
 import tenantReducer from "@/infrastructure/tenants/tenant.redux.slice";
 import { tenantApi } from "@/infrastructure/tenants/tenant.redux.api";
 
+import { roomApi } from "@/infrastructure/room/rooms.redux.api";
+import genericSearchBarSlice from "../../infrastructure/redux-utils/genericSearchBar.slice";
+import { bookingApi } from "@/infrastructure/booking/booking.redux.api";
+
 export const store = configureStore({
   reducer: {
     auth: authSlice,
@@ -21,6 +25,9 @@ export const store = configureStore({
     [ownerApi.reducerPath]: ownerApi.reducer,
     boardingHouses: boardingHouseSlice,
     [boardingHouseApi.reducerPath]: boardingHouseApi.reducer,
+    [roomApi.reducerPath]: roomApi.reducer,
+    [bookingApi.reducerPath]: bookingApi.reducer,
+    genericSearch: genericSearchBarSlice,
   },
   middleware: (getDefaultMiddleware) =>
     // getDefaultMiddleware().concat(boardingHouseApi.middleware),
@@ -29,7 +36,9 @@ export const store = configureStore({
       .concat(adminApi.middleware)
       .concat(tenantApi.middleware)
       .concat(ownerApi.middleware)
-      .concat(boardingHouseApi.middleware),
+      .concat(boardingHouseApi.middleware)
+      .concat(roomApi.middleware)
+      .concat(bookingApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

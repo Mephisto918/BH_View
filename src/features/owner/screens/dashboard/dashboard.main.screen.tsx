@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Pressable } from "react-native";
 import { Box, HStack } from "@gluestack-ui/themed";
 import React, { useState } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
@@ -19,8 +19,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { Owner } from "@/infrastructure/owner/owner.types";
 import { useGetAllQuery } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
+import { useNavigation } from "@react-navigation/native";
+import { OwnerDashboardStackParamList } from "./navigation/dashboard.types";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import ScreenHeaderComponent from "@/components/layout/ScreenHeaderComponent";
 
 export default function DashboardMainScreen() {
+  const navigate =
+    useNavigation<NativeStackNavigationProp<OwnerDashboardStackParamList>>();
   const { selectedUser: data } = useDynamicUserApi();
   const user = data as Owner;
 
@@ -36,6 +42,10 @@ export default function DashboardMainScreen() {
   } = useGetAllQuery({ ownerId: owner.id });
 
   const iconSize = 50;
+
+  const handleGotoPress = (bhId: number) => {
+    navigate.navigate("BoardingHouseDetailsScreen", { id: bhId });
+  };
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
@@ -46,9 +56,7 @@ export default function DashboardMainScreen() {
           gap: Spacing.lg,
         }}
       >
-        <VStack style={[s.Hero]}>
-          <Text style={[s.Hero_text1]}> Dashboard</Text>
-        </VStack>
+        <ScreenHeaderComponent text={{ textValue: "Dashboard" }} />
         <VStack style={[s.Widget]}>
           <Box style={[s.Widget_item]}>
             <Ionicons name="home" color="white" size={iconSize} />
@@ -155,7 +163,8 @@ export default function DashboardMainScreen() {
           {!boardingHousesLoading &&
             !boardingHousesError &&
             boardingHouses?.map((house) => (
-              <Box
+              <Pressable
+                onPress={() => handleGotoPress(house.id)}
                 key={house.id}
                 style={{
                   borderRadius: BorderRadius.md,
@@ -182,7 +191,7 @@ export default function DashboardMainScreen() {
                     No. of Rooms: {house.rooms?.length}
                   </Text>
                 </HStack>
-              </Box>
+              </Pressable>
             ))}
         </VStack>
 

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import { BorderRadius, Colors, Fontsize, GlobalStyle } from "@/constants";
 import { Box, Image, VStack } from "@gluestack-ui/themed";
@@ -12,21 +12,76 @@ import { ScrollView } from "react-native-gesture-handler";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import { TenantTabsParamList } from "../../navigation/tenant.tabs.types";
-import { Spinner } from "@gluestack-ui/themed";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
+import HeaderSearch from "@/components/HeaderSearch";
+import { useDispatch, useSelector } from "react-redux";
+import genericSearchBarSlice, {
+  setQuery,
+  setResults,
+} from "../../../../infrastructure/redux-utils/genericSearchBar.slice";
+import { RootState } from "@/application/store/stores";
+import useDebounce from "@/infrastructure/utils/debounc.hook";
+import ComponentLoaderAnimated from "@/components/ui/ComponentLoaderAnimated";
 
 export default function BookingListsScreen() {
   const navigation =
     useNavigation<BottomTabNavigationProp<TenantTabsParamList>>();
 
+  const dispatch = useDispatch();
+  const searchQuery = useSelector(
+    (state: RootState) => state.genericSearch.query
+  );
+  const searchResults = useSelector(
+    (state: RootState) => state.genericSearch.results
+  );
+
   const [filters, setFilters] = useState<QueryBoardingHouse>({
     minPrice: 1500,
   });
+  const [page, setPage] = useState(1); // current page
+  const [allBoardingHouses, setAllBoardingHouses] = useState<
+    QueryBoardingHouse[]
+  >([]);
+  const offset = 10; // items per page
+
   const {
-    data: boardinghouses,
+    data: boardinghousesPage,
     isLoading: isBoardingHousesLoading,
     isError: isBoardingHousesError,
-  } = useGetAllBoardingHouses(filters);
+  } = useGetAllBoardingHouses({
+    ...filters,
+    page,
+    offset,
+  });
+
+  useEffect(() => {
+    if (!boardinghousesPage) return;
+    setAllBoardingHouses((prev) => [...prev, ...boardinghousesPage]);
+  }, [boardinghousesPage]);
+
+  const debouncedQuery = useDebounce(searchQuery, 150);
+
+  useEffect(() => {
+    const query = (debouncedQuery || "").toLowerCase();
+
+    const filtered = allBoardingHouses
+      .filter(
+        (bh) =>
+          bh.id != null &&
+          bh.name != null &&
+          bh.name.toLowerCase().includes(query)
+      )
+      .map((bh) => ({
+        id: bh.id!, // non-null assertion
+        name: bh.name!,
+        thumbnail: bh.thumbnail,
+        address: bh.address,
+        capacity: bh.capacity,
+      }));
+
+    dispatch(setResults(filtered));
+  }, [debouncedQuery, allBoardingHouses, dispatch]);
 
   const handleGotoPress = (id: number) => {
     // console.log("handleGotoPress", id);
@@ -35,24 +90,50 @@ export default function BookingListsScreen() {
       params: { id: id, fromMaps: true },
     });
   };
+
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      {isBoardingHousesLoading && <FullScreenLoaderAnimated />}
-      <VStack>
+      {isBoardingHousesError && <FullScreenErrorModal />}
+      <VStack style={{ flex: 1 }}>
+        <HeaderSearch
+          placeholder="Search boarding houses"
+          value={searchQuery}
+          setValue={(val) => {
+            dispatch(setQuery(val));
+          }}
+          containerStyle={{
+            backgroundColor: Colors.PrimaryLight[7],
+            borderRadius: 10,
+            paddingLeft: 5,
+            paddingRight: 5,
+
+            zIndex: 10,
+          }}
+        />
+        {isBoardingHousesLoading && <ComponentLoaderAnimated />}
         <ScrollView
-          style={{ backgroundColor: Colors.PrimaryLight[8], flex: 1 }}
+          style={{
+            backgroundColor: Colors.PrimaryLight[8],
+            flex: 1,
+          }}
           contentContainerStyle={{
             flexDirection: "column",
             justifyContent: "flex-start",
-            gap: 10, // optional, RN 0.71+
+            gap: 10,
             padding: 10,
           }}
         >
-          {boardinghouses &&
-            boardinghouses.map((boardinghouse: QueryBoardingHouse, index) => {
+          {searchResults.length === 0 ? (
+            <Text style={styles.Item_SubLabel}>
+              {searchQuery
+                ? "No boarding houses found"
+                : "Start typing to search"}
+            </Text>
+          ) : (
+            searchResults.map((boardinghouse: QueryBoardingHouse, index) => {
               return (
                 <VStack
                   key={index}
@@ -67,13 +148,11 @@ export default function BookingListsScreen() {
                   <Box>
                     <Image
                       source={
-                        typeof boardinghouse.thumbnail?.[0] === "string" &&
-                        boardinghouse.thumbnail[0]
-                          ? { uri: boardinghouse.thumbnail[0] }
+                        boardinghouse?.thumbnail?.[0]?.url
+                          ? { uri: boardinghouse.thumbnail[0].url }
                           : require("../../../../assets/housesSample/1.jpg")
                       }
                       style={{
-                        // width: 200,
                         height: 150,
                         aspectRatio: 4 / 3,
                         borderRadius: BorderRadius.md,
@@ -115,7 +194,27 @@ export default function BookingListsScreen() {
                   </VStack>
                 </VStack>
               );
-            })}
+            })
+          )}
+          {boardinghousesPage?.length &&
+            boardinghousesPage.length >= offset && (
+              <Pressable
+                onPress={() => setPage((prev) => prev + 1)}
+                style={{
+                  padding: 12,
+                  backgroundColor: Colors.PrimaryLight[6],
+                  borderRadius: BorderRadius.md,
+                  alignItems: "center",
+                  marginVertical: 10,
+                }}
+              >
+                <Text
+                  style={{ color: Colors.TextInverse[2], fontWeight: "bold" }}
+                >
+                  Show More
+                </Text>
+              </Pressable>
+            )}
         </ScrollView>
       </VStack>
     </StaticScreenWrapper>

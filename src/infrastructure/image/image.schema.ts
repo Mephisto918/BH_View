@@ -6,6 +6,7 @@ import { ImageQualityEnum, ImageTypeEnum } from "./image.types";
    =========================== */
 
 export const ImageUploadSchema = z.object({
+  url: z.string().url().or(z.string()).optional(), // local or remote paths
   uri: z.string().url().or(z.string()), // local or remote paths
   name: z.string(),
 

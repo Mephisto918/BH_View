@@ -8,6 +8,7 @@ import { store } from "./store/stores";
 import { GluestackUIProvider } from "@gluestack-ui/themed";
 import { config } from "@gluestack-ui/config";
 import Purchases from "react-native-purchases";
+import { GlobalDecisionModalProvider } from "@/components/ui/FullScreenDecisionModal";
 
 export default function App() {
   // Initialize RevenueCat
@@ -28,7 +29,9 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <GluestackUIProvider config={config}>
-          <RootNavigation />
+          <GlobalDecisionModalProvider> {/* //custom component */}
+            <RootNavigation />
+          </GlobalDecisionModalProvider>
         </GluestackUIProvider>
       </Provider>
     </GestureHandlerRootView>

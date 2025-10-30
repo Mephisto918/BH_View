@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import { Box } from "@gluestack-ui/themed";
+import { Box, Button } from "@gluestack-ui/themed";
 import React from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 
@@ -15,10 +15,17 @@ import { VStack } from "@gluestack-ui/themed";
 // redux
 // import { useDispatch } from "react-redux";
 import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
+import HeroComponent from "../components/HeroComponent";
+import { TenantDashboardStackParamList } from "../navigation/dashboard.stack";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 export default function DashboardMainScreen() {
   // const dispatch = useDispatch();
   const { selectedUser: user } = useDynamicUserApi();
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<TenantDashboardStackParamList>>();
 
   return (
     <StaticScreenWrapper
@@ -27,32 +34,35 @@ export default function DashboardMainScreen() {
     >
       <VStack
         style={{
-          // justifyContent: "center",
-          // alignItems: "center",
           gap: Spacing.lg,
         }}
       >
+        <HeroComponent></HeroComponent>
         <VStack style={[s.Hero]}>
           <Text style={[s.Hero_text1]}> Hello {user?.firstname}!</Text>
           <Text style={[s.Hero_text1]}> Discover Places Around You!</Text>
         </VStack>
         <VStack style={[s.Widget]}>
-          <Box style={[s.Widget_item]}>
-            <Text style={[s.generic_text_lg]}>Pending Bookings 23</Text>
-          </Box>
-          <Box style={[s.Widget_item]}>
-            <Text style={[s.generic_text_lg]}>Bookign History</Text>
-          </Box>
-          <Box style={[s.Widget_item]}>
-            <Text style={[s.generic_text_lg]}>Payment Status</Text>
-          </Box>
-          <Box style={[s.Widget_item]}>
-            <Text style={[s.generic_text_lg]}>Cancel Booking</Text>
-          </Box>
-          <Box style={[s.Widget_item]}>
+          <Button
+            style={[s.Widget_item]}
+            onPress={() => navigation.navigate("DashboardBookingStack")}
+          >
+            <Text style={[s.generic_text_lg]}>Bookings</Text>
+          </Button>
+          <Button style={[s.Widget_item]}>
             <Text style={[s.generic_text_lg]}>Bookmarks</Text>
-          </Box>
+          </Button>
+          <Button style={[s.Widget_item]}>
+            <Text style={[s.generic_text_lg]}>Booking History</Text>
+          </Button>
+          <Button style={[s.Widget_item]}>
+            <Text style={[s.generic_text_lg]}>Nearby Houses</Text>
+          </Button>
+          <Button style={[s.Widget_item]}>
+            <Text style={[s.generic_text_lg]}>Notifications</Text>
+          </Button>
         </VStack>
+        <Box>“3 new boarding houses near you!” [Explore Nearby]</Box>
       </VStack>
     </StaticScreenWrapper>
   );

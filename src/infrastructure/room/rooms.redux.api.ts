@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import api from "@/application/config/api";
 import { ApiResponseType } from "../common/types/api.types";
-import { CreateRoom, FindOneRoom, GetRoom } from "./room.schema";
+import { CreateRoom, FindOneRoom, GetRoom } from "./rooms.schema";
 
 const roomApiRoute = `/api/boarding-houses/`;
 export const roomApi = createApi({
@@ -19,7 +19,7 @@ export const roomApi = createApi({
 
   endpoints: (builder) => ({
     getAll: builder.query<GetRoom[], number>({
-      query: (id) => `${roomApiRoute}/${id}/rooms`,
+      query: (id) => `${roomApiRoute}${id}/rooms`,
       transformResponse: (response: ApiResponseType<GetRoom[]>) =>
         response.results ?? [],
     }),
@@ -28,7 +28,7 @@ export const roomApi = createApi({
       { boardingHouseId: number; roomId: number }
     >({
       query: ({ boardingHouseId, roomId }) => ({
-        url: `${roomApiRoute}/${boardingHouseId}/rooms/${roomId}`,
+        url: `${roomApiRoute}${boardingHouseId}/rooms/${roomId}`,
         method: "GET",
       }),
       transformResponse: (response: ApiResponseType<FindOneRoom>) =>
@@ -39,7 +39,7 @@ export const roomApi = createApi({
       { boardingHouseId: number | string; data: Partial<CreateRoom>[] }
     >({
       query: ({ boardingHouseId, data }) => ({
-        url: `${roomApiRoute}/${boardingHouseId}/rooms`,
+        url: `${roomApiRoute}${boardingHouseId}/rooms`,
         method: "POST",
         body: data,
       }),
@@ -50,7 +50,7 @@ export const roomApi = createApi({
       { boardingHouseId: number; roomId: number }
     >({
       query: ({ boardingHouseId, roomId }) => ({
-        url: `${roomApiRoute}/${boardingHouseId}/rooms/${roomId}`,
+        url: `${roomApiRoute}${boardingHouseId}/rooms/${roomId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Room"],

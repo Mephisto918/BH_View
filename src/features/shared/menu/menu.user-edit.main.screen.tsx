@@ -49,6 +49,7 @@ export default function MenuUserEditScreen() {
     role: authUserRole,
     oneQuery,
     patchUser,
+    fetchAndSelect,
   } = useDynamicUserApi();
   const isFocused = useIsFocused();
   const route = useNavigation<NativeStackNavigationProp<MenuStackParamList>>();
@@ -103,6 +104,7 @@ export default function MenuUserEditScreen() {
         id,
         cleanForm as Partial<Tenant> | Partial<Owner> | Partial<Admin>
       );
+      await fetchAndSelect(id);
       // console.log("clanForm", cleanForm);
 
       // console.log("result", result);

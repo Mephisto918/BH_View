@@ -91,9 +91,8 @@ export default function BoardingHouseDetailsScreen() {
                 >
                   <Image
                     source={
-                      typeof boardinghouse.thumbnail?.[0] === "string" &&
-                      boardinghouse.thumbnail[0]
-                        ? { uri: boardinghouse.thumbnail[0] }
+                      boardinghouse?.thumbnail?.[0]?.url
+                        ? { uri: boardinghouse.thumbnail[0].url }
                         : require("../../../../../assets/housesSample/1.jpg")
                     }
                     style={{

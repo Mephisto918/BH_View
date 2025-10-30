@@ -13,8 +13,7 @@ import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import {
   CreateRoomInput,
   CreateRoomInputSchema,
-  UnifiedRoomCreate,
-} from "../../../../../infrastructure/room/room.schema";
+} from "../../../../../infrastructure/room/rooms.schema";
 import PropertiesRoomCreateModal from "./properties.room.create.modal";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -32,16 +31,22 @@ export default function PropertiesRoomCreate({
     maxCapacity: 0,
     price: 0.0,
     tags: [],
-    roomType: "SOLO",
     gallery: [],
+    thumbnail: [],
   };
 
   const {
     formState: { errors },
-  } = useForm<z.input<typeof CreateRoomInputSchema>>({
-    resolver: zodResolver(CreateRoomInputSchema),
+  } = useForm<z.infer<typeof CreateRoomInputSchema>>({
+    resolver: zodResolver(CreateRoomInputSchema) as any,
     defaultValues: initialDefaultValues,
   });
+
+  const normalizedRooms = rooms.map((room) => ({
+    ...room,
+    tags: room.tags ?? [], // ensure it's always an array
+    gallery: room.gallery ?? [], // ensure it's always an array
+  }));
 
   return (
     <StaticScreenWrapper>
@@ -58,7 +63,10 @@ export default function PropertiesRoomCreate({
           visible={modalVisible}
           initialData={
             editingRoomIndex !== null
-              ? { ...rooms[editingRoomIndex], index: editingRoomIndex }
+              ? {
+                  ...normalizedRooms[editingRoomIndex],
+                  index: editingRoomIndex,
+                }
               : undefined
           }
           onClose={() => {
@@ -66,13 +74,20 @@ export default function PropertiesRoomCreate({
             setEditingRoomIndex(null);
           }}
           onSubmit={(roomData, index) => {
+            const normalizedRoom = {
+              ...roomData,
+              tags: roomData.tags ?? [],
+              gallery: roomData.gallery ?? [],
+            };
+
             if (index !== undefined) {
               const updatedRooms = [...rooms];
-              updatedRooms[index] = roomData;
+              updatedRooms[index] = normalizedRoom;
               setRooms(updatedRooms);
             } else {
-              setRooms([...rooms, roomData]);
+              setRooms([...rooms, normalizedRoom]);
             }
+
             setModalVisible(false);
             setEditingRoomIndex(null);
           }}
@@ -145,7 +160,6 @@ function RoomItem({ roomItem }: { roomItem: CreateRoomInput }) {
     >
       <Text style={[s.generic_text]}>{roomItem.roomNumber}</Text>
       <Text style={[s.generic_text]}>{roomItem.price}</Text>
-      <Text style={[s.generic_text]}>{roomItem.roomType}</Text>
       <Text style={[s.generic_text]}>{roomItem.maxCapacity}</Text>
     </Box>
   );

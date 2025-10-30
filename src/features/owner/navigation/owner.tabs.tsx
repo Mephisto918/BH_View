@@ -14,7 +14,7 @@ import { CustomTabIcon } from "@/components/layout/BottomNavBarStyleIcon";
 
 import PropertiesStack from "../screens/properties/navigation/properties.stack";
 import BookingStack from "@/features/owner/screens/booking/navigation/booking.stack";
-import DashboardMainScreen from "../screens/dashboard.main.screen";
+import DashboardStack from "../screens/dashboard/navigation/dashboard.stack";
 import NotificationMainScreen from "@/features/shared/notification.main.screen";
 import MenuStack from "@/features/shared/menu/navigation/menu.stack";
 import { MenuStackParamListArrayName } from "@/features/shared/menu/navigation/menu.stack.types";
@@ -59,7 +59,7 @@ const OwnerTabs = () => {
     >
       <Tab.Screen name="Properties" component={PropertiesStack} />
       <Tab.Screen name="Booking" component={BookingStack} />
-      <Tab.Screen name="Dashboard" component={DashboardMainScreen} />
+      <Tab.Screen name="Dashboard" component={DashboardStack} />
       <Tab.Screen name="Notification" component={NotificationMainScreen} />
       <Tab.Screen
         name="Menu"

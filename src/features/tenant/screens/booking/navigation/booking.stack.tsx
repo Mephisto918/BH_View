@@ -24,7 +24,7 @@ export default function BookingStack() {
       <Stack.Screen
         name="BoardingHouseLists"
         component={BookingListsScreen}
-        options={backButtonConfig}
+        // options={backButtonConfig}
       />
       {/* 2nd */}
       <Stack.Screen

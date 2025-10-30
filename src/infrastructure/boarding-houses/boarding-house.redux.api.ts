@@ -10,7 +10,6 @@ import {
   CreateBoardingHouseInput,
 } from "./boarding-house.schema";
 
-import z from "zod";
 import { uploadBoardingHouse } from "../utils/upload.service";
 
 //* -- createApi --
@@ -57,6 +56,7 @@ export const boardingHouseApi = createApi({
         response.results ?? [],
       // transformResponse: (response: ApiResponseType<BoardingHouse>) =>
       //   z.array(BoardingHouseReadSchema).parse(response.results ?? []),
+      providesTags: ["BoardingHouse"],
     }),
     getOne: builder.query<FindOneBoardingHouse | null, number | null>({
       query: (id) => `${boardingHouseApiRoute}/${id}`,
@@ -68,6 +68,7 @@ export const boardingHouseApi = createApi({
         const res = response.results;
         return res;
       },
+      providesTags: ["BoardingHouse"],
     }),
     // TODO make a dto for one source of truth
     create: builder.mutation<ApiResponseType<any>, CreateBoardingHouseInput>({
@@ -102,6 +103,7 @@ export const boardingHouseApi = createApi({
           };
         }
       },
+      invalidatesTags: ["BoardingHouse"],
     }),
 
     // create: builder.mutation<any, CreateBoardingHouseInput>({

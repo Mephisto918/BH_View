@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Owner, OwnerState } from "./owner.types";
+import { Owner } from "./owner.types";
 
 //* -- Initial State ---
 const initialState: OwnerState = {

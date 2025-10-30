@@ -11,11 +11,16 @@ const Stack = createNativeStackNavigator();
 export default function BookingStack() {
   return (
     <Stack.Navigator
-      initialRouteName="BoardingHouseLists"
+      initialRouteName="PropertiesListScreen"
       screenOptions={{
         headerShown: false,
       }}
     >
+      <Stack.Screen
+        name="PropertiesListScreen"
+        component={PropertiesListScreen}
+        // options={backButtonConfig}
+      />
       <Stack.Screen
         name="PropertiesDetailsScreen"
         component={PropertiesDetailsScreen}
@@ -25,11 +30,6 @@ export default function BookingStack() {
         name="PropertiesBookingListsScreen"
         component={PropertiesBookingListsScreen}
         options={backButtonConfig}
-      />
-      <Stack.Screen
-        name="PropertiesListScreen"
-        component={PropertiesListScreen}
-        // options={backButtonConfig}
       />
     </Stack.Navigator>
   );

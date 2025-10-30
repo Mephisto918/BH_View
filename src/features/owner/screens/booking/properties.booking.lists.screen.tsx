@@ -1,27 +1,72 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import React, { useEffect, useState } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
-import { BorderRadius, Colors, Fontsize, GlobalStyle } from "@/constants";
-import { Box, Image, VStack } from "@gluestack-ui/themed";
+import {
+  BorderRadius,
+  Colors,
+  Fontsize,
+  GlobalStyle,
+  Spacing,
+} from "@/constants";
+import { Box, Button, Image, VStack } from "@gluestack-ui/themed";
 
 import { ScrollView } from "react-native-gesture-handler";
-import { BoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema";
-import { Spinner } from "@gluestack-ui/themed";
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import { useGetAllQuery } from "@/infrastructure/booking/booking.redux.api";
+import { QueryBooking } from "../../../../infrastructure/booking/booking.schema";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import { OwnerBookingStackParamList } from "./navigation/booking.types";
+import { useGetOneQuery } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
+import { parseIsoDate } from "@/infrastructure/utils/parseISODate.util";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
-const FullScreenLoader = () => (
-  <View style={styles.overlay}>
-    <Spinner size="large" color="$white" />
-  </View>
-);
+type RouteProps = RouteProp<
+  OwnerBookingStackParamList,
+  "PropertiesBookingListsScreen"
+>;
 
 export default function PropertiesBookingListsScreen() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<OwnerBookingStackParamList>>();
+
+  const route = useRoute<RouteProps>();
+  if (!route.params?.bhId) {
+    throw new Error("Missing required parameter: bhId");
+  }
+  const { bhId } = route.params;
+
+  const [bookingFilters, setBookingFilters] = useState<QueryBooking>({
+    offset: 50,
+    page: 1,
+    boardingHouseId: bhId,
+  });
+  const {
+    data: bookingList,
+    isLoading: isBookingListLoading,
+    isError: isBookingListError,
+  } = useGetAllQuery(bookingFilters);
+
+  const {
+    data: boardingHouseData,
+    isError: isBoardingHouseDataError,
+    isLoading: isBoardingHouseDataLoading,
+  } = useGetOneQuery(bhId);
+
+  const handleGotoBookingDetails = (bookId: number) => {
+    navigation.navigate("PropertiesDetailsScreen", { bookId: bookId });
+  };
+
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      <Box></Box>
-      {/* {isBoardingHousesLoading && <FullScreenLoader />}
+      {boardingHouseData && (
+        <Box>
+          <Text>{boardingHouseData.name}</Text>
+        </Box>
+      )}
+      {isBookingListLoading && <FullScreenLoaderAnimated />}
       <VStack>
         <ScrollView
           style={{ backgroundColor: Colors.PrimaryLight[8], flex: 1 }}
@@ -32,76 +77,52 @@ export default function PropertiesBookingListsScreen() {
             padding: 10,
           }}
         >
-          {boardinghouses &&
-            boardinghouses.map((boardinghouse: BoardingHouse, index) => {
-              // boardinghouses.map((boardinghouse: GetBoardingHouse, index) => {
-              return (
-                <VStack
-                  key={index}
-                  style={{
-                    backgroundColor: Colors.PrimaryLight[9],
-                    padding: 10,
-                    borderRadius: BorderRadius.md,
-                    gap: 10,
-                    flexDirection: "row",
-                  }}
-                >
-                  <Box>
-                    <Image
-                      source={
-                        typeof boardinghouse.thumbnail?.[0] === "string" &&
-                        boardinghouse.thumbnail[0]
-                          ? { uri: boardinghouse.thumbnail[0] }
-                          : require("../../../../assets/housesSample/1.jpg")
-                      }
-                      style={{
-                        // width: 200,
-                        height: 150,
-                        aspectRatio: 4 / 3,
-                        borderRadius: BorderRadius.md,
-                      }}
-                    />
+          {bookingList && bookingList.length > 0 ? (
+            bookingList.map((book, index) => (
+              <Box key={index} style={[styles.container]}>
+                <Box style={[styles.center_item]}>
+                  <Text
+                    style={[
+                      styles.textColor,
+                      styles.item_header,
+                      { textAlign: "center" },
+                    ]}
+                  >
+                    {book.roomId}
+                  </Text>
+                </Box>
+                <Box style={[styles.body]}>
+                  <Box style={[styles.infoBox]}>
+                    <Text style={[styles.textColor]}>
+                      Status: {book.status}
+                    </Text>
+                    <Text style={[styles.textColor]}>{book.reference}</Text>
+                    <Text style={[styles.textColor]}>
+                      Check In: {parseIsoDate(book.checkInDate)?.monthName}{" "}
+                      {parseIsoDate(book.checkInDate)?.day}{" "}
+                      {parseIsoDate(book.checkInDate)?.dayName}
+                    </Text>
+                    <Text style={[styles.textColor]}>
+                      Check Out: {parseIsoDate(book.checkOutDate)?.monthName}{" "}
+                      {parseIsoDate(book.checkOutDate)?.day}{" "}
+                      {parseIsoDate(book.checkOutDate)?.dayName}
+                    </Text>
                   </Box>
-                  <VStack style={{ flex: 1 }}>
-                    <VStack style={{ flex: 1 }}>
-                      <Text
-                        style={[styles.Item_Label]}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {boardinghouse.name}
-                      </Text>
-                      <Text style={[styles.Item_SubLabel]}>
-                        {boardinghouse.address}
-                      </Text>
-                    </VStack>
-                    <VStack>
-                      <Text style={[styles.Item_SubLabel]}>
-                        {boardinghouse.capacity.currentCapacity}/
-                        {boardinghouse.capacity.totalCapacity}
-                      </Text>
-                      <Pressable
-                        onPress={() => handleGotoPress(boardinghouse.id)}
-                        style={{
-                          borderRadius: BorderRadius.sm,
-                          padding: 8,
-                          backgroundColor: Colors.PrimaryLight[6],
-                          marginLeft: "auto",
-                        }}
-                      >
-                        <View>
-                          <Text style={[styles.Item_Normal]}>
-                            View Booking Requests
-                          </Text>
-                        </View>
-                      </Pressable>
-                    </VStack>
-                  </VStack>
-                </VStack>
-              );
-            })}
+                  <Box style={[styles.cta]}>
+                    <Button
+                      onPress={() => handleGotoBookingDetails(book.id)}
+                    >
+                      <Text style={[styles.textColor]}>View Details</Text>
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            ))
+          ) : (
+            <Text style={[styles.textColor]}>Booking Empty</Text>
+          )}
         </ScrollView>
-      </VStack> */}
+      </VStack>
     </StaticScreenWrapper>
   );
 }
@@ -118,30 +139,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 1000, // ensure it's above everything
   },
-  generic_text: {
+  container: {
+    flexDirection: "column",
+    backgroundColor: Colors.PrimaryLight[9],
+    borderRadius: 10,
+    padding: Spacing.md,
+    gap: Spacing.sm,
+  },
+  body: {
+    borderWidth: 3,
+    flexDirection: "row",
+    borderColor: "red",
+  },
+  infoBox: {
+    borderWidth: 3,
+    flexDirection: "column",
+    borderColor: "red",
+    flex: 1,
+  },
+
+  textColor: {
     color: Colors.TextInverse[2],
   },
-  Item_Label: {
-    color: Colors.TextInverse[2],
-    fontWeight: "bold",
-    fontSize: Fontsize.md,
-    marginBottom: 6,
-    flexWrap: "wrap",
-    // flexShrink: 1,
+
+  item_header: {
+    fontSize: Fontsize.h1,
   },
-  Item_SubLabel: {
-    color: Colors.TextInverse[2],
-    fontWeight: "bold",
-    fontSize: Fontsize.md,
-    marginBottom: 6,
+
+  center_item: {
+    justifyContent: "center",
+    alignContent: "center",
   },
-  Item_Normal: {
-    color: Colors.TextInverse[2],
-    fontWeight: "bold",
-    fontSize: Fontsize.sm,
-  },
-  Item_Input_Placeholder: {
-    color: Colors.TextInverse[2],
-    fontSize: Fontsize.sm,
+
+  cta: {
+    marginLeft: "auto",
   },
 });

@@ -4,7 +4,7 @@ import {
 } from "react-native-image-picker";
 
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system"; // ✅ added
+import * as FileSystem from "expo-file-system";
 import { Platform } from "react-native";
 import { AppImageFile, ImageUploadSchema } from "./image.schema";
 
@@ -56,6 +56,7 @@ export async function pickImage(
 
         const image: AppImageFile = {
           uri: asset.uri,
+          url: asset.uri,
           type: asset.type,
           name: asset.fileName,
           size: asset.fileSize,
@@ -118,6 +119,7 @@ export async function pickImageExpo(
   for (const asset of result.assets) {
     const image: AppImageFile = {
       uri: asset.uri,
+      url: asset.uri,
       type: asset.mimeType || "image/jpeg",
       name: asset.fileName || `image-${Date.now()}.jpg`,
       quality: imgQuality,

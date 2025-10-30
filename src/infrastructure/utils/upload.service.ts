@@ -26,6 +26,7 @@ export const uploadBoardingHouse = async (
       { name: "rooms", data: JSON.stringify(data.rooms ?? []) },
     ];
 
+    // --- Thumbnail ---
     if (data.thumbnail?.[0]) {
       const file = data.thumbnail[0];
       formData.push({
@@ -36,6 +37,7 @@ export const uploadBoardingHouse = async (
       });
     }
 
+    // --- Boarding house gallery ---
     data.gallery?.forEach((file, i) => {
       formData.push({
         name: "gallery",
@@ -45,6 +47,51 @@ export const uploadBoardingHouse = async (
       });
     });
 
+    // --- Per-room gallery & thumbnail uploads ---
+    data.rooms?.forEach((room, index) => {
+      // 1️⃣ Room gallery
+      room.gallery?.forEach((file, j) => {
+        if (file?.uri) {
+          const cleanUri = file.uri.startsWith("file://")
+            ? file.uri
+            : `file://${file.uri}`;
+
+          formData.push({
+            name: `roomGallery${index}_${j}`,
+            filename: file.name ?? `room-${index}-${j}.jpg`,
+            type: file.type ?? "image/jpeg",
+            data: RNFetchBlob.wrap(cleanUri.replace("file://", "")),
+          });
+        }
+      });
+
+      // 2️⃣ Room thumbnail (if exists)
+      if (room.thumbnail?.[0]?.uri) {
+        const thumbFile = room.thumbnail[0];
+        const cleanThumbUri = thumbFile.uri.startsWith("file://")
+          ? thumbFile.uri
+          : `file://${thumbFile.uri}`;
+
+        formData.push({
+          name: `roomThumbnail${index}_0`, // match backend naming
+          filename: thumbFile.name ?? `roomThumbnail-${index}.jpg`,
+          type: thumbFile.type ?? "image/jpeg",
+          data: RNFetchBlob.wrap(cleanThumbUri.replace("file://", "")),
+        });
+      }
+    });
+
+    formData.forEach((part, i) => {
+      if (typeof part.data === "string") {
+        console.log(
+          `  [${i}] ${part.name}: (string) ${part.data.slice(0, 80)}...`
+        );
+      } else {
+        console.log(`  [${i}] ${part.name}: (binary) ${part.filename}`);
+      }
+    });
+
+    // --- Upload call ---
     const response = await RNFetchBlob.fetch(
       "POST",
       `${API_URL}/api/boarding-houses`,

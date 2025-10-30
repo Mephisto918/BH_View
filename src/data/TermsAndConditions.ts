@@ -1,4 +1,4 @@
-export const textMD = `
+export default `
 # Terms and Conditions for BH Hunter – Boarding House Finder Application
 
 **Effective Date:** June, 2025
@@ -98,4 +98,4 @@ For any questions or concerns regarding these Terms, please contact BH Hunter at
 **BHhunter@gmail.com**
 **edward.camagong@wlcormoc.edu.ph**
 **hanzvilomari.rufin@wlcormoc.edu.ph**
-`
+`;

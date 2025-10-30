@@ -1,4 +1,4 @@
-import { StyleSheet, ImageStyle } from "react-native";
+import { StyleSheet, ImageStyle, Alert } from "react-native";
 import { View, Text } from "@gluestack-ui/themed";
 
 import React, { useState, useEffect } from "react";
@@ -8,7 +8,6 @@ import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 // UI comopnent
 import TextInput from "@/components/ui/TextInput";
 import Button from "@/components/ui/Button";
-import { Spinner } from "@gluestack-ui/themed";
 
 // constants
 import {
@@ -46,26 +45,28 @@ export default function LoginMainScreen() {
   const [password, setPassword] = useState({ value: "", error: false });
 
   // redux
-  const [triggerLogin, { isLoading: isLoginLoading, error: isLoginError }] =
-    useLoginMutation();
+  const [
+    triggerLogin,
+    { isLoading: isLoginLoading, error: isLoginError, error: errorObj },
+  ] = useLoginMutation();
   const dispatch = useDispatch<AppDispatch>();
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     onPressLogin();
-  //   }, 700);
-  // }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      onPressLogin();
+    }, 700);
+  }, []);
 
   const onPressLogin = async () => {
-    const packageLoad = {
-      username: username.value,
-      password: password.value,
-    };
-
     // const packageLoad = {
-    //   username: "tenant1",
-    //   password: "123456789",
+    //   username: username.value,
+    //   password: password.value,
     // };
+
+    const packageLoad = {
+      username: "tenant1",
+      password: "123456789",
+    };
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();
       dispatch(
@@ -84,7 +85,8 @@ export default function LoginMainScreen() {
     } catch (error: any) {
       console.log("Login Message: ", isLoginError);
       console.log("Login error in Catch: ", error);
-      Alert.alert("Login Failed");
+      // Alert.alert("Login Failed: " + (error?.error.message || "Unknown error"));
+      Alert.alert("Login Failed! Please Try Again.");
     }
   };
 
@@ -104,13 +106,6 @@ export default function LoginMainScreen() {
     >
       {isLoginLoading && <FullScreenLoaderAnimated />}
       <View style={[s.Container]}>
-        {/* <Logo
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
-            source={require('../../../assets/logos/LogoNameDark.png')}
-            // squareScale={350}
-            containerStyle={s.logo_Container}
-            imageStyle={s.logo_Image}
-          /> */}
         <Text
           style={{
             fontSize: 60,
@@ -118,7 +113,6 @@ export default function LoginMainScreen() {
             fontWeight: 900,
             marginBottom: 20,
           }}
-          // imageStyle={s.logo_Image}
         >
           Boarding House Hunter
         </Text>

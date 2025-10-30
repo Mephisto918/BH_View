@@ -13,38 +13,35 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { useNavigation } from "@react-navigation/native";
 import { OwnerTabsParamList } from "../../navigation/owner.tabs.type";
 import { BoardingHouse } from "@/infrastructure/boarding-houses/boarding-house.schema";
-import { mockBoardingHouses } from "@/tests/boardingHouseMock";
-
-const FullScreenLoader = () => (
-  <View style={styles.overlay}>
-    <Spinner size="large" color="$white" />
-  </View>
-);
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
+import { useSelector } from "react-redux";
+import { RootState } from "@/application/store/stores";
 
 export default function PropertiesListScreen() {
+  const ownerId = useSelector(
+    (state: RootState) => state.owners.selectedUser?.id
+  );
   const navigation =
     useNavigation<BottomTabNavigationProp<OwnerTabsParamList>>();
 
   const [filters, setFilters] = useState<QueryBoardingHouse>({
     minPrice: 1500,
+    offset: 50,
+    ownerId: ownerId,
   });
-  // const {
-  //   data: boardinghouses,
-  //   isLoading: isBoardingHousesLoading,
-  //   isError: isBoardingHousesError,
-  // } = useGetAllBoardingHouses(filters);
-  const isBoardingHousesLoading = false;
-  const [boardinghouses, setBoardinghouses] = useState<BoardingHouse[]>([]);
 
-  useEffect(() => {
-    setBoardinghouses(mockBoardingHouses);
-  }, []);
+  const {
+    data: boardinghouses,
+    isLoading: isBoardingHousesLoading,
+    isError: isBoardingHousesError,
+  } = useGetAllBoardingHouses(filters);
 
   const handleGotoPress = (id: number) => {
     console.log("handleGotoPress", id);
-    navigation.navigate("Books", {
+    navigation.navigate("Booking", {
       screen: "PropertiesBookingListsScreen",
-      params: { id: id, fromMaps: true },
+      params: { bhId: id, fromMaps: true },
     });
   };
   return (
@@ -52,7 +49,8 @@ export default function PropertiesListScreen() {
       style={[GlobalStyle.GlobalsContainer]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      {isBoardingHousesLoading && <FullScreenLoader />}
+      {isBoardingHousesLoading && <FullScreenLoaderAnimated />}
+      {isBoardingHousesError && <FullScreenErrorModal />}
       <VStack>
         <Box>
           <Text
@@ -94,13 +92,11 @@ export default function PropertiesListScreen() {
                   <Box>
                     <Image
                       source={
-                        typeof boardinghouse.thumbnail?.[0] === "string" &&
-                        boardinghouse.thumbnail[0]
-                          ? { uri: boardinghouse.thumbnail[0] }
+                        boardinghouse?.thumbnail?.[0]?.url
+                          ? { uri: boardinghouse.thumbnail[0].url }
                           : require("../../../../assets/housesSample/1.jpg")
                       }
                       style={{
-                        // width: 200,
                         height: 150,
                         aspectRatio: 4 / 3,
                         borderRadius: BorderRadius.md,

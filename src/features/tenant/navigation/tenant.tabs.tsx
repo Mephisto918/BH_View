@@ -15,7 +15,7 @@ import {
 } from "@/constants/";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
-import DashboardMainScreen from "../screens/dashboard.main.screen";
+import DashboardStack from "../screens/dashboard/navigation/dashboard.stack";
 import BookingStack from "../screens/booking/navigation/booking.stack";
 import MapStack from "@/features/shared/map/navigation/map.stack";
 import NotificationMainScreen from "@/features/shared/notification.main.screen";
@@ -62,7 +62,7 @@ export default function TenantTabs() {
         };
       }}
     >
-      <Tab.Screen name="Dashboard" component={DashboardMainScreen} />
+      <Tab.Screen name="Dashboard" component={DashboardStack} />
       <Tab.Screen name="Booking" component={BookingStack} />
       <Tab.Screen name="Map" component={MapStack} />
       <Tab.Screen name="Notification" component={NotificationMainScreen} />

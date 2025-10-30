@@ -18,7 +18,7 @@ import {
 // import Ionicons from "react-native-vector-icons/Ionicons";
 import { Ionicons } from "@expo/vector-icons";
 import Markdown from "react-native-awesome-markdown";
-import { textMD } from "../../TermsAndConditions";
+import TermsAndConditions from "../../../../data/TermsAndConditions";
 
 // ui
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
@@ -106,8 +106,8 @@ export default function SignUpTenantScreen() {
       setConfirmPassword({ value: "", isTrue: false });
       route.navigate("Login");
     } catch (error: any) {
-      console.log("signup tenant error", error);
-      Alert.alert("Error: ", error.message);
+      console.log(error);
+      Alert.alert("Error", error.data.message);
     }
   };
 
@@ -268,7 +268,7 @@ export default function SignUpTenantScreen() {
               </Text>
             </Heading>
             <ScrollView>
-              <Markdown styles={customStyles} text={textMD} />
+              <Markdown styles={customStyles} text={TermsAndConditions} />
             </ScrollView>
             <VStack>
               <Button

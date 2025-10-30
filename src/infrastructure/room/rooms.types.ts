@@ -1,4 +1,4 @@
-import { RoomTypeEnum } from "./room.schema";
+import { RoomTypeEnum } from "./rooms.schema";
 
 export interface Room {
   boardingHouseId?: number;

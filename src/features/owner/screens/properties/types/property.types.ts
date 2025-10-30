@@ -1,4 +1,4 @@
-import { CreateRoomInput } from "@/infrastructure/room/room.schema";
+import { CreateRoom, CreateRoomInput } from "@/infrastructure/room/rooms.schema";
 
 export type PropertiesRoomCreateProps = {
   rooms: CreateRoomInput[];
