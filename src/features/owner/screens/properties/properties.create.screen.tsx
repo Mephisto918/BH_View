@@ -40,11 +40,20 @@ import { usePropertyNavigation } from "./navigation/properties.navigation.hooks"
 import PropertiesRoomCreate from "./components/properties.room.create";
 import { ScrollView } from "react-native-gesture-handler";
 
-import { pickImageExpo } from "@/infrastructure/image/image.service";
+import {
+  expoStorageCleaner,
+  pickImageExpo,
+} from "@/infrastructure/image/image.service";
 import { Ionicons } from "@expo/vector-icons";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 
 export default function PropertiesCreateScreen() {
+  useEffect(() => {
+    return () => {
+      expoStorageCleaner();
+    };
+  }, []);
+
   const propertyNavigation = usePropertyNavigation();
 
   const { selectedUser: data } = useDynamicUserApi();

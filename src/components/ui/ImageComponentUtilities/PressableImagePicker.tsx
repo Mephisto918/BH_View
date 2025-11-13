@@ -92,7 +92,7 @@ export default function PressebleImagePicker({
     removeImageIconContainerStyle,
   } = {},
   addImageIconStyleConfig: {
-    addImageIconName = "close",
+    addImageIconName = "add",
     addImageIconSize = 24,
     addImageIconColor = "white",
     addImageIconContainerStyle,

@@ -83,6 +83,7 @@ export default function MapMainScreen() {
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer, s.con_main]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
+      wrapInScrollView={false}
     >
       {isBoardingHousesLoading && <FullScreenLoaderAnimated />}
       <HeaderSearch

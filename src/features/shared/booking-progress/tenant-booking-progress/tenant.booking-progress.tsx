@@ -10,7 +10,6 @@ import {
 } from "@/infrastructure/booking/booking.redux.api";
 import { Ionicons } from "@expo/vector-icons";
 import useTenantBookingProgressHook from "./config";
-import { pickImageExpo } from "@/infrastructure/image/image.service";
 import { AppImageFile } from "@/infrastructure/image/image.schema";
 import DecisionModal from "@/components/ui/DecisionModal";
 import { useDecisionModal } from "@/components/ui/FullScreenDecisionModal";

@@ -34,6 +34,10 @@ import { useLoginMutation } from "@/infrastructure/auth/auth.redux.slice";
 import { fetchUserDataThunk } from "@/infrastructure/auth/auth.redux.thunk";
 import { AppDispatch } from "../../../application/store/stores";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import {
+  expoStorageCleaner,
+  logExpoSystemDir,
+} from "@/infrastructure/image/image.service";
 
 export default function LoginMainScreen() {
   const rootNavigation =
@@ -63,9 +67,12 @@ export default function LoginMainScreen() {
     //   password: password.value,
     // };
 
+    console.log("present files");
+    await logExpoSystemDir();
+
     const packageLoad = {
-      username: "owner1",
-      password: "owner1",
+      username: "tenant1",
+      password: "tenant1",
     };
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();

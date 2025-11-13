@@ -8,6 +8,7 @@ import { Box, VStack } from "@gluestack-ui/themed";
 import TenantBookingProgress from "@/features/shared/booking-progress/tenant-booking-progress/tenant.booking-progress";
 import { GlobalStyle, Spacing } from "@/constants";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import { expoStorageCleaner } from "@/infrastructure/image/image.service";
 
 type RouteProps = RouteProp<
   TenantDashboardBookingStackParamList,
@@ -15,6 +16,13 @@ type RouteProps = RouteProp<
 >;
 
 export default function DashboardBookingDetailsScreen() {
+  React.useEffect(() => {
+    return () => {
+      expoStorageCleaner();
+      // logExpoSystemDir();
+    };
+  }, []);
+
   const route = useRoute<RouteProps>();
   const { bookId } = route.params;
 

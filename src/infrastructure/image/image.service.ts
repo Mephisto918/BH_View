@@ -8,6 +8,40 @@ import * as FileSystem from "expo-file-system";
 import { Platform } from "react-native";
 import { AppImageFile, ImageUploadSchema } from "./image.schema";
 
+const PERSISTENT_IMAGE_DIR = `${FileSystem.documentDirectory}picked_images/`;
+
+//* Private functions
+async function ensurePersistentDir(): Promise<void> {
+  const info = await FileSystem.getInfoAsync(PERSISTENT_IMAGE_DIR);
+  if (!info.exists) {
+    await FileSystem.makeDirectoryAsync(PERSISTENT_IMAGE_DIR, {
+      intermediates: true,
+    });
+  }
+}
+
+async function moveToPersistentDir(image: AppImageFile): Promise<string> {
+  if (!FileSystem.documentDirectory) {
+    throw new Error("Document directory unavailable");
+  }
+
+  await ensurePersistentDir();
+
+  const newFileName = `${Date.now()}-${image.name}`;
+  const newPath = `${PERSISTENT_IMAGE_DIR}${newFileName}`;
+
+  try {
+    await FileSystem.copyAsync({
+      from: image.uri,
+      to: newPath,
+    });
+    return newPath;
+  } catch (err) {
+    console.error("Failed to persist image:", err);
+    throw err;
+  }
+}
+
 /**
  * Ensures a file URI is readable for RNFetchBlob / file access.
  * If the file is not directly readable, copies it to the cache directory.
@@ -33,6 +67,8 @@ async function makeBlobReadable(image: AppImageFile): Promise<string> {
   }
 }
 
+//* Public functions
+/* Public functions */
 /**
  * Pick one or multiple images using react-native-image-picker.
  * Validates image metadata and schema before returning.
@@ -40,6 +76,9 @@ async function makeBlobReadable(image: AppImageFile): Promise<string> {
  * @param {number} [limit=1] - Maximum number of images to select
  * @returns {Promise<AppImageFile[] | null>} - Array of image objects or null if cancelled
  * @throws {Error} If image selection fails or images are invalid
+ *
+ * @deprecated Use {@link pickImageExpo} instead.
+ *             We plan to remove this function in a future major release.
  */
 export async function pickImage(
   limit: number = 1
@@ -99,6 +138,7 @@ export async function pickImage(
 /**
  * Request permission to access the media library.
  *
+ *
  * @returns {Promise<boolean>} - True if permission granted, false otherwise
  */
 export async function requestImagePermission(): Promise<boolean> {
@@ -136,9 +176,7 @@ export async function pickImageExpo(
     quality: 1,
   });
 
-  if (result.canceled) {
-    return null;
-  }
+  if (result.canceled) return null;
 
   const images: AppImageFile[] = [];
 
@@ -158,8 +196,11 @@ export async function pickImageExpo(
       throw new Error("Invalid image file");
     }
 
-    const safeUri = await makeBlobReadable(image);
-    images.push({ ...image, uri: safeUri });
+    const persistentUri = await moveToPersistentDir(image);
+    images.push({ ...image, uri: persistentUri });
+    //! possible breakeage
+    // image.uri = image.uri.replace("file://", "");
+    // image.url = image?.url!.replace("file://", "");
   }
 
   if (images.length > limit) {
@@ -167,4 +208,42 @@ export async function pickImageExpo(
   }
 
   return images;
+}
+
+export async function expoStorageCleaner(): Promise<void> {
+  if (!FileSystem.documentDirectory) {
+    throw new Error("Document directory unavailable");
+  }
+
+  const imageDir = PERSISTENT_IMAGE_DIR;
+
+  const dirInfo = await FileSystem.getInfoAsync(imageDir);
+  if (!dirInfo.exists) return; // nothing to clean
+
+  const files = await FileSystem.readDirectoryAsync(imageDir);
+
+  for (const file of files) {
+    try {
+      await FileSystem.deleteAsync(`${imageDir}${file}`);
+    } catch (err) {
+      console.warn(`Failed to delete ${file}:`, err);
+    }
+  }
+
+  console.log("Storage cleaned successfully");
+}
+
+export async function logExpoSystemDir() {
+  const imageDir = PERSISTENT_IMAGE_DIR;
+  const dirInfo = await FileSystem.getInfoAsync(imageDir);
+  const files = await FileSystem.readDirectoryAsync(imageDir);
+
+  console.log(
+    "-----------------------------------------------------------------"
+  );
+  console.log("dirInfo:", dirInfo);
+  console.log("finesInfoInImageDir:", files);
+  console.log(
+    "-----------------------------------------------------------------"
+  );
 }

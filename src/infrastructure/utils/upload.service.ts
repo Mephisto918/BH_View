@@ -1,6 +1,7 @@
 import RNFetchBlob from "react-native-blob-util";
 import api from "@/application/config/api";
 import { CreateBoardingHouseInput } from "../boarding-houses/boarding-house.schema";
+import { expoStorageCleaner } from "../image/image.service";
 
 type UploadResponse =
   | { success: true; data: any }
@@ -10,7 +11,6 @@ export const uploadBoardingHouse = async (
   data: CreateBoardingHouseInput
 ): Promise<UploadResponse> => {
   const API_URL = api.BASE_URL;
-
   try {
     const formData: any[] = [
       { name: "ownerId", data: String(data.ownerId) },
@@ -98,6 +98,8 @@ export const uploadBoardingHouse = async (
       { "Content-Type": "multipart/form-data" },
       formData
     );
+
+    await expoStorageCleaner();
 
     const json = response.json();
     if (json.success) {
