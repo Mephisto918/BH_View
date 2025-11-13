@@ -12,6 +12,7 @@ import { OwnerBookingStackParamList } from "../navigation/booking.types";
 import OwnerBookingProgress from "@/features/shared/booking-progress/owner-booking-progress/owner.booking-progress";
 import { useSelector } from "react-redux";
 import { RootState } from "@/application/store/stores";
+import Container from "@/components/layout/Container/Container";
 
 type RouteProps = RouteProp<
   OwnerBookingStackParamList,
@@ -20,6 +21,8 @@ type RouteProps = RouteProp<
 
 export default function PropertiesDetailsScreen() {
   const route = useRoute<RouteProps>();
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [childRefresh, setChildRefresh] = React.useState();
 
   if (!route.params?.bookId) {
     throw new Error("Missing required parameter: Room ID");
@@ -35,11 +38,19 @@ export default function PropertiesDetailsScreen() {
     data: bookingData,
     isLoading: isBookingDataLoading,
     isError: isBookingDataError,
+    refetch: refetchBookingData,
   } = useGetOneQuery(bookId);
 
   useEffect(() => {
     console.log(bookingData);
   }, [bookingData]);
+
+  const handleTopRefreshPage = async () => {
+    setRefreshing(true);
+    refetchBookingData();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    setRefreshing(false);
+  };
 
   return (
     <StaticScreenWrapper
@@ -48,7 +59,7 @@ export default function PropertiesDetailsScreen() {
     >
       {isBookingDataLoading && <FullScreenLoaderAnimated />}
       {isBookingDataError && <FullScreenErrorModal />}
-      <VStack>
+      <Container refreshing={refreshing} onRefresh={handleTopRefreshPage}>
         <Box>
           <Text style={[s.textColor, { fontSize: Fontsize.display1 }]}>
             Booking Details
@@ -65,6 +76,8 @@ export default function PropertiesDetailsScreen() {
             {parseIsoDate(bookingData?.checkOutDate)?.day}{" "}
             {parseIsoDate(bookingData?.checkOutDate)?.dayName}
           </Text>
+          <Text style={[s.textColor]}>{bookingData?.reference}</Text>
+          <Text style={[s.textColor]}>{bookingData?.id}</Text>
         </Box>
         <Box>
           <Text style={[s.textColor]}>{bookingData?.tenant?.username}</Text>
@@ -83,10 +96,11 @@ export default function PropertiesDetailsScreen() {
             <OwnerBookingProgress
               bookingId={bookingData?.id}
               ownerId={ownerId}
+              refresh={refreshing}
             />
           )}
         </Box>
-      </VStack>
+      </Container>
     </StaticScreenWrapper>
   );
 }

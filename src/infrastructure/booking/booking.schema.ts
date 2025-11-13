@@ -15,22 +15,12 @@ export const BookingTypeEnum = z.enum([
 
 // BookingStatus enum
 export const BookingStatusEnum = z.enum([
-  "PENDING", //🟡 Tenant requested booking
+  "PENDING_REQUEST", //🟡 Tenant requested booking
   "AWAITING_PAYMENT", //🟠 Owner approved, waiting for tenant to upload proof
-  "PAYMENT_VERIFIED",
-  "CONFIRMED", //🟢 Owner confirmed after proof of payment
-  "CANCELLED", //🔴
-  "COMPLETED", //⚫
-  "REJECTED",
-]);
-
-// PaymentStatus enum
-export const PaymentStatusEnum = z.enum([
-  "NONE",
-  "PENDING", // tenant uploaded proof
-  "REJECTED",
-  "VERIFIED",
-  "FAILED",
+  "PAYMENT_APPROVAL", //🟠
+  "CANCELLED_BOOKING", //🔴
+  "REJECTED_BOOKING", //🔴
+  "COMPLETED_BOOKING", //🟢
 ]);
 
 export const bookingSchema = z.object({
@@ -52,8 +42,7 @@ export const bookingSchema = z.object({
     .string()
     .refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date" }),
   status: BookingStatusEnum,
-  paymentStatus: PaymentStatusEnum,
-  paymentProofUrl: z.string().optional(),
+  paymentProofId: z.string().optional(),
   totalAmount: z.string().optional(), // decimal represented as string in frontend
   currency: z.string().optional(),
   ownerMessage: z.string().optional(),
@@ -88,6 +77,7 @@ export const GetBookingSchema = BaseBookingSchema.pick({
   reference: true,
   tenantId: true,
   roomId: true,
+  room: true,
   bookingType: true,
   checkInDate: true,
   checkOutDate: true,
@@ -99,7 +89,7 @@ export const GetBookingSchema = BaseBookingSchema.pick({
   updatedAt: true,
   ownerMessage: true,
   tenantMessage: true,
-  paymentProofUrl: true,
+  paymentProofId: true,
 }).extend({
   tenant: GetTenantSchema.optional(), // include full tenant schema
 });
@@ -111,7 +101,6 @@ export const QueryBookingSchema = z.object({
   roomId: z.number().optional(),
   boardingHouseId: z.number().optional(),
   status: BookingStatusEnum.optional(),
-  paymentStatus: PaymentStatusEnum.optional(),
   bookingType: BookingTypeEnum.optional(),
   fromCheckIn: z.string().optional(),
   toCheckIn: z.string().optional(),

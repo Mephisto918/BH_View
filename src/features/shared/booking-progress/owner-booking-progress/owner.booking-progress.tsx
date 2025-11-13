@@ -3,52 +3,78 @@ import React from "react";
 import { Box, Button, VStack } from "@gluestack-ui/themed";
 import {
   useGetOneQuery,
+  useGetPaymentProofQuery,
   usePatchApproveBookingMutation,
   usePatchRejectBookingMutation,
   usePatchVerifyPaymentMutation,
 } from "@/infrastructure/booking/booking.redux.api";
-import { Input, InputField } from "@gluestack-ui/themed";
-import { BookingStatusEnum } from "../../../../infrastructure/booking/booking.schema";
 import { BorderRadius, Colors, Fontsize, Spacing } from "@/constants";
 
 import RenderStateView from "../RenderStateView";
 import useOwnertBookingProgress from "./config";
-import { TextInput } from "react-native";
 import AutoExpandingInput from "@/components/ui/AutoExpandingInputComponent";
 import DecisionModal from "@/components/ui/DecisionModal";
 import { useDecisionModal } from "@/components/ui/FullScreenDecisionModal";
+import PressableImageFullscreen from "@/components/ui/ImageComponentUtilities/PressableImageFullscreen";
+import Container from "@/components/layout/Container/Container";
+import { BookingStatusEnum } from "@/infrastructure/booking/booking.schema";
+import FullScreenLoaderAnimated from "../../../../components/ui/FullScreenLoaderAnimated";
 
 export interface OwnerBookingProgressProps {
   bookingId: number;
   ownerId: number;
+  refresh?: boolean;
 }
 
 export default function OwnerBookingProgress({
   bookingId,
   ownerId,
+  refresh,
 }: OwnerBookingProgressProps) {
-  // 1. STATE
+  //* 1. STATE
   const [rejectApproveMessage, setRejectApproveMessage] = React.useState("");
   const [paymentMessage, setPaymentMessage] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [isMessageBoxVisible, setIsMessageBoxVisible] = React.useState(false);
   const [isMessageInputVisible, setMessageInputVisible] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(refresh);
 
-  // 2. QUERIES & MUTATIONS — ALL UNCONDITIONAL
-  const { data: bookingProgress, refetch: refetchBookingData } =
-    useGetOneQuery(ownerId);
+  //* 2. QUERIES & MUTATIONS — ALL UNCONDITIONAL
+  const {
+    data: bookingProgress,
+    refetch: refetchBookingData,
+    isLoading: isBookingProgressLoading,
+  } = useGetOneQuery(bookingId);
+  const {
+    data: imageData,
+    isError: isImageDataError,
+    isLoading: isIMageDataLoading,
+    error: imageDataError,
+    refetch: refetchImageData,
+  } = useGetPaymentProofQuery(+bookingProgress?.paymentProofId!);
 
   const { initialApprovalState, paymentState, completedState } =
     useOwnertBookingProgress(bookingProgress) ?? {};
-  if (!completedState) return null;
 
-  const [approveAction, { isLoading, isError, isSuccess }] =
-    usePatchApproveBookingMutation();
+  const [
+    approveAction,
+    {
+      isLoading: isApproveActionLoading,
+      isError: isApproveActionError,
+      isSuccess: isApproveActionSuccess,
+    },
+  ] = usePatchApproveBookingMutation();
   const [rejectAction] = usePatchRejectBookingMutation();
-  const [verifyPaymentAction] = usePatchVerifyPaymentMutation(); // ← MUST be here
+  const [verifyPaymentAction, { isLoading: isVerifyPaymentActionLoading }] =
+    usePatchVerifyPaymentMutation(); // ← MUST be here
   const { showModal } = useDecisionModal();
+  // const {} = use
 
-  // 3. HANDLERS — defined AFTER all hooks
+  if (!completedState) {
+    return null;
+  }
+
+  //* 3. HANDLERS — defined AFTER all hooks
   const handleRejectApproveAction = (answer: boolean) => {
     if (answer) {
       showModal({
@@ -98,40 +124,69 @@ export default function OwnerBookingProgress({
     }
   };
 
-  const handlePaymentDecision = (answer: boolean) => {
+  const handlePaymentAction = (approve: boolean) => {
+    const title = approve
+      ? "Confirm Booking Payment"
+      : "Reject Booking Request";
+    const confirmText = approve ? "Approve Booking" : "Reject Booking";
+    const message = approve
+      ? "Are you sure you want to approve this booking request? Once approved, the tenant will be notified and the booking will be confirmed."
+      : "Do you really want to reject this booking? This action cannot be undone, and the tenant will be notified of the rejection.";
+
     showModal({
-      title: "Confirm Booking Approval",
-      cancelText: "are you sure",
-      message: "are you sure",
+      title,
+      cancelText: "Cancel",
+      confirmText,
+      message,
+      onConfirm: async () => {
+        try {
+          const newStatus = approve ? "COMPLETED_BOOKING" : "REJECTED_BOOKING";
+
+          const res = await verifyPaymentAction({
+            id: bookingId,
+            payload: { ownerId, remarks: paymentMessage, newStatus },
+          }).unwrap();
+
+          refetchBookingData();
+          Alert.alert(
+            approve
+              ? "Booking approved successfully!"
+              : "Booking rejected successfully!"
+          );
+          console.log(`${approve ? "Approve" : "Reject"} response:`, res);
+        } catch (err) {
+          console.error(err);
+          Alert.alert("Something went wrong while processing booking.");
+        }
+      },
     });
-
-    // const Status = answer
-    //   ? BookingStatusEnum.enum.PAYMENT_VERIFIED
-    //   : BookingStatusEnum.enum.REJECTED;
   };
 
-  const handleGlobalDecisionModalToSubmit = () => {
-    // verifyPaymentAction({
-    //   id: bookingId,
-    //   payload: { ownerId, remarks: paymentMessage, newStatus: Status },
-    // });
-    // refetchBookingData();
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    refetchBookingData();
+    refetchImageData();
+    setRefreshing(false);
   };
 
-  const hanleStopCrash = (answer: boolean) => {
-    if (!answer) {
-      console.log("Yawa");
-      return;
+  React.useEffect(() => {
+    if (refresh) {
+      handleRefresh();
     }
-  };
+  }, [refresh]);
 
   // 4. RENDER
   return (
-    <VStack style={[s.container]}>
+    <View style={[s.container]}>
       <DecisionModal visible={isMessageBoxVisible} />
+      {isIMageDataLoading &&
+        isApproveActionLoading &&
+        isVerifyPaymentActionLoading &&
+        isBookingProgressLoading && <FullScreenLoaderAnimated />}
       <Text style={[s.textColor, { fontSize: Fontsize.display1 }]}>
         Booking Progress
       </Text>
+      {/* initial State */}
       <RenderStateView
         onAction={handleRejectApproveAction}
         state={initialApprovalState}
@@ -159,24 +214,34 @@ export default function OwnerBookingProgress({
           </Box>
         }
       />
+      {/* initial State */}
+      {/* payment State */}
       <RenderStateView
-        onAction={handlePaymentDecision}
+        onAction={handlePaymentAction}
         state={paymentState}
+        confirmDisplayMessage="Approve"
         lockedStateContent={
-          <AutoExpandingInput
-            style={s.Form_Input_Placeholder}
-            value={paymentMessage}
-            onChangeText={setPaymentMessage}
-            placeholder="Payment remarks or reason"
-            maxHeight={180} // optional, default 200
-          />
+          <>
+            {imageData && (
+              <>
+                <PressableImageFullscreen image={imageData} />
+                <AutoExpandingInput
+                  style={s.Form_Input_Placeholder}
+                  value={paymentMessage}
+                  onChangeText={setPaymentMessage}
+                  placeholder="Payment remarks or reason"
+                  maxHeight={180} // optional, default 200
+                />
+              </>
+            )}
+          </>
         }
       />
-      <RenderStateView
-        onAction={handlePaymentDecision}
-        state={completedState}
-      />
-    </VStack>
+      {/* payment State */}
+      {/* Completed State */}
+      <RenderStateView onAction={() => {}} state={completedState} />
+      {/* Completed State */}
+    </View>
   );
 }
 

@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, StyleProp, ViewStyle } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import React from "react";
+import { StyleSheet, StyleProp, ViewStyle, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 interface Props {
   children: React.ReactNode;
@@ -9,7 +9,8 @@ interface Props {
   bottomOffset?: number;
   scrollEnabled?: boolean;
   showsVerticalScrollIndicator?: boolean;
-  keyboardShouldPersistTaps?: 'handled' | 'always' | 'never';
+  keyboardShouldPersistTaps?: "handled" | "always" | "never";
+  wrapInScrollView?: boolean;
 }
 
 const StaticScreenWrapper = ({
@@ -17,23 +18,28 @@ const StaticScreenWrapper = ({
   style,
   bottomOffset = 0,
   scrollEnabled = true,
-  keyboardShouldPersistTaps = 'handled',
+  keyboardShouldPersistTaps = "handled",
   showsVerticalScrollIndicator = true,
   contentContainerStyle,
+  wrapInScrollView = true,
 }: Props) => {
   return (
-    <KeyboardAwareScrollView
-      style={[styles.container, style]}
-      contentContainerStyle={[{ flexGrow: 1 }, contentContainerStyle]}
-      keyboardShouldPersistTaps={keyboardShouldPersistTaps}
-      enableOnAndroid={true}
-      extraScrollHeight={20}
-      extraHeight={bottomOffset}
-      scrollEnabled={scrollEnabled}
-      showsVerticalScrollIndicator={showsVerticalScrollIndicator}
-    >
-      {children}
-    </KeyboardAwareScrollView>
+    <>
+      {wrapInScrollView ? (
+        <KeyboardAwareScrollView
+          style={[styles.container, style]}
+          contentContainerStyle={contentContainerStyle}
+          scrollEnabled={scrollEnabled}
+          showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+          keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+          extraHeight={bottomOffset}
+        >
+          {children}
+        </KeyboardAwareScrollView>
+      ) : (
+        <View style={[styles.container, style]}>{children}</View>
+      )}
+    </>
   );
 };
 

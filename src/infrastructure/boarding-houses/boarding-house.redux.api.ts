@@ -8,6 +8,7 @@ import {
   BoardingHouse,
   FindOneBoardingHouse,
   CreateBoardingHouseInput,
+  GetBoardingHouse,
 } from "./boarding-house.schema";
 
 import { uploadBoardingHouse } from "../utils/upload.service";
@@ -34,7 +35,7 @@ export const boardingHouseApi = createApi({
   }),
 
   endpoints: (builder) => ({
-    getAll: builder.query<BoardingHouse[], QueryBoardingHouse | undefined>({
+    getAll: builder.query<GetBoardingHouse[], QueryBoardingHouse | undefined>({
       query: (params) => {
         const parsed = QueryBoardingHouseSchema.safeParse(params ?? {});
         if (!parsed.success) {
@@ -52,7 +53,7 @@ export const boardingHouseApi = createApi({
 
         return `${boardingHouseApiRoute}?${queryParams.toString()}`;
       },
-      transformResponse: (response: ApiResponseType<BoardingHouse[]>) =>
+      transformResponse: (response: ApiResponseType<GetBoardingHouse[]>) =>
         response.results ?? [],
       // transformResponse: (response: ApiResponseType<BoardingHouse>) =>
       //   z.array(BoardingHouseReadSchema).parse(response.results ?? []),

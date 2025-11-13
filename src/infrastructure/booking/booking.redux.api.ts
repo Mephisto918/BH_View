@@ -15,7 +15,8 @@ import {
 } from "./booking.schema";
 import { ApiResponseType } from "../common/types/api.types";
 import { CreatePaymentProofInput } from "./booking.schema";
-import { AppImageFile } from "../image/image.schema";
+import { uploadPaymentProof } from "./booking.redux.api.helper";
+import { AppImageFile, BackendImage } from "../image/image.schema";
 
 const bookingApiRoute = `api/bookings`;
 export const bookingApi = createApi({
@@ -53,6 +54,12 @@ export const bookingApi = createApi({
       transformResponse: (response: { results: GetBooking }) =>
         response.results ?? null,
 
+      providesTags: ["Booking"],
+    }),
+    getPaymentProof: builder.query<AppImageFile | null, number>({
+      query: (imageId) => `${bookingApiRoute}/${imageId}/payment-proof`,
+      transformResponse: (response: ApiResponseType<AppImageFile>) =>
+        response.results ?? null,
       providesTags: ["Booking"],
     }),
     createBooking: builder.mutation<
@@ -106,7 +113,7 @@ export const bookingApi = createApi({
         payload,
       }): { url: string; method: string; body: PatchRejectBookingInput } => ({
         url: `${bookingApi}/${id}/owner/reject`,
-        method: "Patch",
+        method: "PATCH",
         body: payload,
       }),
       transformResponse: (response: ApiResponseType<GetBooking>) =>
@@ -115,30 +122,33 @@ export const bookingApi = createApi({
     }),
     createPaymentProof: builder.mutation<
       GetBooking,
-      { id: number; payload: CreatePaymentProofInput } // input type
+      { id: number; payload: CreatePaymentProofInput }
     >({
-      query: ({
-        id,
-        payload,
-      }): { url: string; method: string; body: FormData } => {
-        const formData = new FormData();
+      async queryFn({ id, payload }) {
+        try {
+          const result = await uploadPaymentProof(id, payload);
 
-        // Append payload fields
-        Object.entries(payload).forEach(([key, value]) => {
-          formData.append(key, value);
-        });
+          if (result.success) {
+            return {
+              data: result.results, // <-- map properly
+            };
+          }
 
-        // Append the file
-        formData.append("payment_proof", payload.paymentImage);
-
-        return {
-          url: `${bookingApi}/${id}/payment-proof`,
-          method: "POST",
-          body: formData,
-        };
+          return {
+            error: {
+              status: "CUSTOM_ERROR",
+              error: result.error || "Server rejected",
+            },
+          };
+        } catch (err: any) {
+          return {
+            error: {
+              status: "CUSTOM_ERROR",
+              error: err.message || "Network error",
+            },
+          };
+        }
       },
-      transformResponse: (response: ApiResponseType<GetBooking>) =>
-        response.results ?? null,
       invalidatesTags: ["Booking"],
     }),
 
@@ -150,8 +160,8 @@ export const bookingApi = createApi({
         id,
         payload,
       }): { url: string; method: string; body: PatchVerifyPaymentInput } => ({
-        url: `${bookingApi}/${id}/verify-payment`,
-        method: "Patch",
+        url: `${bookingApiRoute}/${id}/owner/verify-payment`,
+        method: "PATCH",
         body: payload,
       }),
       transformResponse: (response: ApiResponseType<GetBooking>) =>
@@ -166,8 +176,8 @@ export const bookingApi = createApi({
         id,
         payload,
       }): { url: string; method: string; body: CancelBookingInput } => ({
-        url: `${bookingApi}/${id}/cancel`,
-        method: "Post",
+        url: `${bookingApiRoute}/${id}/cancel`,
+        method: "POST",
         body: payload,
       }),
       transformResponse: (response: ApiResponseType<GetBooking>) =>
@@ -180,6 +190,7 @@ export const bookingApi = createApi({
 export const {
   useGetAllQuery,
   useGetOneQuery,
+  useGetPaymentProofQuery,
   useCreateBookingMutation,
   usePatchTenantBookingMutation,
   usePatchApproveBookingMutation,

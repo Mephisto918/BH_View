@@ -64,8 +64,8 @@ export default function LoginMainScreen() {
     // };
 
     const packageLoad = {
-      username: "tenant1",
-      password: "123456789",
+      username: "owner1",
+      password: "owner1",
     };
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();

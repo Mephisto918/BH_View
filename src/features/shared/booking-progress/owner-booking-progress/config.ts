@@ -1,145 +1,234 @@
 import { GetBooking } from "@/infrastructure/booking/booking.schema";
 import { RenderStateViewProps } from "../RenderStateView";
 
-export default function useOwnertBookingProgress(
+export default function useOwnerBookingProgress(
   bookingData: GetBooking | null | undefined
 ) {
   if (!bookingData) return null;
 
-  // 🔧 Testing fallback (force any status you want)
-  const status = bookingData?.status;
-  // PENDING => CONFIRMED => AWAITING_PAYMENT => PAYMENT_VERIFIED => COMPLETED => REJECTED => CONFIRMED
-  // const status = "PAYMENT_VERIFIED"; // fallback for testing
+  // PENDING_REQUEST
+  // AWAITING_PAYMENT
+  // PAYMENT_APPROVAL
+  // COMPLETED_BOOKING
+  // CANCELLED_BOOKING
+  // REJECTED_BOOKING
+  // const status = "PENDING_REQUEST";
 
-  // Booking status flags for readability
-  const isPending = status === "PENDING";
+  const status = bookingData.status;
+  console.log("configState:", status);
+
+  // Status flags
+  const isPending = status === "PENDING_REQUEST";
   const isAwaitingPayment = status === "AWAITING_PAYMENT";
-  const isPaymentVerified = status === "PAYMENT_VERIFIED";
-  const isCompleted = status === "COMPLETED";
-  const isRejected = status === "REJECTED";
-  const isConfirmed = status === "CONFIRMED";
+  const isPaymentApproval = status === "PAYMENT_APPROVAL";
+  const isCompleted = status === "COMPLETED_BOOKING";
+  const isRejected = status === "REJECTED_BOOKING";
+  const isCancelled = status === "CANCELLED_BOOKING";
 
-  // Debug info
-  console.log("progress State:", status);
+  console.log("Owner booking progress state:", status);
 
   // Color presets
-  const rejectColorConfig = {
-    textColor: "#f5f3f4",
-    bgColor: "#e5383b",
-    iconColor: "#ba181b",
+  const colorPresets = {
+    rejected: {
+      textColor: "#f5f3f4",
+      bgColor: "#e5383b",
+      iconColor: "#ba181b",
+    },
+    pending: { textColor: "#ddb892", bgColor: "#b08968", iconColor: "#7f5539" },
+    processing: {
+      textColor: "#fafdf6",
+      bgColor: "#a4ac86", // muted olive green
+      iconColor: "#656d4a",
+    },
+    completed: {
+      textColor: "#f2e8cf",
+      bgColor: "#6a994e",
+      iconColor: "#386641",
+    },
   };
 
-  const pendingColorConfig = {
-    textColor: "#ddb892",
-    bgColor: "#b08968",
-    iconColor: "#7f5539",
-  };
+  const initialColorConfigPreset = getInitialColorConfig(status, colorPresets);
+  const paymentColorConfigPreset = getPaymentColorConfig(status, colorPresets);
+  const completedColorConfigPreset = getCompletedColorConfig(
+    status,
+    colorPresets
+  );
 
-  const completedColorConfig = {
-    textColor: "#f2e8cf",
-    bgColor: "#6a994e",
-    iconColor: "#386641",
-  };
-
-  const onProcessColorConfig = {
-    textColor: "#fafdf6",
-    bgColor: "#76520e",
-    iconColor: "#b69121",
-  };
-
-  // Utility for consistent message reuse
   const rejectedMessage =
-    bookingData?.ownerMessage || "Booking was rejected for testing.";
-
-  // Helper for color selection (forces red for rejected)
-  const getColorConfig = () =>
-    isRejected
-      ? rejectColorConfig
-      : isPending
-      ? pendingColorConfig
-      : isAwaitingPayment || isConfirmed
-      ? onProcessColorConfig
-      : completedColorConfig;
+    bookingData?.ownerMessage || "This booking request was rejected.";
+  const canceledMessage =
+    bookingData?.ownerMessage || "This booking was canceled.";
 
   //
-  // INITIAL APPROVAL STATE
+  // 1️⃣ INITIAL APPROVAL STATE
   //
   const initialApprovalState: RenderStateViewProps["state"] = {
     isLocked: !isPending,
     message: isRejected
       ? rejectedMessage
+      : isCancelled
+      ? canceledMessage
       : isPending
-      ? "Tenant has sent a booking request."
-      : "You have accepted the booking request.",
-    lockedBgColor: getColorConfig().bgColor,
-    lockedTextColor: getColorConfig().textColor,
+      ? ""
+      : isAwaitingPayment
+      ? "Accepted booking request."
+      : isPaymentApproval
+      ? "Accepted booking request."
+      : isCompleted
+      ? "This booking has been completed."
+      : "",
+    lockedBgColor: initialColorConfigPreset.bgColor,
+    lockedTextColor: initialColorConfigPreset.textColor,
     icon: {
       iconProducer: "Ionicons",
-      iconName: isRejected
-        ? "close-circle"
-        : isPending
-        ? "hourglass"
-        : "checkbox",
-      color: getColorConfig().iconColor,
+      iconName:
+        isRejected || isCancelled
+          ? "close-circle"
+          : isPending
+          ? "hourglass"
+          : isAwaitingPayment
+          ? "checkbox"
+          : isPaymentApproval
+          ? "checkbox"
+          : isCompleted
+          ? "checkbox"
+          : "close-circle",
+      color: initialColorConfigPreset.iconColor,
       size: 32,
     },
   };
 
   //
-  // PAYMENT STATE
+  // 2️⃣ PAYMENT STATE
   //
   const paymentState: RenderStateViewProps["state"] = {
-    isLocked: !isAwaitingPayment,
+    isLocked: !isPaymentApproval,
     message: isRejected
       ? rejectedMessage
+      : isCancelled
+      ? canceledMessage
       : isPending
-      ? "Tenant has sent a booking request."
+      ? "..."
       : isAwaitingPayment
-      ? "Waiting for tenant payment receipt."
-      : isPaymentVerified || isCompleted
-      ? "You have accepted the booking Payment Receipt."
-      : "Waiting for tenant payment receipt.",
-    lockedBgColor: getColorConfig().bgColor,
-    lockedTextColor: getColorConfig().textColor,
+      ? "Waiting for payment"
+      : isCompleted
+      ? "This booking has been completed."
+      : "",
+    lockedBgColor: paymentColorConfigPreset.bgColor,
+    lockedTextColor: paymentColorConfigPreset.textColor,
     icon: {
       iconProducer: "Ionicons",
-      iconName: isRejected
-        ? "close-circle"
-        : isPaymentVerified || isCompleted
-        ? "checkbox"
-        : "hourglass",
-      color: getColorConfig().iconColor,
+      iconName:
+        isRejected || isCancelled
+          ? "close-circle"
+          : isPending
+          ? "hourglass"
+          : isAwaitingPayment
+          ? "hourglass"
+          : isPaymentApproval
+          ? "hourglass"
+          : isCompleted
+          ? "checkbox"
+          : "close-circle",
+      color: paymentColorConfigPreset.iconColor,
       size: 32,
     },
   };
 
   //
-  // COMPLETED STATE
+  // 3️⃣ COMPLETED STATE
   //
   const completedState: RenderStateViewProps["state"] = {
     isLocked: true,
     message: isRejected
       ? rejectedMessage
+      : isCancelled
+      ? canceledMessage
       : isPending
-      ? "Tenant has sent a booking request."
-      : isAwaitingPayment || isConfirmed
-      ? "Waiting for tenant payment receipt."
-      : isPaymentVerified || isCompleted
-      ? "Tenant Successfully Booked!"
+      ? "..."
+      : isAwaitingPayment
+      ? "Waiting for payment"
+      : isCompleted
+      ? "This booking has been completed."
       : "",
-    lockedBgColor: getColorConfig().bgColor,
-    lockedTextColor: getColorConfig().textColor,
+    lockedBgColor: completedColorConfigPreset.bgColor,
+    lockedTextColor: completedColorConfigPreset.textColor,
     icon: {
       iconProducer: "Ionicons",
-      iconName: isRejected
-        ? "close-circle"
-        : isPaymentVerified || isCompleted
-        ? "checkbox"
-        : "hourglass",
-      color: getColorConfig().iconColor,
+      iconName:
+        isRejected || isCancelled
+          ? "close-circle"
+          : isPending
+          ? "hourglass"
+          : isAwaitingPayment
+          ? "hourglass"
+          : isPaymentApproval
+          ? "hourglass"
+          : isCompleted
+          ? "checkbox"
+          : "close-circle",
+      color: completedColorConfigPreset.iconColor,
       size: 32,
     },
   };
 
   return { initialApprovalState, paymentState, completedState };
+}
+
+function getInitialColorConfig(status: string, colors: typeof colorPresets) {
+  if (["REJECTED_BOOKING", "CANCELLED_BOOKING"].includes(status))
+    return colors.rejected;
+
+  if (status === "PENDING_REQUEST") return colors.pending;
+
+  if (["CONFIRMED_REQUEST", "AWAITING_PAYMENT"].includes(status))
+    return colors.processing;
+
+  if (
+    ["PAYMENT_VERIFIED", "COMPLETED_BOOKING", "PAYMENT_APPROVAL"].includes(
+      status
+    )
+  )
+    return colors.completed;
+
+  // default fallback
+  return colors.processing;
+}
+function getPaymentColorConfig(status: string, colors: typeof colorPresets) {
+  if (["REJECTED_BOOKING", "CANCELLED_BOOKING"].includes(status))
+    return colors.rejected;
+
+  if (status === "PENDING_REQUEST") return colors.pending;
+
+  if (
+    ["CONFIRMED_REQUEST", "AWAITING_PAYMENT", "PAYMENT_APPROVAL"].includes(
+      status
+    )
+  )
+    return colors.pending;
+
+  if (["PAYMENT_VERIFIED", "COMPLETED_BOOKING"].includes(status))
+    return colors.completed;
+
+  // default fallback
+  return colors.rejected;
+}
+function getCompletedColorConfig(status: string, colors: typeof colorPresets) {
+  if (["REJECTED_BOOKING", "CANCELLED_BOOKING"].includes(status))
+    return colors.rejected;
+
+  if (status === "PENDING_REQUEST") return colors.pending;
+
+  if (
+    ["CONFIRMED_REQUEST", "AWAITING_PAYMENT", "PAYMENT_APPROVAL"].includes(
+      status
+    )
+  )
+    return colors.pending;
+
+  if (["PAYMENT_VERIFIED", "COMPLETED_BOOKING"].includes(status))
+    return colors.completed;
+
+  // default fallback
+  return colors.processing;
 }

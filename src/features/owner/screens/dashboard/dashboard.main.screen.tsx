@@ -3,7 +3,6 @@ import { Box, HStack } from "@gluestack-ui/themed";
 import React, { useState } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import Button from "@/components/ui/Button";
-import TextInput from "@/components/ui/TextInput";
 
 import {
   Colors,
@@ -23,6 +22,8 @@ import { useNavigation } from "@react-navigation/native";
 import { OwnerDashboardStackParamList } from "./navigation/dashboard.types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ScreenHeaderComponent from "@/components/layout/ScreenHeaderComponent";
+import HeaderSearch from "@/components/layout/HeaderSearch";
+import PropertyCard from "./components/PropertyCard";
 
 export default function DashboardMainScreen() {
   const navigate =
@@ -90,34 +91,11 @@ export default function DashboardMainScreen() {
             padding: 0,
           }}
         >
-          <HStack
-            style={{
-              // borderColor: "red",
-              // borderWidth: 3,
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 10,
-              flex: 1,
-              margin: 0,
-              padding: 10,
-            }}
-          >
-            <TextInput
-              placeholder="Search"
-              placeholderTextColor="#bbb"
-              iconSize={35}
-              iconName="search"
-              iconStyle={{
-                color: "white",
-              }}
-              variant="primary"
-              textInputStyle={{
-                color: "white",
-                fontSize: Fontsize.md,
-              }}
-            />
-            {/* <Ionicons name="search" color="white" size={35} /> */}
-          </HStack>
+          <HeaderSearch
+            value=""
+            setValue={() => {}}
+            containerStyle={{ flex: 1 }}
+          />
           <Button
             onPressAction={() => setIsGrid(!isGrid)}
             containerStyle={{
@@ -146,9 +124,6 @@ export default function DashboardMainScreen() {
             flexWrap: "wrap",
             justifyContent: "center",
             alignContent: "flex-start",
-            // borderColor: "green`",
-            // borderWidth: 1,`
-            // flex: 1,
           }}
         >
           {boardingHousesLoading && <Text>Loading boarding houses...</Text>}
@@ -176,34 +151,10 @@ export default function DashboardMainScreen() {
                   // backgroundColor: Colors.PrimaryLight[2],
                 }}
               >
-                <HStack
-                  style={{
-                    // backgroundColor: Colors.PrimaryLight[2],
-                    flexDirection: "column",
-                    // alignItems: "flex-start",
-                    // justifyContent: "flex-start",
-                    gap: 10,
-                  }}
-                >
-                  {/* <Ionicons name="home" color="white" size={30} /> */}
-                  <Text style={[s.generic_text_lg]}>{house.name}</Text>
-                  <Text style={[s.generic_text_md]}>
-                    No. of Rooms: {house.rooms?.length}
-                  </Text>
-                </HStack>
+                <PropertyCard data={house} />
               </Pressable>
             ))}
         </VStack>
-
-        {/* ---------------------------- testing overflow----------------------- */}
-        {/* <VStack>
-          {[0, 1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].map((i) => (
-            <Box key={i} style={[s.Widget_item]}>
-              <Text style={[s.generic_text_lg]}>A</Text>
-            </Box>
-          ))}
-        </VStack> */}
-        {/* ---------------------------- testing overflow-----------------------  */}
       </VStack>
     </StaticScreenWrapper>
   );

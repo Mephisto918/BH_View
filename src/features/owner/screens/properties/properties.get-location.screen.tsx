@@ -46,6 +46,7 @@ export default function PropertiesGetLocationScreen() {
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
+      wrapInScrollView={false}
     >
       <VStack style={{ flex: 1 }}>
         <MapView

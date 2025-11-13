@@ -1,6 +1,5 @@
 import "react-native-reanimated";
 import * as React from "react";
-import { useEffect } from "react";
 import { Provider } from "react-redux";
 import RootNavigation from "./navigation/RootNavigation";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -9,6 +8,9 @@ import { GluestackUIProvider } from "@gluestack-ui/themed";
 import { config } from "@gluestack-ui/config";
 import Purchases from "react-native-purchases";
 import { GlobalDecisionModalProvider } from "@/components/ui/FullScreenDecisionModal";
+import { GlobalImageFullScreenProvider } from "../components/ui/ImageComponentUtilities/GlobalImageFullScreenProvider";
+import { PortalProvider, PortalHost } from "@gorhom/portal";
+import TestModal from "@/components/ui/ImageComponentUtilities/TextModal";
 
 export default function App() {
   // Initialize RevenueCat
@@ -26,14 +28,21 @@ export default function App() {
   // }, []);
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Provider store={store}>
-        <GluestackUIProvider config={config}>
-          <GlobalDecisionModalProvider> {/* //custom component */}
-            <RootNavigation />
-          </GlobalDecisionModalProvider>
-        </GluestackUIProvider>
-      </Provider>
-    </GestureHandlerRootView>
+    <PortalProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Provider store={store}>
+          <GluestackUIProvider config={config}>
+            <GlobalDecisionModalProvider>
+              <GlobalImageFullScreenProvider>
+                <RootNavigation />
+                <PortalHost name="ImageFullScreenPortalRoot" />
+              </GlobalImageFullScreenProvider>
+            </GlobalDecisionModalProvider>
+          </GluestackUIProvider>
+        </Provider>
+      </GestureHandlerRootView>
+    </PortalProvider>
   );
+
+  // return <TestModal></TestModal>;
 }

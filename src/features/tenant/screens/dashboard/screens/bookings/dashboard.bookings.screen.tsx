@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { TenantDashboardBookingStackParamList } from "./navigation/bookings.stack";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
-import { VStack, Box } from "@gluestack-ui/themed";
+import { VStack, Box, Button } from "@gluestack-ui/themed";
 import { GetBooking } from "@/infrastructure/booking/booking.schema";
 
 //For approved or ongoing stays
@@ -38,14 +38,33 @@ export default function DashboardBookingsScreen() {
   return (
     <StaticScreenWrapper>
       <VStack>
-        <VStack>
+        <VStack
+          style={{
+            padding: 10,
+          }}
+        >
           {bookingArrays &&
             bookingArrays.map((book: GetBooking, id) => {
               return (
-                <Box>
+                <Box
+                  key={id}
+                  style={{
+                    borderWidth: 4,
+                    borderColor: "black",
+                  }}
+                >
                   <Box>
-                    <Text>Room No.{book.roomNumber}</Text>
+                    <Text>Room No.{book.room.roomNumber}</Text>
                   </Box>
+                  <Button
+                    onPress={() =>
+                      navigate.navigate("DashboardBookingDetailsScreen", {
+                        bookId: book.id,
+                      })
+                    }
+                  >
+                    <Text>Details</Text>
+                  </Button>
                 </Box>
               );
             })}

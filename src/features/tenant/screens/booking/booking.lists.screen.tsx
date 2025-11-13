@@ -14,7 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { TenantTabsParamList } from "../../navigation/tenant.tabs.types";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
-import HeaderSearch from "@/components/HeaderSearch";
+import HeaderSearch from "@/components/layout/HeaderSearch";
 import { useDispatch, useSelector } from "react-redux";
 import genericSearchBarSlice, {
   setQuery,

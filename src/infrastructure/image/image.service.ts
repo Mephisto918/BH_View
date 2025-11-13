@@ -8,8 +8,14 @@ import * as FileSystem from "expo-file-system";
 import { Platform } from "react-native";
 import { AppImageFile, ImageUploadSchema } from "./image.schema";
 
-// ✅ helper: make sure file exists and is readable for RNFetchBlob
-async function makeBlobReadable(image: AppImageFile) {
+/**
+ * Ensures a file URI is readable for RNFetchBlob / file access.
+ * If the file is not directly readable, copies it to the cache directory.
+ *
+ * @param {AppImageFile} image - The image object to make readable
+ * @returns {Promise<string>} - A URI that can safely be used for file operations
+ */
+async function makeBlobReadable(image: AppImageFile): Promise<string> {
   try {
     const info = await FileSystem.getInfoAsync(image.uri);
     if (info.exists) {
@@ -27,6 +33,14 @@ async function makeBlobReadable(image: AppImageFile) {
   }
 }
 
+/**
+ * Pick one or multiple images using react-native-image-picker.
+ * Validates image metadata and schema before returning.
+ *
+ * @param {number} [limit=1] - Maximum number of images to select
+ * @returns {Promise<AppImageFile[] | null>} - Array of image objects or null if cancelled
+ * @throws {Error} If image selection fails or images are invalid
+ */
 export async function pickImage(
   limit: number = 1
 ): Promise<AppImageFile[] | null> {
@@ -42,7 +56,6 @@ export async function pickImage(
       }
 
       const rawAssets = response.assets ?? [];
-
       if (rawAssets.length === 0) {
         return reject(new Error("No image selected"));
       }
@@ -68,7 +81,6 @@ export async function pickImage(
           return reject(new Error("Invalid image file"));
         }
 
-        // ✅ ensure readable URI for RNFetchBlob
         const safeUri = await makeBlobReadable(image);
         images.push({ ...image, uri: safeUri });
       }
@@ -84,7 +96,12 @@ export async function pickImage(
   });
 }
 
-export async function requestImagePermission() {
+/**
+ * Request permission to access the media library.
+ *
+ * @returns {Promise<boolean>} - True if permission granted, false otherwise
+ */
+export async function requestImagePermission(): Promise<boolean> {
   if (Platform.OS !== "web") {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -93,6 +110,15 @@ export async function requestImagePermission() {
   return true;
 }
 
+/**
+ * Pick images using Expo's ImagePicker.
+ * Validates schema and ensures files are readable.
+ *
+ * @param {number} [limit=1] - Maximum number of images to select
+ * @param {string} [imgQuality="medium"] - Quality setting for the image
+ * @returns {Promise<AppImageFile[] | null>} - Array of validated images or null if cancelled
+ * @throws {Error} If permission denied, invalid image, or exceeds limit
+ */
 export async function pickImageExpo(
   limit: number = 1,
   imgQuality: string = "medium"
@@ -132,7 +158,6 @@ export async function pickImageExpo(
       throw new Error("Invalid image file");
     }
 
-    // ✅ ensure file is readable by RNFetchBlob
     const safeUri = await makeBlobReadable(image);
     images.push({ ...image, uri: safeUri });
   }

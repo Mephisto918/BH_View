@@ -1,8 +1,7 @@
 import { View, Text, StyleSheet, Alert, Image, Pressable } from "react-native";
 import React from "react";
-import { Box, VStack } from "@gluestack-ui/themed";
-import { BorderRadius, Colors, Fontsize } from "@/constants";
-import { UserRole } from "@/infrastructure/user/user.types";
+import { Box, Button, VStack } from "@gluestack-ui/themed";
+import { BorderRadius, Colors, Fontsize, Spacing } from "@/constants";
 import RenderStateView from "../RenderStateView";
 import {
   useCancelBookingMutation,
@@ -13,6 +12,12 @@ import { Ionicons } from "@expo/vector-icons";
 import useTenantBookingProgressHook from "./config";
 import { pickImageExpo } from "@/infrastructure/image/image.service";
 import { AppImageFile } from "@/infrastructure/image/image.schema";
+import DecisionModal from "@/components/ui/DecisionModal";
+import { useDecisionModal } from "@/components/ui/FullScreenDecisionModal";
+import AutoExpandingInput from "@/components/ui/AutoExpandingInputComponent";
+import PressebleImagePicker from "@/components/ui/ImageComponentUtilities/PressableImagePicker";
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import Container from "@/components/layout/Container/Container";
 
 export interface TenantBookingProgressProps {
   bookingId: number;
@@ -23,11 +28,20 @@ export default function TenantBookingProgress({
   bookingId,
   tenantId,
 }: TenantBookingProgressProps) {
+  //* States
+  const [cancelBookingMessage, setCancelBookingMessage] = React.useState("");
+  const [isMessageBoxVisible, setIsMessageBoxVisible] = React.useState(false);
+  const [isPaymentFormInputVisible, setPaymentFormInputVisible] =
+    React.useState(false);
+  const [paymentMessage, setPaymentMessage] = React.useState("");
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  //* Queries & Mutations
   const {
     data: bookingData,
     isLoading: isBookingLoading,
     isError: isBookingError,
-    refetch: refetchBooking,
+    refetch: refetchBookingData,
   } = useGetOneQuery(bookingId);
 
   const { initialApprovalState, completedState, paymentState } =
@@ -51,83 +65,120 @@ export default function TenantBookingProgress({
     },
   ] = useCancelBookingMutation();
 
+  const { showModal } = useDecisionModal();
+
+  //* Handlers and Logic
   const [pickedImage, setPickedImage] = React.useState<AppImageFile>();
 
-  const handlePickThumbnailImage = async () => {
-    try {
-      const picked = await pickImageExpo(1);
-      console.log("Picked images:", picked);
-      if (picked && picked.length > 0) {
-        setPickedImage(picked[0]);
-      }
-      refetchBooking();
-    } catch (err) {
-      console.log("Pick error:", err);
-      Alert.alert("Error", "Invalid image file");
+  const handleSubmitPaymentProof = async (answer: boolean) => {
+    if (!answer) return setPaymentFormInputVisible((prev) => !prev);
+    if (!pickedImage && !paymentMessage) return Alert.alert("No image Picked!");
+    console.log("pick me up?", pickedImage);
+
+    if (answer) {
+      // make final decision
+      showModal({
+        title: "Confirm Payment Receipt?",
+        cancelText: "Cancel",
+        confirmText: "Send Payment Proof",
+        message:
+          "Are you sure about this payment proof? Once sent, the owner will be notified and the booking will be completed.",
+        onConfirm: async () => {
+          try {
+            const res = await createPayment({
+              id: bookingId,
+              payload: {
+                tenantId,
+                note: paymentMessage,
+                paymentImage: pickedImage!,
+              },
+            }).unwrap();
+
+            refetchBookingData();
+            console.log("Sent Payment Proof:", res);
+            Alert.alert("Payment Proof Sent successfully!");
+          } catch (e) {
+            console.log(e);
+            Alert.alert("Something went wrong while senting payment proof.");
+          }
+        },
+      });
     }
   };
 
-  const handleRemoveThumbnailImage = () => {
-    setPickedImage(undefined);
-  };
-
-  const handleSubmitPaymentProof = async (answer: boolean) => {
-    if (!pickedImage) return Alert.alert("No image Picked!");
-
-    try {
-      createPayment({
-        id: bookingId,
-        payload: {
-          paymentImage: pickedImage,
-          tenantId: tenantId,
-        },
-      });
-    } catch (e) {}
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    refetchBookingData();
+    setRefreshing(false);
   };
 
   return (
-    <View>
-      {/* Inital Request */}
-      <VStack>
-        <RenderStateView onAction={() => {}} state={initialApprovalState} />
-      </VStack>
-      <VStack>
-        {/* Payment Reciept */}
-        <Pressable onPress={handlePickThumbnailImage}>
-          <Box style={[s.pickImageStyle]}>
-            {pickedImage ? (
-              <Image
-                source={{
-                  uri: pickedImage.uri.startsWith("file://")
-                    ? pickedImage.uri
-                    : `file://${pickedImage.uri}`,
-                }}
-                style={{ width: "100%", height: "100%" }}
-                alt="pickedImage"
-              />
-            ) : (
-              <Text style={{ color: "#888" }}>Tap to upload</Text>
+    <Container
+      refreshing={refreshing}
+      onRefresh={handleRefresh}
+      contentContainerStyle={{
+        gap: 10,
+        padding: 10,
+      }}
+    >
+      {isCreatePaymentLoading && <FullScreenLoaderAnimated /> &&
+        isCancelBookingLoading &&
+        isBookingLoading}
+      <DecisionModal visible={isMessageBoxVisible} />
+      <RenderStateView onAction={() => {}} state={initialApprovalState} />
+      {/* Payment Reciept */}
+      <RenderStateView
+        onAction={handleSubmitPaymentProof}
+        state={paymentState}
+        confirmDisplayMessage="Send Payment"
+        confirmButtonStyle={{
+          container: {
+            display: isPaymentFormInputVisible ? "flex" : "none",
+          },
+        }}
+        rejectDisplayMessage="Clear"
+        rejectButtonStyle={{
+          container: {
+            display: isPaymentFormInputVisible ? "flex" : "none",
+          },
+        }}
+        lockedStateContent={
+          <View
+            style={{
+              // padding: 10,
+              gap: 10,
+            }}
+          >
+            {isPaymentFormInputVisible && (
+              <>
+                <PressebleImagePicker
+                  pickImage={setPickedImage}
+                  removeImage={() => setPickedImage(undefined)}
+                />
+                <AutoExpandingInput
+                  style={s.Form_Input_Placeholder}
+                  value={paymentMessage}
+                  onChangeText={setPaymentMessage}
+                  placeholder=""
+                  maxHeight={180} // optional, default 200
+                />
+              </>
             )}
-          </Box>
-        </Pressable>
-        <Pressable
-          onPress={handleRemoveThumbnailImage}
-          style={[s.removeImageStyle]}
-        >
-          <Box>
-            <Ionicons name="close" color="white" size={15} />
-          </Box>
-        </Pressable>
-        <RenderStateView
-          onAction={handleSubmitPaymentProof}
-          state={initialApprovalState}
-        />
-      </VStack>
-      <VStack>
-        {/* Completed */}
-        <RenderStateView onAction={() => {}} state={completedState} />
-      </VStack>
-    </View>
+            {!isPaymentFormInputVisible && (
+              <Button
+                onPress={() => setPaymentFormInputVisible((prev) => !prev)}
+                size="xs"
+                style={[s.buttonStyle]}
+              >
+                <Text style={[s.textColor]}>Submit Payment Receipt</Text>
+              </Button>
+            )}
+          </View>
+        }
+      />
+      {/* Completed */}
+      <RenderStateView onAction={() => {}} state={completedState} />
+    </Container>
   );
 }
 
@@ -138,11 +189,19 @@ const s = StyleSheet.create({
     overflow: "scroll", // Ensure scrollbar appears
   },
   Form_Input_Placeholder: {
+    backgroundColor: Colors.PrimaryLight[6],
     color: Colors.TextInverse[2],
     fontSize: Fontsize.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
   },
   pickImageStyle: {
-    width: "75%",
+    width: "100%",
     height: 200,
     borderRadius: 8,
     backgroundColor: "#f0f0f0",
@@ -157,5 +216,13 @@ const s = StyleSheet.create({
     left: 10,
     borderRadius: BorderRadius.circle,
     padding: 2,
+  },
+  buttonStyle: {
+    paddingVertical: Spacing.xs,
+    backgroundColor: Colors.PrimaryLight[6],
+  },
+
+  textColor: {
+    color: Colors.TextInverse[2],
   },
 });

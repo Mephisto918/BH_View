@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "ts-node scripts/backendConfig.ts && expo start --dev-client",
+    "start-c": "ts-node scripts/backendConfig.ts && expo start --dev-client -c",
     "start-eas": "ts-node scripts/backendConfig.ts && eas build --profile development --platform android",
     "start-eas-clean": "ts-node scripts/backendConfig.ts && eas build --profile development --platform android --clear-cache",
     "start-eas-local": "ts-node scripts/backendConfig.ts && eas build --profile development --platform android --local",
@@ -21,6 +22,7 @@
     "@gluestack-ui/popover": "^0.1.49",
     "@gluestack-ui/themed": "^1.1.73",
     "@gorhom/bottom-sheet": "^5.2.6",
+    "@gorhom/portal": "^1.0.14",
     "@hookform/resolvers": "^5.2.1",
     "@lineiconshq/free-icons": "^1.0.3",
     "@lineiconshq/react-native-lineicons": "^0.0.3",

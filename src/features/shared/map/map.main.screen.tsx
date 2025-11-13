@@ -16,7 +16,7 @@ import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { TenantTabsParamList } from "../../tenant/navigation/tenant.tabs.types";
 
 // ui component
-import HeaderSearch from "../../../components/HeaderSearch";
+import HeaderSearch from "../../../components/layout/HeaderSearch";
 import Button from "@/components/ui/Button";
 
 // ui lib
