@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { ImageUploadSchema, ImageResponseSchema } from "../image/image.schema";
+import {
+  ImageUploadSchema,
+  ImageResponseSchema,
+  AppImageFile,
+} from "../image/image.schema";
 import { ROOM_FEATURE_TAGS } from "./rooms.constants";
 
 /* -----------------------------------------
@@ -26,8 +30,8 @@ export const GetRoomSchema = z.object({
   maxCapacity: z.number(),
   currentCapacity: z.number(),
   price: z.preprocess((val) => Number(val), z.number()),
-  gallery: z.array(ImageResponseSchema).optional(),
-  thumbnail: z.array(ImageResponseSchema).optional(),
+  gallery: z.array(ImageUploadSchema).optional(),
+  thumbnail: z.array(ImageUploadSchema).optional(),
   tags: z.array(z.enum(ROOM_FEATURE_TAGS)).optional(),
   roomType: RoomTypeEnumSchema.optional(),
   availabilityStatus: z.boolean(),

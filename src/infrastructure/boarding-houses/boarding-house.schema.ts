@@ -65,6 +65,12 @@ export const GetBoardingHouseSchema = z.object({
     totalCapacity: z.number(),
     currentCapacity: z.number(),
   }),
+  priceRange: z
+    .object({
+      highestPrice: z.number(),
+      lowestPrice: z.number(),
+    })
+    .optional(),
 });
 export type GetBoardingHouse = z.infer<typeof GetBoardingHouseSchema>;
 
@@ -89,6 +95,12 @@ export const QueryBoardingHouseSchema = z.object({
     .object({
       totalCapacity: z.number(),
       currentCapacity: z.number(),
+    })
+    .optional(),
+  priceRange: z
+    .object({
+      highestPrice: z.number(),
+      lowestPrice: z.number(),
     })
     .optional(),
 });
@@ -150,3 +162,39 @@ export type CreateBoardingHouseInput = z.infer<
   typeof CreateBoardingHouseInputSchema
 >;
 export type CreateBoardingHouse = z.infer<typeof CreateBoardingHouseSchema>;
+
+export const PatchBoardingHouseSchema = z
+  .object({
+    name: z.string().min(1, "Name cannot be empty").optional(),
+    address: z.string().min(1, "Address cannot be empty").optional(),
+    description: z.string().optional(),
+
+    // Strict enum array
+    amenities: z.array(z.enum(AMENITIES)).optional(),
+
+    availabilityStatus: z.boolean().optional(),
+
+    // Optional location update (coordinates only),
+    // but you mentioned this is coming from another module.
+    // Keeping this optional if you add it later.
+    location: z
+      .object({
+        coordinates: z.tuple([z.number(), z.number()]).optional(),
+      })
+      .optional(),
+  })
+  .strict(); // ⛔ blocks unwanted fields for safety
+
+export type PatchBoardingHouseInput = z.infer<typeof PatchBoardingHouseSchema>;
+
+/**
+name
+address
+description
+ameneties []
+availability
+location [x,y] => has its own module
+
+thumbnail x
+gallery x
+ */

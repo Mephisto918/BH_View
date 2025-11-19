@@ -5,6 +5,7 @@ import BoardingHouseDetailsScreenComponent from "../components/boarding-house.de
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { OwnerDashboardStackParamList } from "./navigation/dashboard.types";
 import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
+import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 
 type RouteProps = RouteProp<
   OwnerDashboardStackParamList,
@@ -20,10 +21,13 @@ export default function BoardingHouseDetailsScreen() {
       <FullScreenErrorModal message="Boarding House Not Found!"></FullScreenErrorModal>
     );
 
-    //!
+  //!
   return (
-    <BoardingHouseDetailsScreenComponent
-      bhID={bhId}
-    ></BoardingHouseDetailsScreenComponent>
+    <StaticScreenWrapper
+    >
+      <BoardingHouseDetailsScreenComponent
+        bhID={bhId}
+      ></BoardingHouseDetailsScreenComponent>
+    </StaticScreenWrapper>
   );
 }

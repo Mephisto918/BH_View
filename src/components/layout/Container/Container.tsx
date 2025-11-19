@@ -18,6 +18,7 @@ export default function Container({
 }: ContainerProps) {
   return (
     <ScrollView
+      nestedScrollEnabled
       style={style}
       contentContainerStyle={[
         { flexGrow: 1 }, // common default padding

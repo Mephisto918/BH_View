@@ -1,4 +1,8 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+  TagDescription,
+} from "@reduxjs/toolkit/query/react";
 import { ApiResponseType } from "../common/types/api.types";
 import api from "@/application/config/api";
 import {
@@ -9,6 +13,8 @@ import {
   FindOneBoardingHouse,
   CreateBoardingHouseInput,
   GetBoardingHouse,
+  PatchBoardingHouseInput,
+  PatchBoardingHouseSchema,
 } from "./boarding-house.schema";
 
 import { uploadBoardingHouse } from "../utils/upload.service";
@@ -57,7 +63,21 @@ export const boardingHouseApi = createApi({
         response.results ?? [],
       // transformResponse: (response: ApiResponseType<BoardingHouse>) =>
       //   z.array(BoardingHouseReadSchema).parse(response.results ?? []),
-      providesTags: ["BoardingHouse"],
+      providesTags: (
+        result: GetBoardingHouse[] | undefined,
+        error,
+        arg
+      ): TagDescription<"BoardingHouse">[] => {
+        const tags: TagDescription<"BoardingHouse">[] = [
+          { type: "BoardingHouse", id: "LIST" },
+        ];
+
+        result?.forEach((bh) => {
+          tags.push({ type: "BoardingHouse", id: bh.id });
+        });
+
+        return tags;
+      },
     }),
     getOne: builder.query<FindOneBoardingHouse | null, number | null>({
       query: (id) => `${boardingHouseApiRoute}/${id}`,
@@ -69,7 +89,8 @@ export const boardingHouseApi = createApi({
         const res = response.results;
         return res;
       },
-      providesTags: ["BoardingHouse"],
+      providesTags: (result, error, id) =>
+        id ? [{ type: "BoardingHouse", id }] : [],
     }),
     // TODO make a dto for one source of truth
     create: builder.mutation<ApiResponseType<any>, CreateBoardingHouseInput>({
@@ -227,6 +248,35 @@ export const boardingHouseApi = createApi({
     //     };
     //   },
     // }),
+    patch: builder.mutation<
+      ApiResponseType<BoardingHouse>,
+      { id: number; data: PatchBoardingHouseInput }
+    >({
+      query: ({ id, data }) => {
+        // Validate with Zod
+        const parsed = PatchBoardingHouseSchema.safeParse(data);
+
+        if (!parsed.success) {
+          console.error("❌ Invalid PATCH data", parsed.error.format());
+          throw new Error("Invalid PATCH data");
+        }
+
+        return {
+          url: `${boardingHouseApiRoute}/${id}`,
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: parsed.data, // Only valid, filtered fields
+        };
+      },
+
+      // ensure UI updates after patch
+      invalidatesTags: (result, error, { id }) => [
+        { type: "BoardingHouse", id },
+        { type: "BoardingHouse", id: "LIST" }, // optional: refresh list too
+      ],
+    }),
 
     delete: builder.mutation<BoardingHouse, number>({
       query: (id) => ({
@@ -242,5 +292,6 @@ export const {
   useGetAllQuery,
   useGetOneQuery,
   useCreateMutation,
+  usePatchMutation,
   useDeleteMutation,
 } = boardingHouseApi;

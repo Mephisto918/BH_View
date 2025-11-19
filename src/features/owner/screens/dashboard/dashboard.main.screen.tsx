@@ -23,9 +23,19 @@ import { OwnerDashboardStackParamList } from "./navigation/dashboard.types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ScreenHeaderComponent from "@/components/layout/ScreenHeaderComponent";
 import HeaderSearch from "@/components/layout/HeaderSearch";
-import PropertyCard from "./components/PropertyCard";
+import PropertyCard from "../../../../components/ui/BoardingHouseItems/PropertyCard";
+import { Lists } from "@/components/layout/Lists/Lists";
+import {
+  BoardingHouse,
+  GetBoardingHouse,
+} from "@/infrastructure/boarding-houses/boarding-house.schema";
+import Container from "@/components/layout/Container/Container";
+import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 
 export default function DashboardMainScreen() {
+  const [refreshing, setRefreshing] = React.useState(false);
+
   const navigate =
     useNavigation<NativeStackNavigationProp<OwnerDashboardStackParamList>>();
   const { selectedUser: data } = useDynamicUserApi();
@@ -40,20 +50,31 @@ export default function DashboardMainScreen() {
     data: boardingHouses,
     isLoading: boardingHousesLoading,
     isError: boardingHousesError,
+    refetch: refetchBoardingHouses,
   } = useGetAllQuery({ ownerId: owner.id });
 
-  const iconSize = 50;
+  const iconSize = 25;
 
   const handleGotoPress = (bhId: number) => {
     navigate.navigate("BoardingHouseDetailsScreen", { id: bhId });
+  };
+
+  const handlePageRefresh = () => {
+    setRefreshing(true);
+    refetchBoardingHouses();
+    setRefreshing(false);
   };
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      <VStack
-        style={{
+      {boardingHousesError && <FullScreenErrorModal />}
+      {boardingHousesLoading && <FullScreenLoaderAnimated />}
+      <Container
+        refreshing={refreshing}
+        onRefresh={handlePageRefresh}
+        contentContainerStyle={{
           gap: Spacing.lg,
         }}
       >
@@ -126,8 +147,6 @@ export default function DashboardMainScreen() {
             alignContent: "flex-start",
           }}
         >
-          {boardingHousesLoading && <Text>Loading boarding houses...</Text>}
-          {boardingHousesError && <Text>Failed to load boarding houses.</Text>}
           {!boardingHousesLoading &&
             !boardingHousesError &&
             (!boardingHouses || boardingHouses.length === 0) && (
@@ -135,40 +154,50 @@ export default function DashboardMainScreen() {
                 No boarding houses registered yet.
               </Text>
             )}
-          {!boardingHousesLoading &&
-            !boardingHousesError &&
-            boardingHouses?.map((house) => (
-              <Pressable
-                onPress={() => handleGotoPress(house.id)}
-                key={house.id}
-                style={{
-                  borderRadius: BorderRadius.md,
-                  flexDirection: "column",
-                  aspectRatio: 1,
-                  height: 200,
-                  padding: 10,
-                  backgroundColor: Colors.PrimaryLight[9],
-                  // backgroundColor: Colors.PrimaryLight[2],
-                }}
-              >
-                <PropertyCard data={house} />
-              </Pressable>
-            ))}
+          {boardingHouses && (
+            <>
+              <Lists
+                list={boardingHouses}
+                containerStyle={[
+                  {
+                    gap: Spacing.lg,
+                  },
+                ]}
+                renderItem={({ item }) => (
+                  <>
+                    <PropertyCard data={item}>
+                      <Pressable
+                        onPress={() => handleGotoPress(item.id)}
+                        style={{
+                          paddingTop: Spacing.xs,
+                          paddingBottom: Spacing.xs,
+                          paddingLeft: Spacing.sm,
+                          paddingRight: Spacing.sm,
+                          borderWidth: 2,
+                          borderColor: Colors.PrimaryLight[5],
+                          borderRadius: BorderRadius.md,
+                          backgroundColor: Colors.PrimaryLight[6],
+                        }}
+                      >
+                        <Text style={{ color: "white" }}>Details</Text>
+                      </Pressable>
+                    </PropertyCard>
+                  </>
+                )}
+              />
+            </>
+          )}
         </VStack>
-      </VStack>
+      </Container>
     </StaticScreenWrapper>
   );
 }
 
 const s = StyleSheet.create({
   StaticScreenWrapper: {
-    // backgroundColor: Colors.PrimaryLight[8],
     padding: 10,
   },
-  Hero: {
-    // borderColor: "red",
-    // borderWidth: 3,
-  },
+  Hero: {},
   Hero_text1: {
     fontSize: Fontsize.h2,
     fontWeight: "bold",
@@ -177,24 +206,20 @@ const s = StyleSheet.create({
   Widget: {
     // borderColor: 'red',
     // borderWidth: 3
-    gap: 10,
+    gap: Spacing.md,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
     alignContent: "center",
   },
   Widget_item: {
-    // borderColor: '',
-    // borderWidth: 3,
     borderRadius: BorderRadius.md,
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
     alignItems: "center",
     padding: 20,
-    // height: 50,
-    // width: Dimensions.get("window").width / 2,
-    width: "40%",
+    width: "20%",
     backgroundColor: Colors.PrimaryLight[9],
   },
 

@@ -8,7 +8,10 @@ import {
   ViewStyle,
 } from "react-native";
 import React, { useState } from "react";
-import { BackendImage } from "../../infrastructure/image/image.schema";
+import {
+  AppImageFile,
+  BackendImage,
+} from "../../infrastructure/image/image.schema";
 import {
   BorderRadius,
   BorderWidth,
@@ -16,9 +19,11 @@ import {
   ShadowLight,
   Spacing,
 } from "@/constants";
+import PressableImageFullscreen from "./ImageComponentUtilities/PressableImageFullscreen";
+import { he } from "zod/v4/locales";
 
 interface CarouselProps {
-  images: Array<BackendImage | undefined>;
+  images: Array<AppImageFile | undefined>;
   variant?: "primary" | "secondary" | "fullBleed";
   containerStyle?: StyleProp<ViewStyle>;
   scrollStyle?: StyleProp<ViewStyle>;
@@ -42,7 +47,6 @@ export default function ImageCarousel({
   const variantStyle: Record<string, any> = {
     primary: {
       container: {
-        flex: 1,
         borderColor: Colors.PrimaryLight[6],
         backgroundColor: Colors.PrimaryLight[7],
         borderWidth: BorderWidth.lg,
@@ -59,6 +63,7 @@ export default function ImageCarousel({
         padding: Spacing.md,
         gap: Spacing.base,
       },
+      carousel_orientation: "row",
       carousel_item_definition: {
         borderRadius: BorderRadius.md,
         borderColorSelected: Colors.PrimaryLight[2],
@@ -68,33 +73,31 @@ export default function ImageCarousel({
     },
     secondary: {
       container: {
-        flex: 1,
-        borderColor: Colors.PrimaryLight[8],
-        backgroundColor: Colors.PrimaryLight[3],
+        height: 250,
+        borderColor: Colors.PrimaryLight[6],
+        backgroundColor: Colors.PrimaryLight[7],
         borderWidth: BorderWidth.lg,
         borderRadius: BorderRadius.xl,
+        flexDirection: "row",
         overflow: "hidden",
         ...ShadowLight.xl,
       },
       mainImage: {
-        height: 296,
-        aspectRatio: 16 / 9,
-        alignSelf: "center",
+        flexGrow: 1000000000,
       },
       carousel: {
         padding: Spacing.md,
         gap: Spacing.base,
       },
+      carousel_orientation: "column",
       carousel_item_definition: {
         borderRadius: BorderRadius.md,
-        borderColorSelected: Colors.PrimaryLight[7],
-        borderColorNotSelected: Colors.PrimaryLight[2],
+        borderColorSelected: Colors.PrimaryLight[2],
+        borderColorNotSelected: Colors.PrimaryLight[9],
       },
       thumbnailSize: 80,
     },
   };
-
-  // g(images[mainImage]);
 
   return (
     <View style={[variantStyle[variant].container, containerStyle]}>
@@ -108,56 +111,77 @@ export default function ImageCarousel({
           <Text>Image not found</Text>
         </View>
       ) : (
-        <Image
-          source={{ uri: images[mainImage].url }}
-          style={[variantStyle[variant].mainImage]}
-          resizeMode="cover"
+        <PressableImageFullscreen
+          image={images[mainImage]}
+          containerStyle={[variantStyle[variant].mainImage]} // parent flex
+          imageStyleConfig={{
+            // containerStyle: ,
+            resizeMode: "cover",
+            // imageStyleProps: ,
+          }}
         />
       )}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator={
+          variantStyle[variant].carousel_orientation === "row" ? true : false
+        }
+        showsVerticalScrollIndicator={
+          variantStyle[variant].carousel_orientation === "row" ? false : true
+        }
         contentContainerStyle={[variantStyle[variant].carousel, scrollStyle]}
+        nestedScrollEnabled
       >
-        {/* immage render logic goes here,, configure first the layout */}
-        {images ? (
-          images.map((image, i) => (
-            <TouchableOpacity key={i} onPress={() => setSelectedIndex(i)}>
-              {!image ? (
-                <Text
-                  style={[{ justifyContent: "center", alignItems: "center" }]}
-                >
-                  Image not found
-                </Text>
-              ) : (
-                <Image
-                  source={
-                    typeof images[i]?.url === "string"
-                      ? { uri: images[i].url }
-                      : images[i]?.url
-                  }
-                  style={{
-                    width: variantStyle[variant].thumbnailSize,
-                    height: variantStyle[variant].thumbnailSize,
-                    borderRadius:
-                      variantStyle[variant].carousel_item_definition
-                        .borderRadius,
-                    borderWidth: BorderWidth.md,
-                    borderColor:
-                      i === imageIndex
-                        ? variantStyle[variant].carousel_item_definition
-                            .borderColorSelected
-                        : variantStyle[variant].carousel_item_definition
-                            .borderColorNotSelected,
-                    ...(i === imageIndex ? ShadowLight.xxl : {}),
-                  }}
-                />
-              )}
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text>Images not found</Text>
-        )}
+        <ScrollView
+          showsHorizontalScrollIndicator={
+            variantStyle[variant].carousel_orientation === "row" ? true : false
+          }
+          showsVerticalScrollIndicator={
+            variantStyle[variant].carousel_orientation === "row" ? false : true
+          }
+          contentContainerStyle={{
+            flexDirection: variantStyle[variant].carousel_orientation,
+            gap: 10,
+          }}
+        >
+          {images ? (
+            images.map((image, i) => (
+              <TouchableOpacity key={i} onPress={() => setSelectedIndex(i)}>
+                {!image ? (
+                  <Text
+                    style={[{ justifyContent: "center", alignItems: "center" }]}
+                  >
+                    Image not found
+                  </Text>
+                ) : (
+                  <Image
+                    source={
+                      typeof images[i]?.url === "string"
+                        ? { uri: images[i].url }
+                        : images[i]?.url
+                    }
+                    style={{
+                      width: variantStyle[variant].thumbnailSize,
+                      height: variantStyle[variant].thumbnailSize,
+                      borderRadius:
+                        variantStyle[variant].carousel_item_definition
+                          .borderRadius,
+                      borderWidth: BorderWidth.md,
+                      borderColor:
+                        i === imageIndex
+                          ? variantStyle[variant].carousel_item_definition
+                              .borderColorSelected
+                          : variantStyle[variant].carousel_item_definition
+                              .borderColorNotSelected,
+                      ...(i === imageIndex ? ShadowLight.xxl : {}),
+                    }}
+                  />
+                )}
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text>Images not found</Text>
+          )}
+        </ScrollView>
       </ScrollView>
     </View>
   );

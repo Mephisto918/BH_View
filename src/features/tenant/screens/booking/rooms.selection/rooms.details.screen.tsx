@@ -13,9 +13,16 @@ import {
   Spacing,
 } from "@/constants";
 
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { TenantBookingStackParamList } from "../navigation/booking.types";
+import {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from "@react-navigation/native-stack";
+import {
+  RoomsBookingScreenRouteProp,
+  TenantBookingStackParamList,
+} from "../navigation/booking.types";
 import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 type RoomsDetailsScreenProps = NativeStackScreenProps<
   TenantBookingStackParamList,
@@ -26,6 +33,9 @@ export default function RoomsDetailsScreen({
   route,
   navigation,
 }: RoomsDetailsScreenProps) {
+  const navigate =
+    useNavigation<NativeStackNavigationProp<TenantBookingStackParamList>>();
+
   const { boardingHouseId, roomId } = route.params;
 
   if (!boardingHouseId || !roomId) {
@@ -43,6 +53,12 @@ export default function RoomsDetailsScreen({
   if (isRoomDataError) {
     console.log("Room data error:", roomDataError);
   }
+
+  const gotoBooking = (roomId: number) => {
+    navigate.navigate("RoomsCheckoutScreen", {
+      roomId: roomId,
+    });
+  };
 
   return (
     <StaticScreenWrapper
@@ -78,7 +94,7 @@ export default function RoomsDetailsScreen({
             <Box>
               <Text style={[s.textColor]}>{roomData.price}</Text>
             </Box>
-            <Button>
+            <Button onPress={() => gotoBooking(roomData.id)}>
               <Text style={[s.textColor]}>Book Now</Text>
             </Button>
           </Box>

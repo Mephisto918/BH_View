@@ -64,10 +64,15 @@ export default function PropertiesBookingListsScreen() {
           style={[
             styles.textColor,
             styles.item_header,
-            { textAlign: "center" },
+            {
+              textAlign: "center",
+              fontSize: Fontsize.xl,
+              color: "white",
+              fontWeight: "900",
+            },
           ]}
         >
-          {item.roomId}
+          {item.room.roomNumber}
         </Text>
       </Box>
       <Box style={[styles.body]}>
@@ -102,7 +107,11 @@ export default function PropertiesBookingListsScreen() {
     >
       {boardingHouseData && (
         <Box>
-          <Text>{boardingHouseData.name}</Text>
+          <Text
+            style={{ fontSize: Fontsize.xl, color: "white", fontWeight: "900" }}
+          >
+            {boardingHouseData.name}
+          </Text>
         </Box>
       )}
       {isBookingListLoading && <FullScreenLoaderAnimated />}

@@ -10,6 +10,7 @@ interface ListsProps<T> {
   onEndReached?: () => void;
   ListFooterComponent?: React.ReactElement | null;
   contentContainerStyle?: StyleProp<ViewStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export function Lists<T>({
@@ -20,11 +21,19 @@ export function Lists<T>({
   onEndReached,
   ListFooterComponent = null,
   contentContainerStyle,
+  containerStyle,
 }: ListsProps<T>) {
   return (
     <FlatList
       data={list}
-      renderItem={renderItem}
+      renderItem={({ item, index }) => (
+        <View
+          key={item?.id ?? index}
+          style={[{ width: "100%" }, containerStyle]}
+        >
+          {renderItem({ item })}
+        </View>
+      )}
       keyExtractor={(item: any, index) =>
         item.id?.toString() ?? index.toString()
       }

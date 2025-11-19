@@ -1,5 +1,11 @@
 import React, { useState, useRef } from "react";
-import { TextInput, StyleSheet, ScrollView, TextStyle } from "react-native";
+import {
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  TextStyle,
+  ViewStyle,
+} from "react-native";
 
 interface AutoExpandingInputProps {
   value: string;
@@ -7,6 +13,7 @@ interface AutoExpandingInputProps {
   placeholder?: string;
   maxHeight?: number;
   style?: TextStyle;
+  containerStyle?: ViewStyle;
 }
 
 export default function AutoExpandingInput({
@@ -15,6 +22,7 @@ export default function AutoExpandingInput({
   placeholder = "Type your message...",
   maxHeight = 200,
   style,
+  containerStyle,
 }: AutoExpandingInputProps) {
   const [inputHeight, setInputHeight] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
@@ -22,7 +30,7 @@ export default function AutoExpandingInput({
   return (
     <ScrollView
       ref={scrollRef}
-      style={styles.container}
+      style={[styles.container, containerStyle]}
       scrollEnabled={inputHeight >= maxHeight}
       keyboardShouldPersistTaps="handled"
     >
@@ -51,9 +59,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   input: {
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3, // for Android shadow
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
+    // elevation: 3, // for Android shadow
   },
 });

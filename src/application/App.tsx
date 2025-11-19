@@ -10,7 +10,9 @@ import Purchases from "react-native-purchases";
 import { GlobalDecisionModalProvider } from "@/components/ui/FullScreenDecisionModal";
 import { GlobalImageFullScreenProvider } from "../components/ui/ImageComponentUtilities/GlobalImageFullScreenProvider";
 import { PortalProvider, PortalHost } from "@gorhom/portal";
-import TestModal from "@/components/ui/ImageComponentUtilities/TextModal";
+import { GlobalEditStateContextSwitcherButtonsProvider } from "@/components/ui/Portals/GlobalEditStateContextSwitcherButtonsProvider";
+
+import { LogBox } from "react-native";
 
 export default function App() {
   // Initialize RevenueCat
@@ -27,15 +29,20 @@ export default function App() {
   //   }
   // }, []);
 
+  LogBox.ignoreAllLogs(true);
+
   return (
     <PortalProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1, position: "relative" }}>
         <Provider store={store}>
           <GluestackUIProvider config={config}>
             <GlobalDecisionModalProvider>
               <GlobalImageFullScreenProvider>
-                <RootNavigation />
-                <PortalHost name="ImageFullScreenPortalRoot" />
+                <GlobalEditStateContextSwitcherButtonsProvider>
+                  <RootNavigation />
+                  <PortalHost name="EditContextSwitchingPortal" />
+                  <PortalHost name="ImageFullScreenPortalRoot" />
+                </GlobalEditStateContextSwitcherButtonsProvider>
               </GlobalImageFullScreenProvider>
             </GlobalDecisionModalProvider>
           </GluestackUIProvider>

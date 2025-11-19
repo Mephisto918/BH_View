@@ -18,7 +18,8 @@ import { Box } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
 
 interface PressableImageFullscreenProps {
-  image?: AppImageFile;
+  removeFullScreenButton?: boolean;
+  image?: AppImageFile | null;
   noImageMessageColor?: ColorValue;
   noImageMessage?: string;
   containerStyle?: StyleProp<ViewStyle>;
@@ -38,6 +39,7 @@ interface PressableImageFullscreenProps {
 }
 
 export default function PressableImageFullscreen({
+  removeFullScreenButton = false,
   image,
   noImageMessageColor = "#888",
   noImageMessage = "No image",
@@ -78,7 +80,7 @@ export default function PressableImageFullscreen({
         )}
       </Box>
 
-      {pickedImage && (
+      {pickedImage && !removeFullScreenButton && (
         <Pressable
           onPress={() => pickedImage && showImageFullscreen(pickedImage.url!)}
           style={[s.fullscreenButton, fullscreenIconContainerStyle]}
@@ -101,7 +103,6 @@ const s = StyleSheet.create({
     top: 10,
     left: 10,
     backgroundColor: "rgba(0,0,0,0.4)",
-    borderRadius: 20,
     padding: 6,
   },
   addImageStyle: {
@@ -114,7 +115,7 @@ const s = StyleSheet.create({
   },
   pickImageStyle: {
     width: "100%",
-    height: 200,
+    height: "auto",
     borderRadius: 8,
     backgroundColor: "#f0f0f0",
     overflow: "hidden",

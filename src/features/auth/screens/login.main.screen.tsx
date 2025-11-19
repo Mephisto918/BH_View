@@ -55,25 +55,25 @@ export default function LoginMainScreen() {
   ] = useLoginMutation();
   const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
-    setTimeout(() => {
-      onPressLogin();
-    }, 700);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     onPressLogin();
+  //   }, 700);
+  // }, []);
 
   const onPressLogin = async () => {
-    // const packageLoad = {
-    //   username: username.value,
-    //   password: password.value,
-    // };
+    const packageLoad = {
+      username: username.value,
+      password: password.value,
+    };
 
     console.log("present files");
     await logExpoSystemDir();
 
-    const packageLoad = {
-      username: "tenant1",
-      password: "tenant1",
-    };
+    // const packageLoad = {
+    //   username: "owner1",
+    //   password: "owner1",
+    // };
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();
       dispatch(
@@ -102,10 +102,12 @@ export default function LoginMainScreen() {
   };
   return (
     <StaticScreenWrapper
+      wrapInScrollView
       style={[GlobalStyle.GlobalsContainer]}
       contentContainerStyle={[
         GlobalStyle.GlobalsContentContainer,
         {
+          height: "100%",
           justifyContent: "center",
           alignItems: "center",
         },

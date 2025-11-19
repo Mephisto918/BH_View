@@ -40,7 +40,7 @@ export default function DashboardMainScreen() {
         <HeroComponent></HeroComponent>
         <VStack style={[s.Hero]}>
           <Text style={[s.Hero_text1]}> Hello {user?.firstname}!</Text>
-          <Text style={[s.Hero_text1]}> Discover Places Around You!</Text>
+          {/* <Text style={[s.Hero_text1]}> Discover Places Around You!</Text> */}
         </VStack>
         <VStack style={[s.Widget]}>
           <Button
@@ -55,9 +55,9 @@ export default function DashboardMainScreen() {
           <Button style={[s.Widget_item]}>
             <Text style={[s.generic_text_lg]}>Booking History</Text>
           </Button>
-          <Button style={[s.Widget_item]}>
+          {/* <Button style={[s.Widget_item]}>
             <Text style={[s.generic_text_lg]}>Nearby Houses</Text>
-          </Button>
+          </Button> */}
           <Button style={[s.Widget_item]}>
             <Text style={[s.generic_text_lg]}>Notifications</Text>
           </Button>

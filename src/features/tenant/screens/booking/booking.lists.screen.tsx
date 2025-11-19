@@ -1,7 +1,13 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import React, { useState, useCallback, useEffect } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
-import { BorderRadius, Colors, Fontsize, GlobalStyle } from "@/constants";
+import {
+  BorderRadius,
+  Colors,
+  Fontsize,
+  GlobalStyle,
+  Spacing,
+} from "@/constants";
 import { Box, Image, VStack } from "@gluestack-ui/themed";
 import { useGetAllQuery as useGetAllBoardingHouses } from "@/infrastructure/boarding-houses/boarding-house.redux.api";
 import {
@@ -23,6 +29,8 @@ import genericSearchBarSlice, {
 import { RootState } from "@/application/store/stores";
 import useDebounce from "@/infrastructure/utils/debounc.hook";
 import ComponentLoaderAnimated from "@/components/ui/ComponentLoaderAnimated";
+import PropertyCard from "@/components/ui/BoardingHouseItems/PropertyCard";
+import { Lists } from "@/components/layout/Lists/Lists";
 
 export default function BookingListsScreen() {
   const navigation =
@@ -95,9 +103,10 @@ export default function BookingListsScreen() {
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
+      wrapInScrollView={false}
     >
       {isBoardingHousesError && <FullScreenErrorModal />}
-      <VStack style={{ flex: 1 }}>
+      <VStack style={[styles.container]}>
         <HeaderSearch
           placeholder="Search boarding houses"
           value={searchQuery}
@@ -114,90 +123,28 @@ export default function BookingListsScreen() {
           }}
         />
         {isBoardingHousesLoading && <ComponentLoaderAnimated />}
-        <ScrollView
-          style={{
-            backgroundColor: Colors.PrimaryLight[8],
-            flex: 1,
-          }}
-          contentContainerStyle={{
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            gap: 10,
-            padding: 10,
-          }}
-        >
-          {searchResults.length === 0 ? (
-            <Text style={styles.Item_SubLabel}>
-              {searchQuery
-                ? "No boarding houses found"
-                : "Start typing to search"}
-            </Text>
-          ) : (
-            searchResults.map((boardinghouse: QueryBoardingHouse, index) => {
-              return (
-                <VStack
-                  key={index}
-                  style={{
-                    backgroundColor: Colors.PrimaryLight[9],
-                    padding: 10,
-                    borderRadius: BorderRadius.md,
-                    gap: 10,
-                    flexDirection: "row",
-                  }}
-                >
-                  <Box>
-                    <Image
-                      source={
-                        boardinghouse?.thumbnail?.[0]?.url
-                          ? { uri: boardinghouse.thumbnail[0].url }
-                          : require("../../../../assets/housesSample/1.jpg")
-                      }
-                      style={{
-                        height: 150,
-                        aspectRatio: 4 / 3,
-                        borderRadius: BorderRadius.md,
-                      }}
-                    />
-                  </Box>
-                  <VStack style={{ flex: 1 }}>
-                    <VStack style={{ flex: 1 }}>
-                      <Text
-                        style={[styles.Item_Label]}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {boardinghouse.name}
-                      </Text>
-                      <Text style={[styles.Item_SubLabel]}>
-                        {boardinghouse.address}
-                      </Text>
-                    </VStack>
-                    <VStack>
-                      <Text style={[styles.Item_SubLabel]}>
-                        {boardinghouse.capacity?.currentCapacity ?? 0}/
-                        {boardinghouse.capacity?.totalCapacity ?? 0}
-                      </Text>
-                      <Pressable
-                        onPress={() => handleGotoPress(boardinghouse.id ?? 0)}
-                        style={{
-                          borderRadius: BorderRadius.sm,
-                          padding: 8,
-                          backgroundColor: Colors.PrimaryLight[6],
-                          marginLeft: "auto",
-                        }}
-                      >
-                        <View>
-                          <Text style={[styles.Item_Normal]}>View</Text>
-                        </View>
-                      </Pressable>
-                    </VStack>
-                  </VStack>
-                </VStack>
-              );
-            })
+        <Lists
+          list={searchResults.map((item) => item)}
+          contentContainerStyle={[styles.list_container]}
+          renderItem={({ item }) => (
+            <PropertyCard data={item}>
+              <Pressable
+                onPress={() => handleGotoPress(item.id ?? 0)}
+                style={{
+                  padding: Spacing.sm,
+                  borderWidth: 2,
+                  borderColor: Colors.PrimaryLight[5],
+                  borderRadius: BorderRadius.lg,
+                  backgroundColor: Colors.PrimaryLight[6],
+                }}
+              >
+                <Text style={{ color: "white" }}>Details</Text>
+              </Pressable>
+            </PropertyCard>
           )}
-          {boardinghousesPage?.length &&
-            boardinghousesPage.length >= offset && (
+          ListFooterComponent={
+            boardinghousesPage?.length &&
+            boardinghousesPage.length >= offset ? (
               <Pressable
                 onPress={() => setPage((prev) => prev + 1)}
                 style={{
@@ -214,25 +161,24 @@ export default function BookingListsScreen() {
                   Show More
                 </Text>
               </Pressable>
-            )}
-        </ScrollView>
+            ) : null
+          }
+        />
       </VStack>
     </StaticScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    height: "100%",
-    width: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent dark background
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000, // ensure it's above everything
+  container: {
+    flex: 1,
+    padding: Spacing.md,
+    gap: Spacing.md,
   },
+  list_container: {
+    gap: Spacing.md,
+  },
+
   generic_text: {
     color: Colors.TextInverse[2],
   },

@@ -1,4 +1,4 @@
-import { View, Text, Alert } from "react-native";
+import { View, Text, Alert, StyleSheet, Pressable } from "react-native";
 import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/application/store/stores";
@@ -9,6 +9,11 @@ import { TenantDashboardBookingStackParamList } from "./navigation/bookings.stac
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import { VStack, Box, Button } from "@gluestack-ui/themed";
 import { GetBooking } from "@/infrastructure/booking/booking.schema";
+import { Fontsize, GlobalStyle } from "@/constants";
+import { Lists } from "@/components/layout/Lists/Lists";
+import RoomsItems from "@/components/ui/RoomsItems/RoomsItems";
+import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
 
 //For approved or ongoing stays
 
@@ -36,7 +41,17 @@ export default function DashboardBookingsScreen() {
   } = useGetAllQuery({ tenantId: user.id, page: 1, offset: 10 });
   //! currently working for tenant side booking
   return (
-    <StaticScreenWrapper>
+    <StaticScreenWrapper
+      style={[GlobalStyle.GlobalsContainer]}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
+      wrapInScrollView={false}
+      //!if we want to use refresh control
+      //! refreshControl={
+      //!   <RefreshControl refreshing={isBookingArraysLoading} onRefresh={refetch} />
+      //! }
+    >
+      {isBookingArraysLoading && <FullScreenLoaderAnimated />}
+      {isBookingArraysError && <FullScreenErrorModal />}
       <VStack>
         <VStack
           style={{
@@ -69,7 +84,42 @@ export default function DashboardBookingsScreen() {
               );
             })}
         </VStack>
+        {/* <Box>
+          <Text style={[s.textColor, { fontSize: Fontsize.display1 }]}>
+            Select Room
+          </Text>
+        </Box>
+        <Lists
+          list={bookingArrays}
+          renderItem={({ item }) => (
+            <>
+              <RoomsItems data={item} key={item.id.toString()}>
+                <Pressable
+                  onPress={() =>
+                    navigate.navigate("DashboardBookingDetailsScreen", {
+                      bookId: item.id,
+                    })
+                  }
+                >
+                  <Text style={[s.textColor, s.item_cta_buttons]}>
+                    Book Now
+                  </Text>
+                </Pressable>
+              </RoomsItems>
+            </>
+          )}
+        /> */}
       </VStack>
     </StaticScreenWrapper>
   );
 }
+
+const s = StyleSheet.create({
+  textColor: {
+    color: "white",
+  },
+  item_cta_buttons: {
+    fontSize: Fontsize.xl,
+    fontWeight: "bold",
+  },
+});

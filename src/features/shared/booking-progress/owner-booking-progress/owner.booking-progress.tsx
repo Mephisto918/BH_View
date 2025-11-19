@@ -224,7 +224,14 @@ export default function OwnerBookingProgress({
           <>
             {imageData && (
               <>
-                <PressableImageFullscreen image={imageData} />
+                <PressableImageFullscreen
+                  image={imageData}
+                  imageStyleConfig={{
+                    containerStyle: { height: 200 },
+                    resizeMode: "cover",
+                    // imageStyleProps: ,
+                  }}
+                />
                 <AutoExpandingInput
                   style={s.Form_Input_Placeholder}
                   value={paymentMessage}

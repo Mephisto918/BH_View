@@ -90,7 +90,6 @@ export default function PropertiesDetailsScreen() {
           <Text style={[s.textColor]}>{bookingData?.tenant?.email}</Text>
           <Text style={[s.textColor]}>{bookingData?.status}</Text>
         </Box>
-
         <Box style={[{ gap: Spacing.md }]}>
           {bookingData && (
             <OwnerBookingProgress

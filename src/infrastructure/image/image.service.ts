@@ -235,15 +235,31 @@ export async function expoStorageCleaner(): Promise<void> {
 
 export async function logExpoSystemDir() {
   const imageDir = PERSISTENT_IMAGE_DIR;
-  const dirInfo = await FileSystem.getInfoAsync(imageDir);
-  const files = await FileSystem.readDirectoryAsync(imageDir);
 
-  console.log(
-    "-----------------------------------------------------------------"
-  );
-  console.log("dirInfo:", dirInfo);
-  console.log("finesInfoInImageDir:", files);
-  console.log(
-    "-----------------------------------------------------------------"
-  );
+  try {
+    const dirInfo = await FileSystem.getInfoAsync(imageDir);
+    console.log(
+      "-----------------------------------------------------------------"
+    );
+    console.log("dirInfo:", dirInfo);
+
+    if (!dirInfo.exists) {
+      console.log(
+        "Directory does not exist (yet). Safe to create on first save."
+      );
+      console.log(
+        "-----------------------------------------------------------------"
+      );
+      return;
+    }
+
+    // Only read if directory exists
+    const files = await FileSystem.readDirectoryAsync(imageDir);
+    console.log("Files in image dir:", files);
+    console.log(
+      "-----------------------------------------------------------------"
+    );
+  } catch (err: any) {
+    console.error("logExpoSystemDir failed:", err.message);
+  }
 }

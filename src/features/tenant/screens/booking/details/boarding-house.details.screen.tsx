@@ -7,7 +7,6 @@ import {
   Fontsize,
   BorderRadius,
 } from "@/constants";
-import { Spinner } from "@gluestack-ui/themed";
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 import { useNavigationState } from "@react-navigation/native";
 
@@ -25,6 +24,8 @@ import { useGetOneQuery as useGetOneBoardingHouses } from "@/infrastructure/boar
 import { TenantBookingStackParamList } from "../navigation/booking.types";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
+import PressableImageFullscreen from "@/components/ui/ImageComponentUtilities/PressableImageFullscreen";
 
 // type Props = NativeStackScreenProps<TenantTabsParamList, "Booking">;
 type RouteProps = RouteProp<
@@ -60,177 +61,133 @@ export default function BoardingHouseDetailsScreen() {
   };
 
   return (
-    <StaticScreenWrapper>
+    <StaticScreenWrapper
+      style={[GlobalStyle.GlobalsContainer]}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
+    >
       {isBoardingHouseLoading && <FullScreenLoaderAnimated />}
-      <View style={[GlobalStyle.GlobalsContainer, s.main_container]}>
-        <View style={[s.main_item]}>
-          <View style={[s.group_main]}>
-            <View
-              style={{
-                minHeight: 250,
-                width: "100%",
-                borderTopRightRadius: 10,
-                borderTopLeftRadius: 10,
-                zIndex: 5,
-                marginBottom: 10,
-                // position: 'relative'
-                gap: 10,
-              }}
-            >
-              {boardinghouse && (
-                <View
-                  style={{
-                    minHeight: 250,
-                    width: "100%",
-                    borderTopRightRadius: 10,
-                    borderTopLeftRadius: 10,
-                    zIndex: 5,
-                    marginBottom: 10,
-                    gap: 10,
-                  }}
-                >
-                  <Image
-                    source={
-                      boardinghouse?.thumbnail?.[0]?.url
-                        ? { uri: boardinghouse.thumbnail[0].url }
-                        : require("../../../../../assets/housesSample/1.jpg")
-                    }
-                    style={{
+      {isBoardingHouseError && <FullScreenErrorModal />}
+      <VStack style={[GlobalStyle.GlobalsContainer, s.main_container]}>
+        <View style={[s.header]}>
+          {boardinghouse && (
+            <>
+              <View>
+                <PressableImageFullscreen
+                  image={boardinghouse?.thumbnail?.[0]}
+                  containerStyle={{ width: "100%", aspectRatio: 1 }}
+                  imageStyleConfig={{
+                    resizeMode: "cover",
+                    containerStyle: {
                       margin: "auto",
-                      width: "98%",
-                      height: 200,
                       borderRadius: BorderRadius.md,
-                    }}
-                  />
-
-                  <ImageCarousel
-                    variant="primary"
-                    images={boardinghouse?.gallery ?? []}
-                  />
-                </View>
-              )}
-            </View>
-            {boardinghouse && (
-              <View
+                    },
+                  }}
+                />
+              </View>
+              <HStack>
+                <Text style={[s.text_generic_small]}>* * * * *</Text>
+                <Text style={[s.text_generic_small]}>( 4.0 )</Text>
+              </HStack>
+              <HStack
                 style={{
-                  padding: 15,
-                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
                   gap: 10,
-                  width: "100%",
                 }}
               >
-                <HStack>
-                  <Text style={[s.text_generic_small]}>* * * * *</Text>
-                  <Text style={[s.text_generic_small]}>( 4.0 )</Text>
-                </HStack>
-                <HStack
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 10,
-                  }}
-                >
-                  <VStack style={{ width: "75%" }}>
-                    <Text style={[s.text_title]}>{boardinghouse?.name}</Text>
-                    <Text style={[s.text_address]}>
-                      {boardinghouse?.address}
-                    </Text>
-                  </VStack>
-                  <Button
-                    containerStyle={{
-                      marginTop: 10,
-                      marginRight: 0,
-                      padding: 10,
-                    }}
-                    onPressAction={() => handleGotoRoomLists(boardinghouse.id)}
-                  >
-                    <Text>View Rooms</Text>
-                  </Button>
-                </HStack>
-                <Text style={[s.text_description]}>
-                  {boardinghouse?.description}
-                </Text>
-                <VStack
-                  style={{
-                    backgroundColor: Colors.PrimaryLight[7],
+                <VStack style={{ width: "75%" }}>
+                  <Text style={[s.text_title]}>{boardinghouse?.name}</Text>
+                  <Text style={[s.text_address]}>{boardinghouse?.address}</Text>
+                </VStack>
+                <Button
+                  containerStyle={{
+                    marginTop: 10,
+                    marginRight: 0,
                     padding: 10,
-                    borderRadius: BorderRadius.md,
                   }}
+                  onPressAction={() => handleGotoRoomLists(boardinghouse.id)}
                 >
-                  <Text style={[s.text_generic_large]}>
-                    Additional Information:
-                  </Text>
-                  <VStack>
-                    <VStack
-                      style={[
-                        s.text_generic_medium,
-                        {
-                          gap: 5,
-                          marginTop: 5,
-                          flex: 1,
-                        },
-                      ]}
-                    >
-                      {boardinghouse?.amenities?.map((key, index) => (
-                        <Text
-                          key={index}
-                          style={[
-                            s.text_generic_medium,
-                            {
-                              backgroundColor: Colors.PrimaryLight[8],
-                              padding: 5,
-                              borderRadius: BorderRadius.md,
-                            },
-                          ]}
-                        >
-                          {key.replace(/([a-z])([A-Z])/g, "$1 $2")}
-                        </Text>
-                      ))}
-                    </VStack>
+                  <Text>View Rooms</Text>
+                </Button>
+              </HStack>
+            </>
+          )}
+        </View>
+        <VStack style={[s.body]}>
+          {boardinghouse && (
+            <>
+              <ImageCarousel
+                variant="secondary"
+                images={boardinghouse?.gallery ?? []}
+              />
+              <Text style={[s.text_description]}>
+                {boardinghouse?.description}
+              </Text>
+              <VStack
+                style={{
+                  backgroundColor: Colors.PrimaryLight[7],
+                  padding: 10,
+                  borderRadius: BorderRadius.md,
+                }}
+              >
+                <Text style={[s.text_generic_large]}>
+                  Additional Information:
+                </Text>
+                <VStack>
+                  <VStack
+                    style={[
+                      s.text_generic_medium,
+                      {
+                        gap: 5,
+                        marginTop: 5,
+                        flex: 1,
+                      },
+                    ]}
+                  >
+                    {boardinghouse?.amenities?.map((key, index) => (
+                      <Text
+                        key={index}
+                        style={[
+                          s.text_generic_medium,
+                          {
+                            backgroundColor: Colors.PrimaryLight[8],
+                            padding: 5,
+                            borderRadius: BorderRadius.md,
+                          },
+                        ]}
+                      >
+                        {key.replace(/([a-z])([A-Z])/g, "$1 $2")}
+                      </Text>
+                    ))}
                   </VStack>
                 </VStack>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
+              </VStack>
+            </>
+          )}
+        </VStack>
+      </VStack>
     </StaticScreenWrapper>
   );
 }
 
 const s = StyleSheet.create({
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    height: "100%",
-    width: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // semi-transparent dark background
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000, // ensure it's above everything
-  },
   main_container: {
     flex: 1,
+    padding: Spacing.md,
+    gap: Spacing.md,
   },
-  main_item: {
-    flex: 1,
+  header: {
+    minHeight: 250,
     width: "100%",
+    borderTopRightRadius: 10,
+    borderTopLeftRadius: 10,
+    zIndex: 5,
+    marginBottom: 10,
+    gap: 10,
   },
-
-  group_main: {
-    flex: 1,
-    paddingTop: Spacing.md,
-    paddingRight: Spacing.md,
-    paddingLeft: Spacing.md,
-    backgroundColor: Colors.PrimaryLight[8],
-    flexDirection: "column",
-    alignItems: "baseline",
-  },
+  body: {},
 
   text_title: {
-    // borderColor: "red",
-    // borderWidth: 3,
     color: Colors.TextInverse[1],
     fontSize: Fontsize.xxl,
     fontWeight: 900,
@@ -239,8 +196,6 @@ const s = StyleSheet.create({
     fontSize: Fontsize.lg,
     padding: 5,
     color: Colors.TextInverse[2],
-    // borderColor: "white",
-    // borderWidth: 3,
   },
   text_ameneties: {
     borderColor: "green",
@@ -256,9 +211,6 @@ const s = StyleSheet.create({
     fontSize: Fontsize.sm,
     paddingTop: 5,
     color: Colors.TextInverse[2],
-
-    // borderColor: "red",
-    // borderWidth: 3,
   },
   text_price: {
     borderColor: "cyan",
@@ -269,22 +221,16 @@ const s = StyleSheet.create({
     borderWidth: 3,
   },
   text_generic_small: {
-    // borderColor: "magenta",
-    // borderWidth: 3,
     fontSize: Fontsize.sm,
     padding: 0,
     color: Colors.TextInverse[1],
   },
   text_generic_medium: {
-    // borderColor: "magenta",
-    // borderWidth: 3,
     fontSize: Fontsize.md,
     padding: 0,
     color: Colors.TextInverse[1],
   },
   text_generic_large: {
-    // borderColor: "green",
-    // borderWidth: 3,
     fontSize: Fontsize.lg,
     padding: 0,
     color: Colors.TextInverse[1],
