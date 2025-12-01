@@ -84,31 +84,6 @@ export default function DashboardBookingsScreen() {
               );
             })}
         </VStack>
-        {/* <Box>
-          <Text style={[s.textColor, { fontSize: Fontsize.display1 }]}>
-            Select Room
-          </Text>
-        </Box>
-        <Lists
-          list={bookingArrays}
-          renderItem={({ item }) => (
-            <>
-              <RoomsItems data={item} key={item.id.toString()}>
-                <Pressable
-                  onPress={() =>
-                    navigate.navigate("DashboardBookingDetailsScreen", {
-                      bookId: item.id,
-                    })
-                  }
-                >
-                  <Text style={[s.textColor, s.item_cta_buttons]}>
-                    Book Now
-                  </Text>
-                </Pressable>
-              </RoomsItems>
-            </>
-          )}
-        /> */}
       </VStack>
     </StaticScreenWrapper>
   );

@@ -7,40 +7,9 @@ import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { Platform } from "react-native";
 import { AppImageFile, ImageUploadSchema } from "./image.schema";
+import { moveToPersistentDir } from "../utils/expo-utils/expo-utils.service";
 
-const PERSISTENT_IMAGE_DIR = `${FileSystem.documentDirectory}picked_images/`;
-
-//* Private functions
-async function ensurePersistentDir(): Promise<void> {
-  const info = await FileSystem.getInfoAsync(PERSISTENT_IMAGE_DIR);
-  if (!info.exists) {
-    await FileSystem.makeDirectoryAsync(PERSISTENT_IMAGE_DIR, {
-      intermediates: true,
-    });
-  }
-}
-
-async function moveToPersistentDir(image: AppImageFile): Promise<string> {
-  if (!FileSystem.documentDirectory) {
-    throw new Error("Document directory unavailable");
-  }
-
-  await ensurePersistentDir();
-
-  const newFileName = `${Date.now()}-${image.name}`;
-  const newPath = `${PERSISTENT_IMAGE_DIR}${newFileName}`;
-
-  try {
-    await FileSystem.copyAsync({
-      from: image.uri,
-      to: newPath,
-    });
-    return newPath;
-  } catch (err) {
-    console.error("Failed to persist image:", err);
-    throw err;
-  }
-}
+export const PERSISTENT_IMAGE_DIR = `${FileSystem.documentDirectory}picked_images/`;
 
 /**
  * Ensures a file URI is readable for RNFetchBlob / file access.
@@ -196,7 +165,10 @@ export async function pickImageExpo(
       throw new Error("Invalid image file");
     }
 
-    const persistentUri = await moveToPersistentDir(image);
+    const persistentUri = await moveToPersistentDir({
+      file: image,
+      dir: "images",
+    });
     images.push({ ...image, uri: persistentUri });
     //! possible breakeage
     // image.uri = image.uri.replace("file://", "");
@@ -208,58 +180,4 @@ export async function pickImageExpo(
   }
 
   return images;
-}
-
-export async function expoStorageCleaner(): Promise<void> {
-  if (!FileSystem.documentDirectory) {
-    throw new Error("Document directory unavailable");
-  }
-
-  const imageDir = PERSISTENT_IMAGE_DIR;
-
-  const dirInfo = await FileSystem.getInfoAsync(imageDir);
-  if (!dirInfo.exists) return; // nothing to clean
-
-  const files = await FileSystem.readDirectoryAsync(imageDir);
-
-  for (const file of files) {
-    try {
-      await FileSystem.deleteAsync(`${imageDir}${file}`);
-    } catch (err) {
-      console.warn(`Failed to delete ${file}:`, err);
-    }
-  }
-
-  console.log("Storage cleaned successfully");
-}
-
-export async function logExpoSystemDir() {
-  const imageDir = PERSISTENT_IMAGE_DIR;
-
-  try {
-    const dirInfo = await FileSystem.getInfoAsync(imageDir);
-    console.log(
-      "-----------------------------------------------------------------"
-    );
-    console.log("dirInfo:", dirInfo);
-
-    if (!dirInfo.exists) {
-      console.log(
-        "Directory does not exist (yet). Safe to create on first save."
-      );
-      console.log(
-        "-----------------------------------------------------------------"
-      );
-      return;
-    }
-
-    // Only read if directory exists
-    const files = await FileSystem.readDirectoryAsync(imageDir);
-    console.log("Files in image dir:", files);
-    console.log(
-      "-----------------------------------------------------------------"
-    );
-  } catch (err: any) {
-    console.error("logExpoSystemDir failed:", err.message);
-  }
 }

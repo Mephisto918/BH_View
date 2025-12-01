@@ -21,6 +21,8 @@ import {
 import {
   CreateRoomInput,
   CreateRoomInputSchema,
+  RoomFurnishingType,
+  RoomType,
 } from "@/infrastructure/room/rooms.schema";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +34,7 @@ import {
 } from "@/infrastructure/room/rooms.constants";
 import { Ionicons } from "@expo/vector-icons";
 import { pickImageExpo } from "@/infrastructure/image/image.service";
-import ButtomSheetSelector from "@/components/ui/ButtomSheetSelector";
+import ButtomSheetSelector from "@/components/ui/BottomSheet/BottomSheetSelector";
 import z from "zod";
 
 type RoomWithIndex = CreateRoomInput & { index?: number };
@@ -54,12 +56,17 @@ export default function PropertiesRoomCreateModal({
 }: PropertiesRoomCreateModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
+  const [isFurnishingActionSheetOpen, setIsFurnishingActionSheetOpen] =
+    useState(false);
+  const [isRoomTypeActionSheetOpen, setIsRoomTypeActionSheetOpen] =
+    useState(false);
   const [selectedType, setSelectedType] = useState<string>("");
 
   const defaultValues: CreateRoomInput = {
     roomNumber: "",
     description: "",
+    roomType: RoomType.SINGLE_PRIVATE,
+    furnishingType: RoomFurnishingType.UNFURNISHED,
     maxCapacity: 0,
     price: 0,
     tags: [],
@@ -318,8 +325,48 @@ export default function PropertiesRoomCreateModal({
                 )}
               </FormControl>
 
+              {/* Room Furnished type */}
+              <FormControl isInvalid={!!errors.furnishingType}>
+                <FormControl.Label>
+                  <Text style={[s.Form_SubLabel]}>Room Furnishing</Text>
+                </FormControl.Label>
+
+                <Controller
+                  control={control}
+                  name="furnishingType"
+                  rules={{ required: "Room Furnishing is required" }}
+                  render={({ field: { onChange, value } }) => (
+                    <View style={{ marginBottom: 10 }}>
+                      <Button
+                        onPress={() => setIsFurnishingActionSheetOpen(true)}
+                      >
+                        <Text>{value || "Select Room Furnishing"}</Text>
+                      </Button>
+
+                      {errors?.furnishingType && (
+                        <Text style={{ color: "red", marginTop: 4 }}>
+                          {errors.furnishingType.message}
+                        </Text>
+                      )}
+
+                      {value && (
+                        <Text
+                          style={{
+                            color: Colors.TextInverse[2],
+                            fontSize: Fontsize.md,
+                            marginTop: 6,
+                            textAlign: "center",
+                          }}
+                        >
+                          Selected: {value}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                />
+              </FormControl>
+
               {/* Room type */}
-              {/* 
               <FormControl isInvalid={!!errors.roomType}>
                 <FormControl.Label>
                   <Text style={[s.Form_SubLabel]}>Room Type</Text>
@@ -331,7 +378,9 @@ export default function PropertiesRoomCreateModal({
                   rules={{ required: "Room Type is required" }}
                   render={({ field: { onChange, value } }) => (
                     <View style={{ marginBottom: 10 }}>
-                      <Button onPress={() => setIsActionSheetOpen(true)}>
+                      <Button
+                        onPress={() => setIsRoomTypeActionSheetOpen(true)}
+                      >
                         <Text>{value || "Select Room Type"}</Text>
                       </Button>
 
@@ -357,7 +406,6 @@ export default function PropertiesRoomCreateModal({
                   )}
                 />
               </FormControl>
-               */}
 
               {/* Tags */}
               <VStack
@@ -556,14 +604,22 @@ export default function PropertiesRoomCreateModal({
         </View>
         {/* </Modal> */}
       </Overlay>
-      <ButtomSheetSelector<"SOLO" | "DUO" | "TRIO" | "SQUAD" | "FAMILY">
-        values={["SOLO", "DUO", "TRIO", "SQUAD", "FAMILY"]}
-        isOpen={isActionSheetOpen}
-        onClose={() => setIsActionSheetOpen(false)}
+      <ButtomSheetSelector<RoomType>
+        values={Object.values(RoomType)}
+        isOpen={isRoomTypeActionSheetOpen}
+        onClose={() => setIsRoomTypeActionSheetOpen(false)}
         onSelect={(value) => {
-          setSelectedType(value);
-          setValue("roomType", value); // update the form’s field
-          setIsActionSheetOpen(false);
+          setValue("roomType", value);
+          setIsRoomTypeActionSheetOpen(false);
+        }}
+      />
+      <ButtomSheetSelector<RoomFurnishingType>
+        values={Object.values(RoomFurnishingType)}
+        isOpen={isFurnishingActionSheetOpen}
+        onClose={() => setIsFurnishingActionSheetOpen(false)}
+        onSelect={(value) => {
+          setValue("furnishingType", value);
+          setIsFurnishingActionSheetOpen(false);
         }}
       />
     </>

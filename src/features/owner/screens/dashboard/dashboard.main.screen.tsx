@@ -32,6 +32,7 @@ import {
 import Container from "@/components/layout/Container/Container";
 import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import VerificationIndicatorComponent from "../../../../components/ui/Verification/VerificationIndicatorComponent";
 
 export default function DashboardMainScreen() {
   const [refreshing, setRefreshing] = React.useState(false);
@@ -67,135 +68,144 @@ export default function DashboardMainScreen() {
   return (
     <StaticScreenWrapper
       style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
-      contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
+      contentContainerStyle={[
+        GlobalStyle.GlobalsContentContainer,
+        s.GlobalsContentContainer,
+      ]}
+      refreshing={refreshing}
+      onRefresh={handlePageRefresh}
     >
       {boardingHousesError && <FullScreenErrorModal />}
       {boardingHousesLoading && <FullScreenLoaderAnimated />}
-      <Container
-        refreshing={refreshing}
-        onRefresh={handlePageRefresh}
-        contentContainerStyle={{
-          gap: Spacing.lg,
+      <ScreenHeaderComponent text={{ textValue: "Dashboard" }} />
+
+      <HStack
+        style={{
+          width: "100%",
+          backgroundColor: Colors.PrimaryLight[6],
+          borderColor: Colors.PrimaryLight[4],
+          borderWidth: 1,
+          borderRadius: BorderRadius.lg,
+          justifyContent: "space-between",
+          margin: 0,
+          padding: 0,
         }}
       >
-        <ScreenHeaderComponent text={{ textValue: "Dashboard" }} />
-        <VStack style={[s.Widget]}>
-          <Box style={[s.Widget_item]}>
-            <Ionicons name="home" color="white" size={iconSize} />
-            <Text style={[s.generic_text_lg]}>
-              {user.boardingHouses.length ?? 0}
-            </Text>
-          </Box>
-          <Box style={[s.Widget_item]}>
-            <Ionicons name="people" color="white" size={iconSize} />
-            <Text style={[s.generic_text_lg]}>{0}</Text>
-          </Box>
-          <Box style={[s.Widget_item]}>
-            <Ionicons name="book" color="white" size={iconSize} />
-            <Text style={[s.generic_text_lg]}>{0}</Text>
-          </Box>
-          <Box style={[s.Widget_item]}>
-            <Ionicons name="server" color="white" size={iconSize} />
-            <Text style={[s.generic_text_lg]}>{0}</Text>
-          </Box>
-        </VStack>
-
-        <HStack
-          style={{
-            width: "100%",
-            backgroundColor: Colors.PrimaryLight[6],
-            borderColor: Colors.PrimaryLight[4],
+        <HeaderSearch
+          value=""
+          setValue={() => {}}
+          containerStyle={{ flex: 1 }}
+        />
+        <Button
+          onPressAction={() => setIsGrid(!isGrid)}
+          containerStyle={{
+            backgroundColor: Colors.PrimaryLight[9],
+            aspectRatio: 1,
+            height: 50,
+            // width: 10,
+            margin: Spacing.md,
+            // margin: Spacing.md,
             borderWidth: 1,
-            borderRadius: BorderRadius.lg,
-            justifyContent: "space-between",
-            margin: 0,
             padding: 0,
+            borderRadius: BorderRadius.lg,
           }}
         >
-          <HeaderSearch
-            value=""
-            setValue={() => {}}
-            containerStyle={{ flex: 1 }}
+          <Ionicons
+            name={isGrid ? "grid" : "reorder-four"}
+            color="white"
+            size={20}
           />
-          <Button
-            onPressAction={() => setIsGrid(!isGrid)}
-            containerStyle={{
-              backgroundColor: Colors.PrimaryLight[9],
-              aspectRatio: 1,
-              height: 50,
-              // width: 10,
-              margin: Spacing.md,
-              // margin: Spacing.md,
-              borderWidth: 1,
-              padding: 0,
-              borderRadius: BorderRadius.lg,
-            }}
-          >
-            <Ionicons
-              name={isGrid ? "grid" : "reorder-four"}
-              color="white"
-              size={20}
-            />
-          </Button>
-        </HStack>
-        <VStack
-          style={{
-            gap: 10,
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            alignContent: "flex-start",
-          }}
-        >
-          {!boardingHousesLoading &&
-            !boardingHousesError &&
-            (!boardingHouses || boardingHouses.length === 0) && (
-              <Text style={{ color: "white", fontSize: Fontsize.xl }}>
-                No boarding houses registered yet.
-              </Text>
-            )}
-          {boardingHouses && (
-            <>
-              <Lists
-                list={boardingHouses}
-                containerStyle={[
-                  {
-                    gap: Spacing.lg,
-                  },
-                ]}
-                renderItem={({ item }) => (
-                  <>
-                    <PropertyCard data={item}>
-                      <Pressable
-                        onPress={() => handleGotoPress(item.id)}
-                        style={{
-                          paddingTop: Spacing.xs,
-                          paddingBottom: Spacing.xs,
-                          paddingLeft: Spacing.sm,
-                          paddingRight: Spacing.sm,
-                          borderWidth: 2,
-                          borderColor: Colors.PrimaryLight[5],
-                          borderRadius: BorderRadius.md,
-                          backgroundColor: Colors.PrimaryLight[6],
-                        }}
-                      >
-                        <Text style={{ color: "white" }}>Details</Text>
-                      </Pressable>
-                    </PropertyCard>
-                  </>
-                )}
-              />
-            </>
+        </Button>
+      </HStack>
+
+      <View>
+        <Pressable onPress={() => navigate.navigate("VerificationMainScreen")}>
+          <VerificationIndicatorComponent isVerified={owner?.isVerified!} />
+        </Pressable>
+      </View>
+
+      <VStack style={[s.Widget]}>
+        <Box style={[s.Widget_item]}>
+          <Ionicons name="home" color="white" size={iconSize} />
+          <Text style={[s.generic_text_lg]}>
+            {user.boardingHouses.length ?? 0}
+          </Text>
+        </Box>
+        <Box style={[s.Widget_item]}>
+          <Ionicons name="people" color="white" size={iconSize} />
+          <Text style={[s.generic_text_lg]}>{0}</Text>
+        </Box>
+        <Box style={[s.Widget_item]}>
+          <Ionicons name="book" color="white" size={iconSize} />
+          <Text style={[s.generic_text_lg]}>{0}</Text>
+        </Box>
+        <Box style={[s.Widget_item]}>
+          <Ionicons name="server" color="white" size={iconSize} />
+          <Text style={[s.generic_text_lg]}>{0}</Text>
+        </Box>
+      </VStack>
+
+      <VStack
+        style={{
+          gap: 10,
+          flexDirection: "row",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          alignContent: "flex-start",
+        }}
+      >
+        {!boardingHousesLoading &&
+          !boardingHousesError &&
+          (!boardingHouses || boardingHouses.length === 0) && (
+            <Text style={{ color: "white", fontSize: Fontsize.xl }}>
+              No boarding houses registered yet.
+            </Text>
           )}
-        </VStack>
-      </Container>
+        {boardingHouses && (
+          <>
+            <Lists
+              list={boardingHouses}
+              containerStyle={[
+                {
+                  gap: Spacing.lg,
+                },
+              ]}
+              renderItem={({ item }) => (
+                <>
+                  <PropertyCard data={item}>
+                    <Pressable
+                      onPress={() => handleGotoPress(item.id)}
+                      style={{
+                        paddingTop: Spacing.xs,
+                        paddingBottom: Spacing.xs,
+                        paddingLeft: Spacing.sm,
+                        paddingRight: Spacing.sm,
+                        borderWidth: 2,
+                        borderColor: Colors.PrimaryLight[5],
+                        borderRadius: BorderRadius.md,
+                        backgroundColor: Colors.PrimaryLight[6],
+                        
+                      }}
+                    >
+                      <Text style={{ color: "white" }}>Details</Text>
+                    </Pressable>
+                  </PropertyCard>
+                </>
+              )}
+            />
+          </>
+        )}
+      </VStack>
     </StaticScreenWrapper>
   );
 }
 
 const s = StyleSheet.create({
   StaticScreenWrapper: {
-    padding: 10,
+    padding: Spacing.md,
+  },
+  GlobalsContentContainer: {
+    gap: Spacing.lg,
   },
   Hero: {},
   Hero_text1: {
@@ -206,10 +216,11 @@ const s = StyleSheet.create({
   Widget: {
     // borderColor: 'red',
     // borderWidth: 3
-    gap: Spacing.md,
+    gap: 0,
+    // gap: Spacing.none,
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignContent: "center",
   },
   Widget_item: {
@@ -219,7 +230,7 @@ const s = StyleSheet.create({
     gap: 10,
     alignItems: "center",
     padding: 20,
-    width: "20%",
+    width: "auto",
     backgroundColor: Colors.PrimaryLight[9],
   },
 

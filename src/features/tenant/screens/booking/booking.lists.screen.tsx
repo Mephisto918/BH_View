@@ -73,20 +73,9 @@ export default function BookingListsScreen() {
   useEffect(() => {
     const query = (debouncedQuery || "").toLowerCase();
 
-    const filtered = allBoardingHouses
-      .filter(
-        (bh) =>
-          bh.id != null &&
-          bh.name != null &&
-          bh.name.toLowerCase().includes(query)
-      )
-      .map((bh) => ({
-        id: bh.id!, // non-null assertion
-        name: bh.name!,
-        thumbnail: bh.thumbnail,
-        address: bh.address,
-        capacity: bh.capacity,
-      }));
+    const filtered = allBoardingHouses.filter((bh) =>
+      bh.name?.toLowerCase().includes(query)
+    );
 
     dispatch(setResults(filtered));
   }, [debouncedQuery, allBoardingHouses, dispatch]);

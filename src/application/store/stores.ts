@@ -12,6 +12,7 @@ import { tenantApi } from "@/infrastructure/tenants/tenant.redux.api";
 import { roomApi } from "@/infrastructure/room/rooms.redux.api";
 import genericSearchBarSlice from "../../infrastructure/redux-utils/genericSearchBar.slice";
 import { bookingApi } from "@/infrastructure/booking/booking.redux.api";
+import { verificationDocumentsApi } from "@/infrastructure/valid-docs/verification-document/verification-document.redux.api";
 
 export const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const store = configureStore({
     [boardingHouseApi.reducerPath]: boardingHouseApi.reducer,
     [roomApi.reducerPath]: roomApi.reducer,
     [bookingApi.reducerPath]: bookingApi.reducer,
+    [verificationDocumentsApi.reducerPath]: verificationDocumentsApi.reducer,
     genericSearch: genericSearchBarSlice,
   },
   middleware: (getDefaultMiddleware) =>
@@ -38,7 +40,8 @@ export const store = configureStore({
       .concat(ownerApi.middleware)
       .concat(boardingHouseApi.middleware)
       .concat(roomApi.middleware)
-      .concat(bookingApi.middleware),
+      .concat(bookingApi.middleware)
+      .concat(verificationDocumentsApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

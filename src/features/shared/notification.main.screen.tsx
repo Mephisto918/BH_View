@@ -12,6 +12,7 @@ import {
 } from "@/constants";
 import { VStack } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
+import ScreenHeaderComponent from "@/components/layout/ScreenHeaderComponent";
 
 export default function NotificationMainScreen() {
   return (
@@ -19,6 +20,8 @@ export default function NotificationMainScreen() {
       style={[GlobalStyle.GlobalsContainer, s.StaticScreenWrapper]}
       contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
+      <ScreenHeaderComponent text={{ textValue: "Notifications" }} />
+
       <VStack
         style={{
           // justifyContent: "center",
@@ -41,7 +44,9 @@ export default function NotificationMainScreen() {
           </Box>
           <Box style={[s.Widget_item]}>
             <Ionicons name="alarm-outline" color="white" size={25} />
-            <Text style={[s.generic_text_lg]}>Upcoming Payment Notification</Text>
+            <Text style={[s.generic_text_lg]}>
+              Upcoming Payment Notification
+            </Text>
           </Box>
           <Box style={[s.Widget_item]}>
             <Ionicons name="cog-outline" color="white" size={25} />
@@ -56,7 +61,7 @@ export default function NotificationMainScreen() {
 const s = StyleSheet.create({
   StaticScreenWrapper: {
     // backgroundColor: Colors.PrimaryLight[8],
-    padding: 10,
+    padding: Spacing.md,
   },
   Hero: {
     // borderColor: "red",

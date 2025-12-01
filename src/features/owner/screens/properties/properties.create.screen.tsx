@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
 import {
   Box,
+  Button,
   FormControl,
   Image,
   Input,
@@ -28,6 +29,7 @@ import {
   CreateBoardingHouseInput,
   CreateBoardingHouseInputSchema,
   CreateBoardingHouseSchema,
+  OccupancyType,
 } from "@/infrastructure/boarding-houses/boarding-house.schema";
 
 import {
@@ -40,21 +42,22 @@ import { usePropertyNavigation } from "./navigation/properties.navigation.hooks"
 import PropertiesRoomCreate from "./components/properties.room.create";
 import { ScrollView } from "react-native-gesture-handler";
 
-import {
-  expoStorageCleaner,
-  pickImageExpo,
-} from "@/infrastructure/image/image.service";
+import { pickImageExpo } from "@/infrastructure/image/image.service";
+import { expoStorageCleaner } from "@/infrastructure/utils/expo-utils/expo-utils.service";
 import { Ionicons } from "@expo/vector-icons";
 import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
+import BottomSheetSelector from "@/components/ui/BottomSheet/BottomSheetSelector";
 
 export default function PropertiesCreateScreen() {
   useEffect(() => {
     return () => {
-      expoStorageCleaner();
+      expoStorageCleaner(["images", "documents"]);
     };
   }, []);
 
   const propertyNavigation = usePropertyNavigation();
+
+  const [isActionSheetOpen, setIsActionSheetOpen] = React.useState(false);
 
   const { selectedUser: data } = useDynamicUserApi();
   const user = data;
@@ -70,6 +73,7 @@ export default function PropertiesCreateScreen() {
     description: "",
     ownerId: user?.id ?? 0,
     availabilityStatus: true,
+    occupancyType: OccupancyType.MIXED,
     amenities: [],
     thumbnail: [],
     gallery: [],
@@ -352,6 +356,46 @@ export default function PropertiesCreateScreen() {
             />
           </FormControl>
         </VStack>
+        {/* Occupancy Type */}
+        <VStack>
+          <FormControl isInvalid={!!errors.occupancyType}>
+            <FormControl.Label>
+              <Text style={[s.Form_SubLabel]}>OccupancyType Type</Text>
+            </FormControl.Label>
+
+            <Controller
+              control={control}
+              name="occupancyType"
+              rules={{ required: "BH Occupancy Type is required" }}
+              render={({ field: { onChange, value } }) => (
+                <View style={{ marginBottom: 10 }}>
+                  <Button onPress={() => setIsActionSheetOpen(true)}>
+                    <Text>{value || "Select Room Type"}</Text>
+                  </Button>
+
+                  {errors?.occupancyType && (
+                    <Text style={{ color: "red", marginTop: 4 }}>
+                      {errors.occupancyType.message}
+                    </Text>
+                  )}
+
+                  {value && (
+                    <Text
+                      style={{
+                        color: Colors.TextInverse[2],
+                        fontSize: Fontsize.md,
+                        marginTop: 6,
+                        textAlign: "center",
+                      }}
+                    >
+                      Selected: {value}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+          </FormControl>
+        </VStack>
 
         {/* image selection */}
         <VStack>
@@ -597,6 +641,15 @@ export default function PropertiesCreateScreen() {
             </Pressable>
           </FormControl>
         </View>
+        <BottomSheetSelector<OccupancyType>
+          values={Object.values(OccupancyType)}
+          isOpen={isActionSheetOpen}
+          onClose={() => setIsActionSheetOpen(false)}
+          onSelect={(value) => {
+            setValue("occupancyType", value);
+            setIsActionSheetOpen(false);
+          }}
+        />
       </VStack>
     </StaticScreenWrapper>
   );

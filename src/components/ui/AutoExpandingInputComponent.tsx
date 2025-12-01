@@ -35,7 +35,8 @@ export default function AutoExpandingInput({
       keyboardShouldPersistTaps="handled"
     >
       <TextInput
-        value={value}
+        defaultValue={value}
+        // value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         multiline

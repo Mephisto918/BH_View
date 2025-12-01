@@ -124,7 +124,7 @@ export default function MapMainScreen() {
               source={
                 sheetData?.thumbnail?.[0]?.url
                   ? { uri: sheetData.thumbnail[0].url }
-                  : require("../../../assets/housesSample/1.jpg")
+                  : require("@/assets/static/no-image.jpg")
               }
               style={{
                 // borderColor: "red",

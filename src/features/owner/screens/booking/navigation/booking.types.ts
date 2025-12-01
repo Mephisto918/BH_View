@@ -7,7 +7,7 @@ export type OwnerBookingStackParamList = {
     bhId: number | null;
     [key: string]: any; // allow extra params if needed
   };
-  PropertiesListScreen: undefined;
+  PropertiesBookingMainScreen: undefined;
 };
 
 export const OwnerBookingStackParamListArrayName = [

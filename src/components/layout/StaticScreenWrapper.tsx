@@ -1,5 +1,12 @@
 import React from "react";
-import { StyleSheet, StyleProp, ViewStyle, View } from "react-native";
+import {
+  StyleSheet,
+  StyleProp,
+  ViewStyle,
+  View,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 interface Props {
@@ -11,9 +18,13 @@ interface Props {
   showsVerticalScrollIndicator?: boolean;
   keyboardShouldPersistTaps?: "handled" | "always" | "never";
   wrapInScrollView?: boolean;
+
+  // NEW
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }
 
-const StaticScreenWrapper = ({
+export default function StaticScreenWrapper({
   children,
   style,
   bottomOffset = 0,
@@ -22,31 +33,52 @@ const StaticScreenWrapper = ({
   showsVerticalScrollIndicator = true,
   contentContainerStyle,
   wrapInScrollView = true,
-}: Props) => {
-  return (
-    <>
-      {wrapInScrollView ? (
-        <KeyboardAwareScrollView
-          style={[styles.container, style]}
-          contentContainerStyle={contentContainerStyle}
-          scrollEnabled={scrollEnabled}
-          showsVerticalScrollIndicator={showsVerticalScrollIndicator}
-          keyboardShouldPersistTaps={keyboardShouldPersistTaps}
-          extraHeight={bottomOffset}
-        >
-          {children}
-        </KeyboardAwareScrollView>
-      ) : (
-        <View style={[styles.container, style]}>{children}</View>
-      )}
-    </>
+
+  refreshing = false,
+  onRefresh,
+}: Props) {
+  const shouldUseNormalScroll = !!onRefresh; // if refresh enabled → use ScrollView
+
+  if (!wrapInScrollView) {
+    return <View style={[styles.container, style]}>{children}</View>;
+  }
+
+  return shouldUseNormalScroll ? (
+    // -------------------------------------------
+    // NORMAL SCROLLVIEW (supports refreshControl)
+    // -------------------------------------------
+    <ScrollView
+      style={[styles.container, style]}
+      contentContainerStyle={contentContainerStyle}
+      scrollEnabled={scrollEnabled}
+      showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+      refreshControl={
+        onRefresh ? (
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        ) : undefined
+      }
+    >
+      {children}
+    </ScrollView>
+  ) : (
+    // -------------------------------------------
+    // KEYBOARD-AWARE SCROLLVIEW (no refresh)
+    // -------------------------------------------
+    <KeyboardAwareScrollView
+      style={[styles.container, style]}
+      contentContainerStyle={contentContainerStyle}
+      scrollEnabled={scrollEnabled}
+      showsVerticalScrollIndicator={showsVerticalScrollIndicator}
+      keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+      extraHeight={bottomOffset}
+    >
+      {children}
+    </KeyboardAwareScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
 });
-
-export default StaticScreenWrapper;

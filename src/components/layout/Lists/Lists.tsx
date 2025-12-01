@@ -42,6 +42,7 @@ export function Lists<T>({
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         ) : undefined
       }
+      scrollEnabled={false}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
       ListFooterComponent={ListFooterComponent ?? undefined}

@@ -37,7 +37,7 @@ import FullScreenLoaderAnimated from "@/components/ui/FullScreenLoaderAnimated";
 import {
   expoStorageCleaner,
   logExpoSystemDir,
-} from "@/infrastructure/image/image.service";
+} from "@/infrastructure/utils/expo-utils/expo-utils.service";
 
 export default function LoginMainScreen() {
   const rootNavigation =
@@ -67,13 +67,12 @@ export default function LoginMainScreen() {
       password: password.value,
     };
 
-    console.log("present files");
-    await logExpoSystemDir();
-
     // const packageLoad = {
-    //   username: "owner1",
-    //   password: "owner1",
+    //   username: "owner2",
+    //   password: "123456789",
     // };
+    await logExpoSystemDir(["images", "documents"]);
+    console.log("packageLoad: ", packageLoad);
     try {
       const { access_token, user } = await triggerLogin(packageLoad).unwrap();
       dispatch(

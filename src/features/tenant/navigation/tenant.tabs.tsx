@@ -6,13 +6,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { BottomNavBarStyleConfig } from "@/components/layout/BottomNavBarStyleConfig";
 import { CustomTabIcon } from "@/components/layout/BottomNavBarStyleIcon";
 
-import {
-  // BorderRadius,
-  // BorderWidth,
-  Colors,
-  // ShadowLight,
-  // Spacing,
-} from "@/constants/";
+import { Colors, GlobalStyle } from "@/constants/";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 import DashboardStack from "../screens/dashboard/navigation/dashboard.stack";
@@ -21,6 +15,7 @@ import MapStack from "@/features/shared/map/navigation/map.stack";
 import NotificationMainScreen from "@/features/shared/notification.main.screen";
 import MenuStack from "@/features/shared/menu/navigation/menu.stack";
 import { MenuStackParamListArrayName } from "@/features/shared/menu/navigation/menu.stack.types";
+import { GlobalBottomNavigationStyles } from "@/constants/GlobalStyle";
 
 const Tab = createBottomTabNavigator();
 
@@ -34,8 +29,10 @@ export default function TenantTabs() {
 
         return {
           tabBarStyle: {
-            backgroundColor: Colors.PrimaryLight[8],
-            height: 70,
+            backgroundColor:
+              GlobalBottomNavigationStyles.containerBackgroundColor,
+            borderColor: GlobalBottomNavigationStyles.containerBackgroundColor,
+            height: GlobalBottomNavigationStyles.containerIconHeight,
           },
           tabBarIcon: ({ focused, color }) => {
             const getIconName = (routeName: string, focused: boolean) => {
@@ -55,8 +52,6 @@ export default function TenantTabs() {
             return (
               <CustomTabIcon name={iconName} focused={focused} color={color} />
             );
-
-            // return <Ionicons name={iconName} size={35} color={color} />;
           },
           ...BottomNavBarStyleConfig,
         };
@@ -77,8 +72,9 @@ export default function TenantTabs() {
           return {
             tabBarStyle: {
               display: hideTabBarRoutes.includes(routeName) ? "none" : "flex",
-              backgroundColor: Colors.PrimaryLight[8],
-              height: 70,
+              backgroundColor:
+                GlobalBottomNavigationStyles.containerBackgroundColor,
+              height: GlobalBottomNavigationStyles.containerIconHeight,
             },
             ...BottomNavBarStyleConfig,
           };
@@ -87,10 +83,3 @@ export default function TenantTabs() {
     </Tab.Navigator>
   );
 }
-
-const s = StyleSheet.create({
-  main_container: {},
-  sceneStyle: {
-    // backgroundColor: 'green'
-  },
-});

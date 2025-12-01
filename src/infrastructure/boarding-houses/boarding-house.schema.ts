@@ -17,6 +17,28 @@ import {
 import { GetBookingSchema } from "../booking/booking.schema";
 import { PDFSchema } from "../valid-docs/pdf/pdf.schema";
 
+/* -----------------------------------------
+   ENUMS & BASE SCHEMAS
+------------------------------------------ */
+
+export enum OccupancyType {
+  MALE = "Male Only",
+  FEMALE = "Female Only",
+  MIXED = "Mixed",
+}
+
+export const OccupancyTypeLabels: Record<OccupancyType, string> = {
+  [OccupancyType.MALE]: "Male Only",
+  [OccupancyType.FEMALE]: "Female Only",
+  [OccupancyType.MIXED]: "Mixed",
+};
+
+export const OccupancyTypeEnumSchema = z.nativeEnum(OccupancyType);
+
+/* -----------------------------------------
+   ENUMS & BASE SCHEMAS
+------------------------------------------ */
+
 export const BaseBoardingHouseSchema = z.object({
   id: z.number(),
   ownerId: z.number(),
@@ -25,6 +47,7 @@ export const BaseBoardingHouseSchema = z.object({
   description: z.string(),
   price: z.number(),
   amenities: z.array(z.string()),
+  occupancyType: OccupancyTypeEnumSchema,
   availabilityStatus: z.boolean(),
   locationId: z.number(),
 
@@ -51,6 +74,7 @@ export const GetBoardingHouseSchema = z.object({
   address: z.string(),
   description: z.string().optional(),
   amenities: z.array(z.enum(AMENITIES)),
+  occupancyType: OccupancyTypeEnumSchema,
   availabilityStatus: z.boolean(),
   locationId: z.number().optional(),
   createdAt: z.string(),
@@ -84,6 +108,7 @@ export const QueryBoardingHouseSchema = z.object({
   updatedAt: z.string().optional(),
   isDeleted: z.boolean().optional(),
   deletedAt: z.string().optional(),
+  occupancyType: OccupancyTypeEnumSchema.optional(),
   location: GetLocationSchema.optional(),
   thumbnail: z.array(ImageUploadSchema).optional(),
   minPrice: z.number().optional(),
@@ -113,6 +138,7 @@ export const FindOneBoardingHouseSchema = z.object({
   address: z.string(),
   description: z.string().optional(),
   amenities: z.array(z.enum(AMENITIES)),
+  occupancyType: OccupancyTypeEnumSchema,
   availabilityStatus: z.boolean(),
   locationId: z.number().optional(),
   createdAt: z.string(),
@@ -139,6 +165,7 @@ export const CreateBoardingHouseInputSchema = z.object({
   address: z.string().min(1, "Address is required"),
   description: z.string().optional(),
   amenities: z.array(z.enum(AMENITIES)),
+  occupancyType: OccupancyTypeEnumSchema,
   availabilityStatus: z.boolean(),
   thumbnail: z.array(ImageUploadSchema).optional(),
   gallery: z.array(ImageUploadSchema).optional(),
@@ -171,6 +198,7 @@ export const PatchBoardingHouseSchema = z
 
     // Strict enum array
     amenities: z.array(z.enum(AMENITIES)).optional(),
+    occupancyType: OccupancyTypeEnumSchema,
 
     availabilityStatus: z.boolean().optional(),
 

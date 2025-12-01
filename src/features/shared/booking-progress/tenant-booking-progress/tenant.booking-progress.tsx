@@ -144,7 +144,6 @@ export default function TenantBookingProgress({
         lockedStateContent={
           <View
             style={{
-              // padding: 10,
               gap: 10,
             }}
           >
@@ -159,7 +158,7 @@ export default function TenantBookingProgress({
                   value={paymentMessage}
                   onChangeText={setPaymentMessage}
                   placeholder=""
-                  maxHeight={180} // optional, default 200
+                  maxHeight={180}
                 />
               </>
             )}

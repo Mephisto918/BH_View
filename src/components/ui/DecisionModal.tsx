@@ -1,5 +1,11 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  ViewProps,
+  ViewPropsIOS,
+  ViewStyle,
+} from "react-native";
 import {
   Alert,
   Box,
@@ -8,8 +14,10 @@ import {
   HStack,
   VStack,
   Heading,
+  View,
 } from "@gluestack-ui/themed";
 import { BorderRadius, Colors, Fontsize, Spacing } from "@/constants";
+import AutoExpandingInput from "./AutoExpandingInputComponent";
 
 type DecisionModalProps = {
   visible: boolean; // controls if modal shows
@@ -19,6 +27,8 @@ type DecisionModalProps = {
   onConfirm?: () => void;
   confirmText?: string;
   cancelText?: string;
+  children?: React.ReactNode;
+  containerStyle?: StyleProp<ViewStyle>;
 };
 
 export default function DecisionModal({
@@ -29,11 +39,13 @@ export default function DecisionModal({
   onConfirm,
   confirmText = "Confirm",
   cancelText = "Cancel",
+  children,
+  containerStyle,
 }: DecisionModalProps) {
   if (!visible) return null;
 
   return (
-    <Alert
+    <View
       style={{
         position: "absolute",
         top: 0,
@@ -45,15 +57,21 @@ export default function DecisionModal({
         backgroundColor: "rgba(0, 0, 0, 0.5)",
       }}
     >
-      <VStack
-        style={{
-          gap: Spacing.lg,
-          alignItems: "center",
-          width: "90%",
-          padding: Spacing.lg,
-          borderRadius: BorderRadius.md,
-          backgroundColor: Colors.PrimaryLight[7],
-        }}
+      <View
+        style={[
+          {
+            borderWidth: 5,
+            gap: Spacing.lg,
+            alignItems: "center",
+            width: "90%",
+            maxWidth: 400,
+            height: 400,
+            padding: Spacing.lg,
+            borderRadius: BorderRadius.md,
+            backgroundColor: Colors.PrimaryLight[7],
+          },
+          containerStyle,
+        ]}
       >
         <Heading>
           <Text style={[s.textColor, { fontSize: Fontsize.h1 }]}>{title}</Text>
@@ -61,6 +79,7 @@ export default function DecisionModal({
 
         <Box>
           <Text style={s.textColor}>{message}</Text>
+          <Box>{children}</Box>
         </Box>
 
         <HStack>
@@ -71,8 +90,8 @@ export default function DecisionModal({
             <Text style={s.textColor}>{confirmText}</Text>
           </Button>
         </HStack>
-      </VStack>
-    </Alert>
+      </View>
+    </View>
   );
 }
 

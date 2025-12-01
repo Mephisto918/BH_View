@@ -1,7 +1,7 @@
 import RNFetchBlob from "react-native-blob-util";
 import { CreatePaymentProofInput } from "./booking.schema";
 import api from "@/application/config/api";
-import { expoStorageCleaner } from "../image/image.service";
+import { expoStorageCleaner } from "../utils/expo-utils/expo-utils.service";
 
 export const uploadPaymentProof = async (
   id: number,
@@ -40,7 +40,7 @@ export const uploadPaymentProof = async (
     formData
   );
 
-  await expoStorageCleaner();
+  await expoStorageCleaner(["images", "documents"]);
 
   return res.json();
 };

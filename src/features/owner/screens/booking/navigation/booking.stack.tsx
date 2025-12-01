@@ -2,8 +2,8 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import PropertiesDetailsScreen from "../details/properties.details.screen";
-import PropertiesBookingListsScreen from "../properties.booking.lists.screen";
-import PropertiesListScreen from "../properties.lists.screen";
+import PropertiesBookingMainScreen from "../properties.booking.lists.screen";
+import PropertiesListScreen from "../properties.main.screen";
 import { backButtonConfig } from "@/constants/navigation/screenOptions";
 
 const Stack = createNativeStackNavigator();
@@ -27,8 +27,8 @@ export default function BookingStack() {
         options={backButtonConfig}
       />
       <Stack.Screen
-        name="PropertiesBookingListsScreen"
-        component={PropertiesBookingListsScreen}
+        name="PropertiesBookingMainScreen"
+        component={PropertiesBookingMainScreen}
         options={backButtonConfig}
       />
     </Stack.Navigator>

@@ -13,6 +13,7 @@ import { PortalProvider, PortalHost } from "@gorhom/portal";
 import { GlobalEditStateContextSwitcherButtonsProvider } from "@/components/ui/Portals/GlobalEditStateContextSwitcherButtonsProvider";
 
 import { LogBox } from "react-native";
+import GlobalDocumentFullScreenProvider from "@/components/ui/DocumentComponentUtilities/GlobalDocumentFullScreenProvider";
 
 export default function App() {
   // Initialize RevenueCat
@@ -29,7 +30,7 @@ export default function App() {
   //   }
   // }, []);
 
-  LogBox.ignoreAllLogs(true);
+  // LogBox.ignoreAllLogs(true);
 
   return (
     <PortalProvider>
@@ -38,11 +39,14 @@ export default function App() {
           <GluestackUIProvider config={config}>
             <GlobalDecisionModalProvider>
               <GlobalImageFullScreenProvider>
-                <GlobalEditStateContextSwitcherButtonsProvider>
-                  <RootNavigation />
-                  <PortalHost name="EditContextSwitchingPortal" />
-                  <PortalHost name="ImageFullScreenPortalRoot" />
-                </GlobalEditStateContextSwitcherButtonsProvider>
+                <GlobalDocumentFullScreenProvider>
+                  <GlobalEditStateContextSwitcherButtonsProvider>
+                    <RootNavigation />
+                    <PortalHost name="EditContextSwitchingPortal" />
+                    <PortalHost name="ImageFullScreenPortalRoot" />
+                    <PortalHost name="DocumentFullScreenPortalRoot" />
+                  </GlobalEditStateContextSwitcherButtonsProvider>
+                </GlobalDocumentFullScreenProvider>
               </GlobalImageFullScreenProvider>
             </GlobalDecisionModalProvider>
           </GluestackUIProvider>

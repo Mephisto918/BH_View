@@ -6,6 +6,7 @@ import {
   // BorderRadius,
   // BorderWidth,
   Colors,
+  GlobalStyle,
   // ShadowLight,
   // Spacing,
 } from "@/constants/";
@@ -18,10 +19,11 @@ import DashboardStack from "../screens/dashboard/navigation/dashboard.stack";
 import NotificationMainScreen from "@/features/shared/notification.main.screen";
 import MenuStack from "@/features/shared/menu/navigation/menu.stack";
 import { MenuStackParamListArrayName } from "@/features/shared/menu/navigation/menu.stack.types";
+import { GlobalBottomNavigationStyles } from "@/constants/GlobalStyle";
 
 const Tab = createBottomTabNavigator();
 
-const OwnerTabs = () => {
+export default function OwnerTabs() {
   return (
     <Tab.Navigator
       initialRouteName="Dashboard"
@@ -31,8 +33,10 @@ const OwnerTabs = () => {
 
         return {
           tabBarStyle: {
-            backgroundColor: Colors.PrimaryLight[8],
-            height: 70,
+            backgroundColor:
+              GlobalBottomNavigationStyles.containerBackgroundColor,
+            borderColor: GlobalBottomNavigationStyles.containerBackgroundColor,
+            height: GlobalBottomNavigationStyles.containerIconHeight,
           },
           tabBarIcon: ({ focused, color }) => {
             const getIconName = (routeName: string, focused: boolean) => {
@@ -72,8 +76,9 @@ const OwnerTabs = () => {
           return {
             tabBarStyle: {
               display: hideTabBarRoutes.includes(routeName) ? "none" : "flex",
-              backgroundColor: Colors.PrimaryLight[8],
-              height: 70,
+              backgroundColor:
+                GlobalBottomNavigationStyles.containerBackgroundColor,
+              height: GlobalBottomNavigationStyles.containerIconHeight,
             },
             ...BottomNavBarStyleConfig,
           };
@@ -81,6 +86,4 @@ const OwnerTabs = () => {
       />
     </Tab.Navigator>
   );
-};
-
-export default OwnerTabs;
+}

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import DecisionModal from "@/components/ui/DecisionModal";
+import { StyleProp, ViewStyle } from "react-native";
 
 type ModalOptions = {
   title?: string;
@@ -8,6 +9,8 @@ type ModalOptions = {
   cancelText?: string;
   onConfirm?: () => void;
   onCancel?: () => void;
+  children?: () => React.ReactNode;
+  containerStyle?: StyleProp<ViewStyle>;
 };
 
 type DecisionModalContextType = {
@@ -60,7 +63,10 @@ export const GlobalDecisionModalProvider = ({
         cancelText={options.cancelText}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
-      />
+        containerStyle={options.containerStyle}
+      >
+        {options.children?.()}
+      </DecisionModal>
     </DecisionModalContext.Provider>
   );
 };

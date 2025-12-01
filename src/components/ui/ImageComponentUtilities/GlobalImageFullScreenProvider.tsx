@@ -16,7 +16,6 @@ type ContextType = {
   imageUri: string | null;
 };
 
-// ← THIS IS YOUR Context
 const Context = createContext<ContextType>({
   showImageFullscreen: () => {},
   hideImageFullscreen: () => {},
@@ -36,7 +35,6 @@ export const GlobalImageFullScreenProvider = ({
 
   const showImageFullscreen = useCallback(
     (uri: string) => {
-      console.log("yawa", isVisible);
       if (isVisible) return;
       setIsVisible(true);
       setImageUri(uri);
@@ -58,7 +56,7 @@ export const GlobalImageFullScreenProvider = ({
       <Portal name="ImageFullScreenPortalRoot">
         //! Solved! debuuged 3 hours, the Modal Component inside this children
         //! collapses as it cant inferer to the Portal components height, needs
-        at //! least one component to define a container size
+        //! at least one component to define a container size
         {isVisible && (
           <View>
             <ImageFullScreenModal

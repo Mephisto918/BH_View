@@ -3,11 +3,18 @@ import React, { useEffect } from "react";
 import { logout } from "@/infrastructure/auth/auth.redux.slice";
 
 //
-import { Box, VStack, HStack, Avatar, Heading } from "@gluestack-ui/themed";
+import {
+  Box,
+  VStack,
+  HStack,
+  Avatar,
+  Heading,
+  View,
+} from "@gluestack-ui/themed";
 import { Button } from "@gluestack-ui/themed";
 import { Ionicons } from "@expo/vector-icons";
 import StaticScreenWrapper from "@/components/layout/StaticScreenWrapper";
-import { GlobalStyle, Colors } from "@/constants";
+import { GlobalStyle, Colors, Spacing } from "@/constants";
 
 // routing
 import { useNavigation } from "@react-navigation/native";
@@ -21,6 +28,7 @@ import { useIsFocused } from "@react-navigation/native";
 // redux
 import { useDispatch } from "react-redux";
 import { useDynamicUserApi } from "@/infrastructure/user/user.hooks";
+import ScreenHeaderComponent from "@/components/layout/ScreenHeaderComponent";
 
 type ToLoginScreen = NativeStackNavigationProp<RootStackParamList>;
 
@@ -56,108 +64,119 @@ export default function MenuMainScreen() {
 
   return (
     <StaticScreenWrapper
-      style={[GlobalStyle.GlobalsContainer]}
-      contentContainerStyle={[GlobalStyle.GlobalsContentContainer, s.container]}
+      style={[GlobalStyle.GlobalsContainer, s.GlobalsContainer]}
+      contentContainerStyle={[GlobalStyle.GlobalsContentContainer]}
     >
-      <VStack
-        style={{
-          // borderColor: 'green',
-          // borderWidth: 2,
-          width: "100%",
-        }}
-      >
+      <ScreenHeaderComponent text={{ textValue: "Settings" }} />
+      <View style={[s.container]}>
         <VStack
           style={{
-            // borderColor: 'orange',
+            // borderColor: 'green',
             // borderWidth: 2,
-            marginBottom: 50,
-            justifyContent: "center",
-            alignContent: "center",
+            width: "100%",
           }}
         >
-          <HStack
-            gap={20}
+          <VStack
             style={{
+              // borderColor: 'orange',
+              // borderWidth: 2,
+              marginBottom: 50,
               justifyContent: "center",
-              alignItems: "center",
-
-              marginBottom: 25,
+              alignContent: "center",
             }}
           >
-            <Avatar></Avatar>
-            <VStack gap={0}>
-              <HStack gap={10}>
-                <Heading size="xl" color={Colors.TextInverse[2]}>
-                  {userData?.firstname}
-                </Heading>
-                <Heading size="xl" color={Colors.TextInverse[2]}>
-                  {userData?.lastname}
-                </Heading>
-              </HStack>
-              <Box>
-                <Heading
-                  size="lg"
-                  color={Colors.TextInverse[2]}
-                  fontWeight="$light"
-                >
-                  @{userData?.username}
-                </Heading>
-              </Box>
-            </VStack>
-          </HStack>
-          <Button
-            style={{ alignSelf: "center", gap: 10 }}
-            onPress={() => navigationMenu.navigate("UserEdit")}
-          >
-            <Ionicons name="pencil-outline" size={24} color="black" />
-            <Text>Edit Profile</Text>
-          </Button>
-        </VStack>
+            <HStack
+              gap={20}
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
 
-        <VStack style={[s.buttons_Array]}>
-          <Button
-            // onPress={()=>navigationMenu.navigate('Settings')}
-            style={[s.buttons_Array_button]}
-          >
-            <Ionicons name="settings-outline" size={24} color="black" />
-            <Text>Settings</Text>
-          </Button>
-          <Button
-            style={[s.buttons_Array_button]}
-            onPress={() => navigationMenu.navigate("CustomerHelp")}
-          >
-            <Ionicons name="chatbox-ellipses-outline" size={24} color="black" />
-            <Text>Help</Text>
-          </Button>
-          <Button
-            style={[s.buttons_Array_button]}
-            onPress={() => navigationMenu.navigate("Accessibility")}
-          >
-            <Ionicons name="accessibility-outline" size={24} color="black" />
-            <Text>Accessibility</Text>
-          </Button>
-          {userData?.role == "ADMIN" && (
-            <Button
-              style={[s.buttons_Array_button]}
-              onPress={() => {
-                navigateRoot.navigate("Auth");
+                marginBottom: 25,
               }}
             >
-              <Ionicons name="receipt-outline" size={24} color="black" />
-              <Text>Logs</Text>
+              <Avatar></Avatar>
+              <VStack gap={0}>
+                <HStack gap={10}>
+                  <Heading size="xl" color={Colors.TextInverse[2]}>
+                    {userData?.firstname}
+                  </Heading>
+                  <Heading size="xl" color={Colors.TextInverse[2]}>
+                    {userData?.lastname}
+                  </Heading>
+                </HStack>
+                <Box>
+                  <Heading
+                    size="lg"
+                    color={Colors.TextInverse[2]}
+                    fontWeight="$light"
+                  >
+                    @{userData?.username}
+                  </Heading>
+                </Box>
+              </VStack>
+            </HStack>
+            <Button
+              style={{ alignSelf: "center", gap: 10 }}
+              onPress={() => navigationMenu.navigate("UserEdit")}
+            >
+              <Ionicons name="pencil-outline" size={24} color="black" />
+              <Text>Edit Profile</Text>
             </Button>
-          )}
-          <Button style={[s.buttons_Array_button]} onPress={logOutOnPress}>
-            <Ionicons name="exit-outline" size={24} color="black" />
-            <Text>Logout</Text>
-          </Button>
+          </VStack>
+
+          <VStack style={[s.buttons_Array]}>
+            <Button
+              // onPress={()=>navigationMenu.navigate('Settings')}
+              style={[s.buttons_Array_button]}
+            >
+              <Ionicons name="settings-outline" size={24} color="black" />
+              <Text>Settings</Text>
+            </Button>
+            <Button
+              style={[s.buttons_Array_button]}
+              onPress={() => navigationMenu.navigate("CustomerHelp")}
+            >
+              <Ionicons
+                name="chatbox-ellipses-outline"
+                size={24}
+                color="black"
+              />
+              <Text>Help</Text>
+            </Button>
+            <Button
+              style={[s.buttons_Array_button]}
+              onPress={() => navigationMenu.navigate("Accessibility")}
+            >
+              <Ionicons name="accessibility-outline" size={24} color="black" />
+              <Text>Accessibility</Text>
+            </Button>
+            {userData?.role == "ADMIN" && (
+              <Button
+                style={[s.buttons_Array_button]}
+                onPress={() => {
+                  navigateRoot.navigate("Auth");
+                }}
+              >
+                <Ionicons name="receipt-outline" size={24} color="black" />
+                <Text>Logs</Text>
+              </Button>
+            )}
+            <Button style={[s.buttons_Array_button]} onPress={logOutOnPress}>
+              <Ionicons name="exit-outline" size={24} color="black" />
+              <Text>Logout</Text>
+            </Button>
+          </VStack>
         </VStack>
-      </VStack>
+      </View>
     </StaticScreenWrapper>
   );
 }
 
 const s = StyleSheet.create({
+  GlobalsContainer: {
+    padding: Spacing.md,
+  },
+
   container: {
     // borderColor: 'red',
     // borderWidth: 2,

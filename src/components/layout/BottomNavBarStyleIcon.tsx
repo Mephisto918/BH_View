@@ -1,7 +1,8 @@
-import React  from "react";
+import React from "react";
 import { View } from "@gluestack-ui/themed";
 import { Colors, Spacing, BorderWidth, BorderRadius } from "../../constants";
-import { Ionicons, } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { GlobalBottomNavigationStyles } from "@/constants/GlobalStyle";
 
 export const CustomTabIcon = ({
   name,
@@ -15,20 +16,27 @@ export const CustomTabIcon = ({
   return (
     <View
       style={{
-        borderWidth: BorderWidth.xs,
-        borderColor: focused ? Colors.PrimaryLight[2] : Colors.PrimaryLight[5],
-        backgroundColor: Colors.PrimaryLight[8],
-        // backgroundColor: "red",
+        borderWidth: GlobalBottomNavigationStyles.iconBorderWidth,
+        borderColor: focused
+          ? GlobalBottomNavigationStyles.iconColorFocused
+          : GlobalBottomNavigationStyles.iconColorNotFucused,
+        backgroundColor: GlobalBottomNavigationStyles.iconBackgroundColor,
         aspectRatio: 1 / 1,
-        height: 50,
+        height: GlobalBottomNavigationStyles.iconHeight,
         padding: Spacing.xs,
         borderRadius: BorderRadius.lg,
         justifyContent: "center",
         alignItems: "center",
-        marginTop: focused ? -10 : 0,
+        marginTop: focused
+          ? GlobalBottomNavigationStyles.iconLiftHeightWhenFocused
+          : GlobalBottomNavigationStyles.iconLiftHeightWhenNotFocused,
       }}
     >
-      <Ionicons name={name} size={35} color={color} />
+      <Ionicons
+        name={name}
+        size={GlobalBottomNavigationStyles.iconSize}
+        color={color}
+      />
     </View>
   );
 };

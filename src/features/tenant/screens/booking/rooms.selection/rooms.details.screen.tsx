@@ -23,6 +23,7 @@ import {
 } from "../navigation/booking.types";
 import FullScreenErrorModal from "@/components/ui/FullScreenErrorModal";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import Container from "@/components/layout/Container/Container";
 
 type RoomsDetailsScreenProps = NativeStackScreenProps<
   TenantBookingStackParamList,
@@ -67,66 +68,71 @@ export default function RoomsDetailsScreen({
     >
       {isRoomDataLoading && <FullScreenLoaderAnimated />}
       {isRoomDataError && <FullScreenErrorModal />}
-      {roomData && (
-        <VStack>
-          <Box>
-            <Text style={[s.textColor, { fontSize: Fontsize.display1 }]}>
-              {roomData.roomNumber}
-            </Text>
-          </Box>
-          <Box>
-            <Image
-              source={
-                roomData?.thumbnail?.[0]?.url
-                  ? { uri: roomData.thumbnail[0].url }
-                  : require("@/assets/housesSample/1.jpg")
-              }
-              style={{
-                margin: "auto",
-                width: "98%",
-                height: 200,
-                borderRadius: BorderRadius.md,
-              }}
-            />
-          </Box>
-          <ImageCarousel images={roomData.gallery ?? []}></ImageCarousel>
-          <Box>
+      <Container>
+        {roomData && (
+          <VStack>
             <Box>
-              <Text style={[s.textColor]}>{roomData.price}</Text>
+              <Text style={[s.textColor, { fontSize: Fontsize.display1 }]}>
+                {roomData.roomNumber}
+              </Text>
             </Box>
-            <Button onPress={() => gotoBooking(roomData.id)}>
-              <Text style={[s.textColor]}>Book Now</Text>
-            </Button>
-          </Box>
-          <Box>
-            <ScrollView
-              style={{ height: 150 }}
-              contentContainerStyle={{
-                flexDirection: "row",
-                flexWrap: "wrap",
-                gap: 10,
-                justifyContent: "flex-start",
-                alignContent: "flex-start",
-              }}
-              nestedScrollEnabled={true} // important when inside another scrollable parent
-              keyboardShouldPersistTaps="handled" // helps with form fields
-            >
-              {(roomData.tags ?? []).map((item, index) => (
-                <Box
-                  key={index}
-                  style={{
-                    borderRadius: BorderRadius.md,
-                    padding: 5,
-                    backgroundColor: Colors.PrimaryLight[6],
-                  }}
-                >
-                  <Text style={[s.generic_text, s.textColor]}>{item}</Text>
-                </Box>
-              ))}
-            </ScrollView>
-          </Box>
-        </VStack>
-      )}
+            <Box>
+              <Image
+                source={
+                  roomData?.thumbnail?.[0]?.url
+                    ? { uri: roomData.thumbnail[0].url }
+                    : require("@/assets/static/no-image.jpg")
+                }
+                style={{
+                  margin: "auto",
+                  width: "98%",
+                  height: 200,
+                  borderRadius: BorderRadius.md,
+                }}
+              />
+            </Box>
+            <ImageCarousel
+              images={roomData.gallery ?? []}
+              variant="secondary"
+            ></ImageCarousel>
+            <Box>
+              <Box>
+                <Text style={[s.textColor]}>{roomData.price}</Text>
+              </Box>
+              <Button onPress={() => gotoBooking(roomData.id)}>
+                <Text style={[s.textColor]}>Book Now</Text>
+              </Button>
+            </Box>
+            <Box>
+              <ScrollView
+                style={{ height: 150 }}
+                contentContainerStyle={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  gap: 10,
+                  justifyContent: "flex-start",
+                  alignContent: "flex-start",
+                }}
+                nestedScrollEnabled={true} // important when inside another scrollable parent
+                keyboardShouldPersistTaps="handled" // helps with form fields
+              >
+                {(roomData.tags ?? []).map((item, index) => (
+                  <Box
+                    key={index}
+                    style={{
+                      borderRadius: BorderRadius.md,
+                      padding: 5,
+                      backgroundColor: Colors.PrimaryLight[6],
+                    }}
+                  >
+                    <Text style={[s.generic_text, s.textColor]}>{item}</Text>
+                  </Box>
+                ))}
+              </ScrollView>
+            </Box>
+          </VStack>
+        )}
+      </Container>
     </StaticScreenWrapper>
   );
 }

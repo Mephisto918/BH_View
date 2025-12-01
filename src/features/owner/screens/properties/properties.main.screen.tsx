@@ -70,8 +70,7 @@ export default function PropertiesMainScreen() {
 
 const s = StyleSheet.create({
   StaticScreenWrapper: {
-    // backgroundColor: Colors.PrimaryLight[8],
-    padding: 10,
+    padding: Spacing.md,
   },
   Hero: {
     flexDirection: "row",

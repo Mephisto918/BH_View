@@ -35,7 +35,4 @@ export const ROOM_FEATURE_TAGS = [
   "PetsNotAllowed",
 ] as const;
 
-export const ROOM_TYPES = ["SOLO", "DUO", "TRIO", "SQUAD", "FAMILY"] as const;
-
 export type RoomFeatureTag = (typeof ROOM_FEATURE_TAGS)[number];
-export type RoomType = (typeof ROOM_TYPES)[number];

@@ -13,6 +13,8 @@ export const BaseUserSchema = z.object({
   lastname: z.string().optional(),
   email: z.string().email().optional(),
   role: UserRoleSchema.optional(),
+  hasAcceptedLegitimacyConsent: z.boolean().optional(),
+  consentAcceptedAt: z.string().datetime({ offset: true }).optional(),
   isActive: z.boolean().optional(),
   isVerified: z.boolean().optional(),
   createdAt: z.string().datetime({ offset: true }).optional(),
